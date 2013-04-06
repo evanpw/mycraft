@@ -82,16 +82,31 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
 // The screen ranges from -1 to 1 in the x- and y-coordinates
 const GLfloat vertices[] =
 {
-   -1.0f, -1.0f, 0.0f,
-    1.0f, -1.0f, 0.0f,
-   -1.0f,  1.0f, 0.0f,
-    1.0f,  1.0f, 0.0f,
+	1.0f,  1.0f,  1.0f,
+    1.0f,  1.0f, -1.0f,
+    1.0f, -1.0f,  1.0f,
+    1.0f, -1.0f, -1.0f,
+   -1.0f,  1.0f,  1.0f,
+   -1.0f,  1.0f, -1.0f,
+   -1.0f, -1.0f,  1.0f,
+   -1.0f, -1.0f, -1.0f,
 };
 
 // The array of vertex indices making up the elements
-const GLubyte elements[] =
+const GLubyte elements[][3] =
 {
-	0, 1, 2, 3
+    {7, 6, 4},
+    {1, 7, 5},
+    {2, 7, 3},
+    {1, 3, 7},
+    {7, 4, 5},
+    {2, 6, 7},
+    {4, 6, 2},
+    {0, 3, 1},
+    {3, 0, 2},
+    {0, 1, 5},
+    {0, 5, 4},
+    {0, 4, 2},
 };
 
 
@@ -185,8 +200,8 @@ void render()
 	// Draw the rectangle
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 	glDrawElements(
-	    GL_TRIANGLE_STRIP,  // mode
-	    4,                  // count
+	    GL_TRIANGLES,  		// mode
+	    3 * 12,             // count
 	    GL_UNSIGNED_BYTE,   // type
 	    nullptr             // element array buffer offset
 	);
