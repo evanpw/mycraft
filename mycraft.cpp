@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <GL/glew.h>
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
@@ -83,13 +84,13 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
 const GLfloat vertices[] =
 {
 	1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f, -1.0f,
-    1.0f, -1.0f,  1.0f,
-    1.0f, -1.0f, -1.0f,
-   -1.0f,  1.0f,  1.0f,
-   -1.0f,  1.0f, -1.0f,
-   -1.0f, -1.0f,  1.0f,
-   -1.0f, -1.0f, -1.0f,
+    1.0f,  1.0f,  0.0f,
+    1.0f,  0.0f,  1.0f,
+    1.0f,  0.0f,  0.0f,
+    0.0f,  1.0f,  1.0f,
+    0.0f,  1.0f,  0.0f,
+    0.0f,  0.0f,  1.0f,
+    0.0f,  0.0f,  0.0f,
 };
 
 // The array of vertex indices making up the elements
@@ -116,8 +117,20 @@ const GLubyte elements[][3] =
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, mvpMatrix;
+GLint position, mvpMatrix, cubeType;
 GLuint programId;
+
+struct Cube
+{
+	Cube(const glm::vec3& location, GLuint cubeType)
+	: location(location), cubeType(cubeType)
+	{}
+
+	glm::vec3 location;
+	GLuint cubeType;
+};
+
+std::vector<Cube> cubes;
 
 void initialize()
 {
@@ -144,11 +157,26 @@ void initialize()
 	// Get the attribute id of the input variable "position" to the vertex shader
 	position = glGetAttribLocation(programId, "position");
 
-	// Get the id for the uniform variable "mvpMatrix"
+	// Get ids for the uniform variables
 	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
+	cubeType = glGetUniformLocation(programId, "cubeType");
+
+	for (int x = -5; x <= 5; ++x)
+	{
+		for (int y = -5; y <= 5; ++y)
+		{
+			for (int z = -5; z <= 5; ++z)
+			{
+				if (rand() % 10 == 0)
+				{
+					cubes.push_back(Cube(glm::vec3(x, y, z), rand() % 2));
+				}
+			}
+		}
+	}
 }
 
-glm::mat4 buildMatrix()
+glm::mat4 buildMatrix(const glm::vec3& location)
 {
 	glm::mat4 projection = glm::perspective(
 		45.0f,		// Field of view
@@ -163,7 +191,7 @@ glm::mat4 buildMatrix()
 		glm::vec3(0, 1, 0)	// Camera up vector
 	);
 
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), location);
 
 	return projection * view * model;
 }
@@ -171,14 +199,6 @@ glm::mat4 buildMatrix()
 void render()
 {
 	glUseProgram(programId);
-
-	glm::mat4 mvp = buildMatrix();
-	glUniformMatrix4fv(
-		mvpMatrix,	// Id of this uniform variable
-		1,			// Number of matrices
-		GL_FALSE,	// Transpose
-		&mvp[0][0]	// The location of the data
-	);
 
 	// Bind vertexBuffer to GL_ARRAY_BUFFER
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -196,15 +216,29 @@ void render()
 
 	// Fill the screen with blue
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	 
-	// Draw the rectangle
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glDrawElements(
-	    GL_TRIANGLES,  		// mode
-	    3 * 12,             // count
-	    GL_UNSIGNED_BYTE,   // type
-	    nullptr             // element array buffer offset
-	);
+
+	for (auto i = cubes.begin(); i != cubes.end(); ++i)
+	{
+		glUniform1ui(cubeType, i->cubeType);
+
+		glm::mat4 mvp = buildMatrix(i->location);
+		glUniformMatrix4fv(
+			mvpMatrix,	// Id of this uniform variable
+			1,			// Number of matrices
+			GL_FALSE,	// Transpose
+			&mvp[0][0]	// The location of the data
+		);
+		 
+		// Draw a cube
+		glDrawElements(
+		    GL_TRIANGLES,  		// mode
+		    3 * 12,             // count
+		    GL_UNSIGNED_BYTE,   // type
+		    nullptr             // element array buffer offset
+		);
+	}
 	
 	glDisableVertexAttribArray(position);
 }
