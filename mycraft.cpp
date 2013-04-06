@@ -141,11 +141,6 @@ void initialize()
 
 	// Get the id for the uniform variable "mvpMatrix"
 	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
- 
-// Send our transformation to the currently bound shader,
-// in the "MVP" uniform
-// For each model you render, since the MVP will be different (at least the M part)
-
 }
 
 glm::mat4 buildMatrix()
@@ -223,6 +218,10 @@ int main()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	// Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	// Open a window and create its OpenGL context
 	if(!glfwOpenWindow(640, 480, 0, 0, 0, 0, 32, 0, GLFW_WINDOW))
