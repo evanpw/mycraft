@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 void readFile(const char* fileName, std::string& buffer)
 {
@@ -95,7 +96,7 @@ const GLubyte elements[] =
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position;
+GLint position, mvpMatrix;
 GLuint programId;
 
 void initialize()
@@ -122,6 +123,75 @@ void initialize()
 
 	// Get the attribute id of the input variable "position" to the vertex shader
 	position = glGetAttribLocation(programId, "position");
+
+	// Get the id for the uniform variable "mvpMatrix"
+	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
+ 
+// Send our transformation to the currently bound shader,
+// in the "MVP" uniform
+// For each model you render, since the MVP will be different (at least the M part)
+
+}
+
+glm::mat4 buildMatrix()
+{
+	glm::mat4 projection = glm::perspective(
+		45.0f,		// Field of view
+		4.0f / 3.0f, // Aspect ratio
+		0.1f,		// Near clipping plane
+		100.0f		// Far clipping plane
+	);
+
+	glm::mat4 view = glm::lookAt(
+		glm::vec3(4, 3, 3),	// Camera location in world coordinates
+		glm::vec3(0, 0, 0),	// Looking at the origin
+		glm::vec3(0, 1, 0)	// Camera up vector
+	);
+
+	glm::mat4 model = glm::mat4(1.0f);
+
+	return projection * view * model;
+}
+
+void render()
+{
+	glUseProgram(programId);
+
+	glm::mat4 mvp = buildMatrix();
+	glUniformMatrix4fv(
+		mvpMatrix,	// Id of this uniform variable
+		1,			// Number of matrices
+		GL_FALSE,	// Transpose
+		&mvp[0][0]	// The location of the data
+	);
+
+	// Bind vertexBuffer to GL_ARRAY_BUFFER
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	glVertexAttribPointer(
+		position,           // This is the id we got for the "position" input variable
+	   	3,                  // number of components
+	   	GL_FLOAT,           // type
+	   	GL_FALSE,           // normalize?
+	   	0,                  // stride (no empty space in array)
+	   	nullptr    		    // array buffer offset
+	);
+
+	glEnableVertexAttribArray(position);
+
+	// Fill the screen with blue
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	 
+	// Draw the rectangle
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	glDrawElements(
+	    GL_TRIANGLE_STRIP,  // mode
+	    4,                  // count
+	    GL_UNSIGNED_BYTE,   // type
+	    nullptr             // element array buffer offset
+	);
+	
+	glDisableVertexAttribArray(position);
 }
 
 int main()
@@ -169,36 +239,7 @@ int main()
 	while (glfwGetKey(GLFW_KEY_ESC) != GLFW_PRESS &&
 		   glfwGetWindowParam(GLFW_OPENED))
 	{
-		glUseProgram(programId);
-
-		// Bind vertexBuffer to GL_ARRAY_BUFFER
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-		glVertexAttribPointer(
-		   position,           // This is the id we got for the "position" input variable
-		   3,                  // number of components
-		   GL_FLOAT,           // type
-		   GL_FALSE,           // normalize?
-		   0,                  // stride (no empty space in array)
-		   nullptr    		   // array buffer offset
-		);
-
-		glEnableVertexAttribArray(position);
-
-		// Fill the screen with blue
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		 
-		// Draw the rectangle
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	    glDrawElements(
-	        GL_TRIANGLE_STRIP,  /* mode */
-	        4,                  /* count */
-	        GL_UNSIGNED_BYTE,   /* type */
-	        nullptr             /* element array buffer offset */
-	    );
-		 
-		// Disable drawing with the 0th vertex attribute array
-		glDisableVertexAttribArray(position);
+		render();
 
 		// Display on the screen
 		glfwSwapBuffers();
