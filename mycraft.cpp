@@ -76,16 +76,27 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
 	return programId;
 }
 
-// The three vertices of a triangle.
+// The array of vertices
 // x-coordinate is right, y-coordinate is up, and z-coordinate is out of the screen
 // The screen ranges from -1 to 1 in the x- and y-coordinates
-const GLfloat vertices[] = {
+const GLfloat vertices[] =
+{
    -1.0f, -1.0f, 0.0f,
-   1.0f, -1.0f, 0.0f,
-   0.0f,  1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+   -1.0f,  1.0f, 0.0f,
+    1.0f,  1.0f, 0.0f,
 };
 
-GLuint vertexBuffer;
+// The array of vertex indices making up the elements
+const GLubyte elements[] =
+{
+	0, 1, 2, 3
+};
+
+
+GLuint vertexBuffer, elementBuffer;
+GLint position;
+GLuint programId;
 
 void initialize()
 {
@@ -94,18 +105,23 @@ void initialize()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	// Create a vertex buffer and bind it to GL_ARRAY_BUFFER
+	// Create a vertex buffer and send the vertex data
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	 
-	// Send the vertex data to OpenGL and put it into the buffer
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Create an element buffer and send the element data
+	glGenBuffers(1, &elementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
 	// Load, compile, and link the shaders
 	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
 	GLuint fragmentShader = loadShader("fragment.glsl", GL_FRAGMENT_SHADER);
-	GLuint programId = linkShaders(vertexShader, fragmentShader);
-	glUseProgram(programId);
+	programId = linkShaders(vertexShader, fragmentShader);
+
+	// Get the attribute id of the input variable "position" to the vertex shader
+	position = glGetAttribLocation(programId, "position");
 }
 
 int main()
@@ -153,29 +169,36 @@ int main()
 	while (glfwGetKey(GLFW_KEY_ESC) != GLFW_PRESS &&
 		   glfwGetWindowParam(GLFW_OPENED))
 	{
-		// Enable drawing with the 0th vertex attribute array
-		glEnableVertexAttribArray(0);
+		glUseProgram(programId);
 
 		// Bind vertexBuffer to GL_ARRAY_BUFFER
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
 		glVertexAttribPointer(
-		   0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		   position,           // This is the id we got for the "position" input variable
 		   3,                  // number of components
 		   GL_FLOAT,           // type
 		   GL_FALSE,           // normalize?
 		   0,                  // stride (no empty space in array)
-		   (const GLvoid*)0    // array buffer offset
+		   nullptr    		   // array buffer offset
 		);
+
+		glEnableVertexAttribArray(position);
 
 		// Fill the screen with blue
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		 
-		// Draw the triangle; start at vertex 0 and use three vertices
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+		// Draw the rectangle
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	    glDrawElements(
+	        GL_TRIANGLE_STRIP,  /* mode */
+	        4,                  /* count */
+	        GL_UNSIGNED_BYTE,   /* type */
+	        nullptr             /* element array buffer offset */
+	    );
 		 
 		// Disable drawing with the 0th vertex attribute array
-		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(position);
 
 		// Display on the screen
 		glfwSwapBuffers();
