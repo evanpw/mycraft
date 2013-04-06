@@ -105,6 +105,7 @@ void initialize()
 	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
 	GLuint fragmentShader = loadShader("fragment.glsl", GL_FRAGMENT_SHADER);
 	programId = linkShaders(vertexShader, fragmentShader);
+	glUseProgram(programId);
 }
 
 int main()
@@ -170,7 +171,7 @@ int main()
 		// Fill the screen with blue
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(programId);
+		//glUseProgram(programId);
 		 
 		// Draw the triangle; start at vertex 0 and use three vertices
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
