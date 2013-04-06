@@ -95,18 +95,23 @@ const GLfloat vertices[] =
 // The array of vertex indices making up the elements
 const GLubyte elements[][3] =
 {
-    {7, 6, 4},
-    {1, 7, 5},
-    {2, 7, 3},
-    {1, 3, 7},
-    {7, 4, 5},
-    {2, 6, 7},
-    {4, 6, 2},
-    {0, 3, 1},
-    {3, 0, 2},
-    {0, 1, 5},
-    {0, 5, 4},
-    {0, 4, 2},
+	{1, 0, 2},
+	{2, 3, 1},
+
+	{0, 4, 6},
+	{6, 2, 0},
+
+	{7, 6, 4},
+	{4, 5, 7},
+
+	{1, 5, 7},
+	{7, 3, 1},
+
+	{7, 3, 2},
+	{2, 6, 7},
+
+	{1, 5, 4},
+	{4, 0, 1},
 };
 
 
@@ -219,10 +224,6 @@ int main()
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// Enable depth testing
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
 	// Open a window and create its OpenGL context
 	if(!glfwOpenWindow(640, 480, 0, 0, 0, 0, 32, 0, GLFW_WINDOW))
 	{
@@ -246,6 +247,9 @@ int main()
 
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	initialize();
 
