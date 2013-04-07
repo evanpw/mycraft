@@ -132,8 +132,19 @@ struct Cube
 
 std::vector<Cube> cubes;
 
+struct Camera
+{
+	Camera() : horizontalAngle(0), verticalAngle(0) {}
+	glm::vec3 eye;	// Camera location in world coordinates
+	float horizontalAngle, verticalAngle;
+};
+
+Camera camera;
+
 void initialize()
 {
+	camera.eye = glm::vec3(4, 3, 3);
+
 	// Create a vertex array object
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -185,11 +196,12 @@ glm::mat4 buildMatrix(const glm::vec3& location)
 		100.0f		// Far clipping plane
 	);
 
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(4, 3, 3),	// Camera location in world coordinates
-		glm::vec3(0, 0, 0),	// Looking at the origin
-		glm::vec3(0, 1, 0)	// Camera up vector
-	);
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 up = glm::mat3(rotation) * glm::vec3(0.0, 1.0f, 0.0f);
+
+	glm::mat4 view = glm::lookAt(camera.eye, camera.eye + gaze, up);
 
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), location);
 
@@ -278,6 +290,7 @@ int main()
 
 	// Ensure we can capture the escape key being pressed below
 	glfwEnable(GLFW_STICKY_KEYS);
+	glfwEnable(GLFW_STICKY_MOUSE_BUTTONS);
 
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
@@ -287,10 +300,42 @@ int main()
 
 	initialize();
 
+	int lastx, lasty;
+	glfwGetMousePos(&lastx, &lasty);
+
+	bool mouseCaptured = false;
+	glfwEnable(GLFW_MOUSE_CURSOR);
+
 	// Loop until the escape key is pressed or the window is closed
-	while (glfwGetKey(GLFW_KEY_ESC) != GLFW_PRESS &&
-		   glfwGetWindowParam(GLFW_OPENED))
+	while (glfwGetWindowParam(GLFW_OPENED))
 	{
+		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			mouseCaptured = true;
+			glfwDisable(GLFW_MOUSE_CURSOR);
+		}
+
+		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
+		{
+			mouseCaptured = false;
+			glfwEnable(GLFW_MOUSE_CURSOR);
+		}
+
+		int x, y;
+		glfwGetMousePos(&x, &y);
+
+		if (mouseCaptured)
+		{
+			camera.horizontalAngle -= (x - lastx);
+			camera.verticalAngle -= (y - lasty);
+
+			if (camera.verticalAngle < -90.0) camera.verticalAngle = -90.0;
+			if (camera.verticalAngle > 90.0) camera.verticalAngle = 90.0;
+		}
+
+		lastx = x;
+		lasty = y;
+
 		render();
 
 		// Display on the screen
