@@ -11,11 +11,11 @@ void main()
 {
 	if (cubeType == 0u)
 	{
-		color = vec3(0.0, 0.7, 0.0);
+		color = vec3(0.0, position.y, 0.0);
 	}
 	else if (cubeType == 1u)
 	{
-		color = vec3(0.7, 0.7, 0.7);
+		color = vec3(position.y, position.y, position.y);
 	}
 
 	gl_Position = mvpMatrix * vec4(position, 1.0);
