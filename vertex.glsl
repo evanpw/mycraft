@@ -24,5 +24,6 @@ void main()
 
 	//uv = vertexUv;
 	uv = position.xy;
+	if (position.z == 0.0) uv.x = (1 - uv.x);
 }
 
