@@ -290,6 +290,12 @@ struct Camera
 
 Camera camera;
 
+// Return a random number between 0 and 1
+double random()
+{
+	return static_cast<double>(rand()) / RAND_MAX;
+}
+
 void initialize()
 {
 	camera.eye = glm::vec3(4, 3, 3);
@@ -321,19 +327,77 @@ void initialize()
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
 	// Build the world
-	for (int x = -5; x <= 5; ++x)
+	double roughHeight[10][10];
+	for (int i = 0; i < 10; ++i)
 	{
-		for (int y = -5; y <= 5; ++y)
+		for (int j = 0; j < 10; ++j)
 		{
-			for (int z = -5; z <= 5; ++z)
+			roughHeight[i][j] = 1 + static_cast<int>(random() * 8);
+		}
+	}
+
+	// Smooth the mountains
+	double smoothHeight[10][10];
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			double total = roughHeight[i][j];
+			unsigned int samples = 1;
+
+			if (i > 0)
 			{
-				if (rand() % 10 == 0)
+				total += roughHeight[i - 1][j];
+				++samples;
+			}
+
+			if (i + 1 < 10)
+			{
+				total += roughHeight[i + 1][j];
+				++samples;
+			}
+
+			if (j > 0)
+			{
+				total += roughHeight[i][j - 1];
+				++samples;
+			}
+
+			if (j + 1 < 10)
+			{
+				total += roughHeight[i][j + 1];
+				++samples;
+			}
+
+			smoothHeight[i][j] = total / samples;
+		}
+	}
+
+
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			// Stone floor
+			int top = (int)(-10 + smoothHeight[i][j]);
+			for (int y = -10; y < top; ++y)
+			{
+				cubes.push_back(Cube(glm::vec3(i - 5, y, j - 5), STONE));
+			}
+
+			// Trees
+			if (rand() % 15 == 0)
+			{
+				int treeHeight = 4 + (rand() % 3);
+				for (int k = 0; k < treeHeight; ++k)
 				{
-					cubes.push_back(Cube(glm::vec3(x, y, z), (CubeType)(rand() % 2)));
+					cubes.push_back(Cube(glm::vec3(i - 5, top + k, j - 5), TREE));
 				}
 			}
 		}
 	}
+
+	//cubes.push_back(Cube(glm::vec3(x, y, z), (CubeType)(rand() % 2)));
 
 	// Load the texture
 	glGenTextures(BLOCK_TYPES, textures);
