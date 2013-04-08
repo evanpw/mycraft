@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -6,6 +7,123 @@
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "SOIL.h"
+
+// These two functions were lifted from https://github.com/jckarter/hello-gl/blob/master/util.c
+short le_short(unsigned char *bytes)
+{
+    return bytes[0] | ((char)bytes[1] << 8);
+}
+
+void* readTarga(const char* filename, int* width, int* height)
+{
+    struct tga_header {
+       char  id_length;
+       char  color_map_type;
+       char  data_type_code;
+       unsigned char  color_map_origin[2];
+       unsigned char  color_map_length[2];
+       char  color_map_depth;
+       unsigned char  x_origin[2];
+       unsigned char  y_origin[2];
+       unsigned char  width[2];
+       unsigned char  height[2];
+       char  bits_per_pixel;
+       char  image_descriptor;
+    } header;
+    int i, color_map_size, pixels_size;
+    FILE *f;
+    size_t read;
+    void *pixels;
+
+    f = fopen(filename, "rb");
+
+    if (!f) {
+        fprintf(stderr, "Unable to open %s for reading\n", filename);
+        return NULL;
+    }
+
+    read = fread(&header, 1, sizeof(header), f);
+
+    if (read != sizeof(header)) {
+        fprintf(stderr, "%s has incomplete tga header\n", filename);
+        fclose(f);
+        return NULL;
+    }
+    if (header.data_type_code != 2) {
+        fprintf(stderr, "%s is not an uncompressed RGB tga file\n", filename);
+        fclose(f);
+        return NULL;
+    }
+    if (header.bits_per_pixel != 24) {
+        fprintf(stderr, "%s is not a 24-bit uncompressed RGB tga file\n", filename);
+        fclose(f);
+        return NULL;
+    }
+
+    for (i = 0; i < header.id_length; ++i)
+        if (getc(f) == EOF) {
+            fprintf(stderr, "%s has incomplete id string\n", filename);
+            fclose(f);
+            return NULL;
+        }
+
+    color_map_size = le_short(header.color_map_length) * (header.color_map_depth/8);
+    for (i = 0; i < color_map_size; ++i)
+        if (getc(f) == EOF) {
+            fprintf(stderr, "%s has incomplete color map\n", filename);
+            fclose(f);
+            return NULL;
+        }
+
+    *width = le_short(header.width); *height = le_short(header.height);
+    pixels_size = *width * *height * (header.bits_per_pixel/8);
+    pixels = malloc(pixels_size);
+
+    read = fread(pixels, 1, pixels_size, f);
+    fclose(f);
+
+    if (read != pixels_size) {
+        fprintf(stderr, "%s has incomplete image\n", filename);
+        free(pixels);
+        return NULL;
+    }
+
+    return pixels;
+}
+
+GLuint makeTexture(const char* filename)
+{
+    GLuint texture;
+    int width, height;
+    void* pixels = readTarga(filename, &width, &height);
+
+    if (pixels == 0)
+    {
+    	std::cerr << "Problem loading texture " << filename << std::endl;
+    	return 0;
+    }
+    
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,				// Target
+        0,           				// Level of detail
+        GL_RGB8,                    // Internal format
+        width, height, 0,           // Width, Height, and Border
+        GL_BGR, GL_UNSIGNED_BYTE,   // External format, type
+        pixels                      // Pixel data
+    );
+
+    free(pixels);
+    return texture;
+}
 
 void readFile(const char* fileName, std::string& buffer)
 {
@@ -117,8 +235,8 @@ const GLubyte elements[][3] =
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, mvpMatrix, cubeType;
-GLuint programId;
+GLint position, mvpMatrix, cubeType, vertexUv, textureSampler;
+GLuint programId, textureId;
 
 struct Cube
 {
@@ -171,7 +289,10 @@ void initialize()
 	// Get ids for the uniform variables
 	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
 	cubeType = glGetUniformLocation(programId, "cubeType");
+	//vertexUv = glGetUniformLocation(programId, "vertexUv");
+	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
+	// Build the world
 	for (int x = -5; x <= 5; ++x)
 	{
 		for (int y = -5; y <= 5; ++y)
@@ -185,6 +306,9 @@ void initialize()
 			}
 		}
 	}
+
+	// Load the texture
+	textureId = makeTexture("texture.tga");
 }
 
 glm::mat4 buildMatrix(const glm::vec3& location)
@@ -225,6 +349,10 @@ void render()
 	);
 
 	glEnableVertexAttribArray(position);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+    glUniform1i(textureId, 0);
 
 	// Fill the screen with blue
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
