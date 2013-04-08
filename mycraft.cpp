@@ -11,7 +11,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <png.h>
 
-void* readPng(const char* fileName, int* outWidth, int* outHeight)
+uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -74,7 +74,8 @@ void* readPng(const char* fileName, int* outWidth, int* outHeight)
     uint32_t* data = new uint32_t[width * height];
     for (size_t i = 0; i < height; ++i)
     {
-        memcpy(&data[i * width], row_pointers[i], width * sizeof(uint32_t));
+    	// Invert the y-coordinate
+        memcpy(&data[i * width], row_pointers[height -1 - i], width * sizeof(uint32_t));
     }
 
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
@@ -83,11 +84,14 @@ void* readPng(const char* fileName, int* outWidth, int* outHeight)
     return data;
 }
 
+enum CubeType { TREE = 0, STONE = 1};
+GLuint textures[2];
+
 GLuint makeTexture(const char* filename)
 {
-    GLuint texture;
+	GLuint texture;
     int width, height;
-    void* pixels = readPng(filename, &width, &height);
+    uint32_t* pixels = readPng(filename, &width, &height);
     if (pixels == 0)
     {
     	std::cerr << "Problem loading texture " << filename << std::endl;
@@ -111,7 +115,7 @@ GLuint makeTexture(const char* filename)
         pixels                      // Pixel data
     );
 
-    free(pixels);
+    delete[] pixels;
     return texture;
 }
 
@@ -186,56 +190,94 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
 	return programId;
 }
 
-// The array of vertices
-// x-coordinate is right, y-coordinate is up, and z-coordinate is out of the screen
-// The screen ranges from -1 to 1 in the x- and y-coordinates
-const GLfloat vertices[] =
+struct VertexData
 {
-	1.0f,  1.0f,  1.0f,
-    1.0f,  1.0f,  0.0f,
-    1.0f,  0.0f,  1.0f,
-    1.0f,  0.0f,  0.0f,
-    0.0f,  1.0f,  1.0f,
-    0.0f,  1.0f,  0.0f,
-    0.0f,  0.0f,  1.0f,
-    0.0f,  0.0f,  0.0f,
+	GLfloat position[3];
+	GLfloat uv[2];
 };
 
-// The array of vertex indices making up the elements
-const GLubyte elements[][3] =
+// First three elements of each sub-array are vertex position in model coordinates,
+// and the last two are the texture coordinates
+const VertexData cubeData[] =
 {
-	{1, 0, 2},
-	{2, 3, 1},
+	// Front face
+	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+	{{1.0f, 1.0f, 1.0f}, {0.5f, 1.0f}},
+	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
 
-	{0, 4, 6},
-	{6, 2, 0},
+	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
+	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 
-	{7, 6, 4},
-	{4, 5, 7},
 
-	{1, 5, 7},
-	{7, 3, 1},
 
-	{7, 3, 2},
-	{2, 6, 7},
+	// Right face
+	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+	{{1.0f, 1.0f, 0.0f}, {0.5f, 1.0f}},
+	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},
 
-	{1, 5, 4},
-	{4, 0, 1},
+	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},
+	{{1.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
+	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+
+
+	// Back face
+	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}},
+	{{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},
+
+	{{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}},
+	{{1.0f, 0.0f, 0.0f}, {0.0f, 0.5f}},
+	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+
+
+
+	// Left face
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+	{{0.0f, 1.0f, 1.0f}, {0.5f, 1.0f}},
+	{{0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
+
+	{{0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
+	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.5f}},
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+
+
+
+	// Top face
+	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}},
+	{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.5f}},
+
+	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.5f}},
+	{{0.0f, 1.0f, 1.0f}, {0.5f, 0.5f}},
+	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}},
+
+
+
+	// Bottom face
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}},
+	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}},
+	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}},
+
+	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}},
+	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}}
 };
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, mvpMatrix, cubeType, vertexUv, textureSampler;
-GLuint programId, textureId;
+GLint position, mvpMatrix, vertexUv, textureSampler;
+GLuint programId;
 
 struct Cube
 {
-	Cube(const glm::vec3& location, GLuint cubeType)
+	Cube(const glm::vec3& location, CubeType cubeType)
 	: location(location), cubeType(cubeType)
 	{}
 
 	glm::vec3 location;
-	GLuint cubeType;
+	CubeType cubeType;
 };
 
 std::vector<Cube> cubes;
@@ -261,12 +303,7 @@ void initialize()
 	// Create a vertex buffer and send the vertex data
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Create an element buffer and send the element data
-	glGenBuffers(1, &elementBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeData), cubeData, GL_STATIC_DRAW);
 
 	// Load, compile, and link the shaders
 	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
@@ -275,11 +312,13 @@ void initialize()
 
 	// Get the attribute id of the input variable "position" to the vertex shader
 	position = glGetAttribLocation(programId, "position");
+	assert(position != -1);
+
+	vertexUv = glGetAttribLocation(programId, "vertexUv");
+	assert(vertexUv != -1);
 
 	// Get ids for the uniform variables
 	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
-	cubeType = glGetUniformLocation(programId, "cubeType");
-	//vertexUv = glGetUniformLocation(programId, "vertexUv");
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
 	// Build the world
@@ -291,14 +330,15 @@ void initialize()
 			{
 				if (rand() % 10 == 0)
 				{
-					cubes.push_back(Cube(glm::vec3(x, y, z), rand() % 2));
+					cubes.push_back(Cube(glm::vec3(x, y, z), (CubeType)(rand() % 2)));
 				}
 			}
 		}
 	}
 
 	// Load the texture
-	textureId = makeTexture("wood.png");
+	textures[TREE] = makeTexture("tree.png");
+	textures[STONE] = makeTexture("stone.png");
 }
 
 glm::mat4 buildMatrix(const glm::vec3& location)
@@ -330,19 +370,25 @@ void render()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 
 	glVertexAttribPointer(
-		position,           // This is the id we got for the "position" input variable
-	   	3,                  // number of components
-	   	GL_FLOAT,           // type
-	   	GL_FALSE,           // normalize?
-	   	0,                  // stride (no empty space in array)
-	   	nullptr    		    // array buffer offset
+		position,           	// This is the id we got for the "position" input variable
+	   	3,                  	// number of components
+	   	GL_FLOAT,           	// type
+	   	GL_FALSE,           	// normalize?
+	   	5 * sizeof(GLfloat),    // skip the two uv coordinates to get to the next position
+	   	(void*)offsetof(VertexData, position)
 	);
-
 	glEnableVertexAttribArray(position);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-    glUniform1i(textureId, 0);
+	glVertexAttribPointer(
+		vertexUv,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		5 * sizeof(GLfloat),
+		(void*)offsetof(VertexData, uv)
+	);
+	glEnableVertexAttribArray(vertexUv);
+
 
 	// Fill the screen with blue
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -351,7 +397,9 @@ void render()
 
 	for (auto i = cubes.begin(); i != cubes.end(); ++i)
 	{
-		glUniform1ui(cubeType, i->cubeType);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textures[i->cubeType]);
+		glUniform1i(textureSampler, 0);
 
 		glm::mat4 mvp = buildMatrix(i->location);
 		glUniformMatrix4fv(
@@ -360,17 +408,13 @@ void render()
 			GL_FALSE,	// Transpose
 			&mvp[0][0]	// The location of the data
 		);
-		 
+
 		// Draw a cube
-		glDrawElements(
-		    GL_TRIANGLES,  		// mode
-		    3 * 12,             // count
-		    GL_UNSIGNED_BYTE,   // type
-		    nullptr             // element array buffer offset
-		);
+		glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
 	}
 	
 	glDisableVertexAttribArray(position);
+	glDisableVertexAttribArray(vertexUv);
 }
 
 int main()
