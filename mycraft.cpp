@@ -85,21 +85,20 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
 }
 
 enum CubeType { TREE = 0, STONE = 1};
-GLuint textures[2];
+const size_t BLOCK_TYPES = 2;
+GLuint textures[BLOCK_TYPES];
 
-GLuint makeTexture(const char* filename)
+bool makeTexture(const char* filename, CubeType type)
 {
-	GLuint texture;
     int width, height;
     uint32_t* pixels = readPng(filename, &width, &height);
     if (pixels == 0)
     {
     	std::cerr << "Problem loading texture " << filename << std::endl;
-    	return 0;
+    	return false;
     }
     
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, textures[type]);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -116,7 +115,7 @@ GLuint makeTexture(const char* filename)
     );
 
     delete[] pixels;
-    return texture;
+    return true;
 }
 
 void readFile(const char* fileName, std::string& buffer)
@@ -337,8 +336,9 @@ void initialize()
 	}
 
 	// Load the texture
-	textures[TREE] = makeTexture("tree.png");
-	textures[STONE] = makeTexture("stone.png");
+	glGenTextures(BLOCK_TYPES, textures);
+	makeTexture("tree.png", TREE);
+	makeTexture("stone.png", STONE);
 }
 
 glm::mat4 buildMatrix(const glm::vec3& location)
@@ -389,6 +389,9 @@ void render()
 	);
 	glEnableVertexAttribArray(vertexUv);
 
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(textureSampler, 0);
+
 
 	// Fill the screen with blue
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -397,9 +400,7 @@ void render()
 
 	for (auto i = cubes.begin(); i != cubes.end(); ++i)
 	{
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textures[i->cubeType]);
-		glUniform1i(textureSampler, 0);
 
 		glm::mat4 mvp = buildMatrix(i->location);
 		glUniformMatrix4fv(
@@ -419,6 +420,8 @@ void render()
 
 int main()
 {
+	srand(time(0));
+
 	// Initialize glfw
 	if (!glfwInit())
 	{
