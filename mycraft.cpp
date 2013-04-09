@@ -486,10 +486,10 @@ void render()
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-	for (auto i = cubes.begin(); i != cubes.end(); ++i)
+	for (auto& cube : cubes)
 	{
-		glBindTexture(GL_TEXTURE_2D, textures[i->cubeType]);
-		buildMatrices(i->location);
+		glBindTexture(GL_TEXTURE_2D, textures[cube.cubeType]);
+		buildMatrices(cube.location);
 
 		// Draw a cube
 		glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
