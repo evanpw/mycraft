@@ -290,6 +290,7 @@ struct Camera
 };
 
 Camera camera;
+glm::vec3 velocity;
 
 // Return a random number between 0 and 1
 float random()
@@ -501,8 +502,16 @@ void render()
 	glDisableVertexAttribArray(normal);
 }
 
-const float PLAYER_HEIGHT = 1.62;	// Blocks
-const float WALKING_SPEED = 4.3;	// Blocks / sec
+// Minecraft's value
+//const float PLAYER_HEIGHT = 1.62;	// Height of eyes in blocks
+
+// The real-world height of my eyes
+const float PLAYER_HEIGHT = 1.8161;	// Height of eyes in blocks
+
+const float WALKING_SPEED = 4.3;	// Blocks / s
+const float GRAVITY = 32;			// Blocks / s^2
+const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
+const float JUMP_VELOCITY = 8.4;	// Blocks / s
 
 int main()
 {
@@ -563,7 +572,7 @@ int main()
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
 	float lastTime = glfwGetTime();
-	float lastFrame;
+	float lastFrame = 0.0f;
  	int nbFrames = 0;
 
 	// Loop until the escape key is pressed or the window is closed
@@ -574,7 +583,8 @@ int main()
 	     if (currentTime - lastTime >= 1.0)
 	     {
 	         std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
-	         std::cout << "Location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
+	         std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
+	         std::cout << "velocity.y = " << velocity.y << std::endl;
 	         nbFrames = 0;
 	         lastTime = currentTime;
 	     }
@@ -610,18 +620,37 @@ int main()
 		if (glfwGetKey('D') == GLFW_PRESS)
 			camera.eye = camera.eye + (blocksPerFrame * right);
 
-		// Fall down to ground level
+		// Falling and rising
 		int i = camera.eye.x;
 		int j = camera.eye.z;
 		int terrainHeight;
-		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE) terrainHeight = highestPoint[i][j];
-		else terrainHeight = -1000;
+		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE)
+			terrainHeight = highestPoint[i][j];
+		else
+			terrainHeight = -1000;
 
-		float heightAboveGround = camera.eye.y - (terrainHeight + PLAYER_HEIGHT);
-		if (heightAboveGround > 0)
-			camera.eye.y = std::max(camera.eye.y - blocksPerFrame, terrainHeight + PLAYER_HEIGHT);
-		else if (heightAboveGround < 0)
-			camera.eye.y = std::min(camera.eye.y + blocksPerFrame, terrainHeight + PLAYER_HEIGHT);
+		// Jumping (only if on the ground)
+		if (glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS && camera.eye.y - (terrainHeight + PLAYER_HEIGHT) < 1e-4)
+		{
+			velocity.y += JUMP_VELOCITY;
+		}
+
+		// Impose gravity
+		if (camera.eye.y > terrainHeight + PLAYER_HEIGHT)
+		{
+			velocity -= GRAVITY * lastFrame * glm::vec3(0.0f, 1.0f, 0.0f);
+			velocity *= (1 - AIR_RESISTANCE * lastFrame);
+		}
+
+		// Actually do the falling / rising
+		camera.eye += velocity * lastFrame;;
+
+		// Stop falling once the ground is hit
+		if (camera.eye.y < terrainHeight + PLAYER_HEIGHT)
+		{
+			camera.eye.y = terrainHeight + PLAYER_HEIGHT;
+			velocity.y = 0;
+		}
 
 		int x, y;
 		glfwGetMousePos(&x, &y);
