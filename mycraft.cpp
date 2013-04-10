@@ -414,11 +414,16 @@ void initialize()
 	makeTexture("stone.png", STONE);
 }
 
+int windowWidth = 640;
+int windowHeight = 480;
+
 void buildMatrices(const glm::vec3& location)
 {
+	float aspectRatio = static_cast<float>(windowWidth) / windowHeight;
+
 	glm::mat4 projection = glm::perspective(
 		45.0f,			// Field of view
-		4.0f / 3.0f, 	// Aspect ratio
+		aspectRatio,
 		0.1f,			// Near clipping plane
 		100.0f			// Far clipping plane
 	);
@@ -513,6 +518,17 @@ const float GRAVITY = 32;			// Blocks / s^2
 const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
 const float JUMP_VELOCITY = 8.4;	// Blocks / s
 
+// A movement of 1 pixel corresponds to a rotation of how many degrees?
+float rotationSpeed = 1.0;
+void GLFWCALL windowResized(int width, int height)
+{
+	windowWidth = width;
+	windowHeight = height;
+	glViewport(0, 0, width, height);
+
+	rotationSpeed = 640.0 / width;
+}
+
 int main()
 {
 	srand(time(0));
@@ -547,6 +563,7 @@ int main()
 	}
 
 	glfwSetWindowTitle("MyCraft");
+	glfwSetWindowSizeCallback(windowResized);
 
 	// Ensure we can capture the escape key being pressed below
 	glfwEnable(GLFW_STICKY_KEYS);
@@ -657,8 +674,8 @@ int main()
 
 		if (mouseCaptured)
 		{
-			camera.horizontalAngle -= (x - lastx);
-			camera.verticalAngle -= (y - lasty);
+			camera.horizontalAngle -= rotationSpeed * (x - lastx);
+			camera.verticalAngle -= rotationSpeed * (y - lasty);
 
 			if (camera.verticalAngle < -90.0) camera.verticalAngle = -90.0;
 			if (camera.verticalAngle > 90.0) camera.verticalAngle = 90.0;
