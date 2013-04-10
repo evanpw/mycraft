@@ -292,12 +292,13 @@ struct Camera
 Camera camera;
 
 // Return a random number between 0 and 1
-double random()
+float random()
 {
-	return static_cast<double>(rand()) / RAND_MAX;
+	return static_cast<float>(rand()) / RAND_MAX;
 }
 
-int highestPoint[10][10];
+const uint32_t CHUNK_SIZE = 16;
+uint8_t highestPoint[CHUNK_SIZE][CHUNK_SIZE];
 
 void initialize()
 {
@@ -327,24 +328,24 @@ void initialize()
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
 	// Build the world
-	double roughHeight[10][10];
-	for (int i = 0; i < 10; ++i)
+	float roughHeight[CHUNK_SIZE][CHUNK_SIZE];
+	for (int i = 0; i < CHUNK_SIZE; ++i)
 	{
-		for (int j = 0; j < 10; ++j)
+		for (int j = 0; j < CHUNK_SIZE; ++j)
 		{
 			roughHeight[i][j] = 1 + static_cast<int>(random() * 8);
 		}
 	}
 
-	double smoothHeight[10][10];
+	float smoothHeight[CHUNK_SIZE][CHUNK_SIZE];
 	for (int iteration = 0; iteration < 3; ++iteration)
 	{
 		// Smooth the mountains
-		for (int i = 0; i < 10; ++i)
+		for (int i = 0; i < CHUNK_SIZE; ++i)
 		{
-			for (int j = 0; j < 10; ++j)
+			for (int j = 0; j < CHUNK_SIZE; ++j)
 			{
-				double total = roughHeight[i][j];
+				float total = roughHeight[i][j];
 				unsigned int samples = 1;
 
 				if (i > 0)
@@ -353,7 +354,7 @@ void initialize()
 					++samples;
 				}
 
-				if (i + 1 < 10)
+				if (i + 1 < CHUNK_SIZE)
 				{
 					total += roughHeight[i + 1][j];
 					++samples;
@@ -365,7 +366,7 @@ void initialize()
 					++samples;
 				}
 
-				if (j + 1 < 10)
+				if (j + 1 < CHUNK_SIZE)
 				{
 					total += roughHeight[i][j + 1];
 					++samples;
@@ -375,36 +376,36 @@ void initialize()
 			}
 		}
 
-		memcpy(roughHeight, smoothHeight, 10 * 10 * sizeof(double));
+		memcpy(roughHeight, smoothHeight, CHUNK_SIZE * CHUNK_SIZE * sizeof(float));
 	}
 
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < CHUNK_SIZE; ++i)
 	{
-		for (int j = 0; j < 10; ++j)
+		for (int j = 0; j < CHUNK_SIZE; ++j)
 		{
 			// Stone floor
-			int top = (int)(-10 + smoothHeight[i][j]);
+			uint8_t top = (uint8_t)smoothHeight[i][j];
 			highestPoint[i][j] = top;
-			for (int y = -10; y < top; ++y)
+			for (int y = 0; y < top; ++y)
 			{
-				cubes.push_back(Cube(glm::vec3(i - 5, y, j - 5), STONE));
+				cubes.push_back(Cube(glm::vec3(i, y, j), STONE));
 			}
 
 			// Trees
-			if (rand() % 15 == 0 && !(i == 5 && j == 5))
+			if (rand() % 15 == 0)
 			{
 				int treeHeight = 4 + (rand() % 3);
 				for (int k = 0; k < treeHeight; ++k)
 				{
-					cubes.push_back(Cube(glm::vec3(i - 5, top + k, j - 5), TREE));
+					cubes.push_back(Cube(glm::vec3(i, top + k, j), TREE));
 				}
 			}
 		}
 	}
 
 	// Start up in the air
-	glm::vec3(0.5f, 11.5, 0.5f);
+	camera.eye = glm::vec3(8.5f, 11.5, 8.5f);
 
 	// Load the texture
 	glGenTextures(BLOCK_TYPES, textures);
@@ -500,6 +501,9 @@ void render()
 	glDisableVertexAttribArray(normal);
 }
 
+const float PLAYER_HEIGHT = 1.62;	// Blocks
+const float WALKING_SPEED = 4.3;	// Blocks / sec
+
 int main()
 {
 	srand(time(0));
@@ -539,8 +543,8 @@ int main()
 	glfwEnable(GLFW_STICKY_KEYS);
 	glfwEnable(GLFW_STICKY_MOUSE_BUTTONS);
 
-	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	// Light blue background
+	glClearColor(0.8f, 0.8f, 1.0f, 0.0f);
 
 	glEnable(GL_CULL_FACE);
 
@@ -558,18 +562,19 @@ int main()
 	bool mouseCaptured = false;
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
-	double lastTime = glfwGetTime();
-	double lastFrame;
+	float lastTime = glfwGetTime();
+	float lastFrame;
  	int nbFrames = 0;
 
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Measure speed
-	     double currentTime = glfwGetTime();
+	     float currentTime = glfwGetTime();
 	     if (currentTime - lastTime >= 1.0)
 	     {
-	         std::cout << double(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
+	         std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
+	         std::cout << "Location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
 	         nbFrames = 0;
 	         lastTime = currentTime;
 	     }
@@ -587,32 +592,36 @@ int main()
 		}
 
 		// Speed = 2 blocks / sec
-		double blocksPerFrame = 2.0 * lastFrame;
+		float blocksPerFrame = WALKING_SPEED * lastFrame;
+
+		glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::vec3 facing = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
+		glm::vec3 right = glm::cross(facing, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		if (glfwGetKey('W') == GLFW_PRESS)
-			camera.eye.z += blocksPerFrame;
+			camera.eye = camera.eye + (blocksPerFrame * facing);
 
 		if (glfwGetKey('S') == GLFW_PRESS)
-			camera.eye.z -= blocksPerFrame;
+			camera.eye = camera.eye - (blocksPerFrame * facing);
 
 		if (glfwGetKey('A') == GLFW_PRESS)
-			camera.eye.x += blocksPerFrame;
+			camera.eye = camera.eye - (blocksPerFrame * right);
 
 		if (glfwGetKey('D') == GLFW_PRESS)
-			camera.eye.x -= blocksPerFrame;
+			camera.eye = camera.eye + (blocksPerFrame * right);
 
 		// Fall down to ground level
-		int i = camera.eye.x + 5;
-		int j = camera.eye.z + 5;
+		int i = camera.eye.x;
+		int j = camera.eye.z;
 		int terrainHeight;
-		if (i >= 0 && i < 10 && j >= 0 && j < 10) terrainHeight = highestPoint[i][j];
+		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE) terrainHeight = highestPoint[i][j];
 		else terrainHeight = -1000;
 
-		double heightAboveGround = camera.eye.y - (terrainHeight + 1.5);
+		float heightAboveGround = camera.eye.y - (terrainHeight + PLAYER_HEIGHT);
 		if (heightAboveGround > 0)
-			camera.eye.y = std::max(camera.eye.y - blocksPerFrame, terrainHeight + 1.5);
+			camera.eye.y = std::max(camera.eye.y - blocksPerFrame, terrainHeight + PLAYER_HEIGHT);
 		else if (heightAboveGround < 0)
-			camera.eye.y = std::min(camera.eye.y + blocksPerFrame, terrainHeight + 1.5);
+			camera.eye.y = std::min(camera.eye.y + blocksPerFrame, terrainHeight + PLAYER_HEIGHT);
 
 		int x, y;
 		glfwGetMousePos(&x, &y);
