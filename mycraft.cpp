@@ -308,14 +308,118 @@ struct Camera
 Camera camera;
 glm::vec3 velocity;
 
-// Return a random number between 0 and 1
-float random()
+// Generate noise via the midpoint displacement algorithm
+// http://www.lighthouse3d.com/opengl/terrain/index.php3?mpd2
+class Noise
 {
-	return static_cast<float>(rand()) / RAND_MAX;
-}
+public:
+	Noise(uint8_t k, int range = 16)
+	: m_size((1 << k) + 1)
+	{
+		m_grid.resize(m_size);
+		for (size_t i = 0; i < m_size; ++i)
+		{
+			m_grid[i].resize(m_size);
+		}
 
-const uint32_t CHUNK_SIZE = 256;
-uint8_t highestPoint[CHUNK_SIZE][CHUNK_SIZE];
+		// Fill in the corners first
+		int scale = 1 << k;
+		int d = range / 4;
+		m_grid[0][0] = fuzz(d);
+		m_grid[0][scale] = fuzz(d);
+		m_grid[scale][0] = fuzz(d);
+		m_grid[scale][scale] = fuzz(d);
+
+		while (scale > 1)
+		{
+			scale /= 2;
+
+			// Center of squares
+			for (size_t i = scale; i < m_size; i += scale * 2)
+				for (size_t j = scale; j < m_size; j += scale * 2)
+					m_grid[i][j] = averageCorners(i, j, scale) + fuzz(d);
+
+			// Sides of squares
+			for (size_t i = 0; i < m_size; i += scale * 2)
+				for (size_t j = scale; j < m_size; j += scale * 2)
+					m_grid[i][j] = averageNeighbors(i, j, scale) + fuzz(d);
+
+			for (size_t i = scale; i < m_size; i += scale * 2)
+				for (size_t j = 0; j < m_size; j += scale * 2)
+					m_grid[i][j] = averageNeighbors(i, j, scale) + fuzz(d);
+
+			d /= 2;
+		}
+
+		// Shift upward to yield positive numbers
+		for (size_t i = 0; i < m_size; ++i)
+		{
+			for (size_t j = 0; j < m_size; ++j)
+			{
+				m_grid[i][j] += (range / 2);
+				assert(m_grid[i][j] >= 0 && m_grid[i][j] < range);
+			}
+		}
+	}
+
+	int operator()(size_t i, size_t j)
+	{
+		return m_grid[i][j];
+	}
+
+	int fuzz(unsigned int range)
+	{
+		return (rand() % (2 * range + 1)) - range;
+	}
+
+	int averageCorners(size_t i, size_t j, int scale)
+	{
+		return (m_grid[i - scale][j - scale] +
+				m_grid[i + scale][j - scale] +
+				m_grid[i - scale][j + scale] +
+				m_grid[i + scale][j - scale]) / 4;
+	}
+
+	int averageNeighbors(size_t i, size_t j, int scale)
+	{
+		int total = 0;
+		int count = 0;
+
+		if (i >= scale)
+		{
+			total += m_grid[i - scale][j];
+			++count;
+		}
+
+		if (i + scale < m_size)
+		{
+			total += m_grid[i + scale][j];
+			++count;
+		}
+
+		if (j >= scale)
+		{
+			total += m_grid[i][j - scale];
+			++count;
+		}
+
+		if (j + scale < m_size)
+		{
+			total += m_grid[i][j + scale];
+			++count;
+		}
+
+		return total / count;
+	}
+
+private:
+	size_t m_size;
+	std::vector<std::vector<int>> m_grid;
+};
+
+const uint8_t CHUNK_BITS = 8;
+const uint32_t CHUNK_SIZE = 1 << CHUNK_BITS;
+Noise terrainHeight(CHUNK_BITS, (1 << CHUNK_BITS) / 4);
 
 void initialize()
 {
@@ -344,66 +448,12 @@ void initialize()
 	modelMatrix = glGetUniformLocation(programId, "modelMatrix");
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
-	// Build the world
-	float roughHeight[CHUNK_SIZE][CHUNK_SIZE];
-	for (int i = 0; i < CHUNK_SIZE; ++i)
-	{
-		for (int j = 0; j < CHUNK_SIZE; ++j)
-		{
-			roughHeight[i][j] = 1 + static_cast<int>(random() * 8);
-		}
-	}
-
-	float smoothHeight[CHUNK_SIZE][CHUNK_SIZE];
-	for (int iteration = 0; iteration < 3; ++iteration)
-	{
-		// Smooth the mountains
-		for (int i = 0; i < CHUNK_SIZE; ++i)
-		{
-			for (int j = 0; j < CHUNK_SIZE; ++j)
-			{
-				float total = roughHeight[i][j];
-				unsigned int samples = 1;
-
-				if (i > 0)
-				{
-					total += roughHeight[i - 1][j];
-					++samples;
-				}
-
-				if (i + 1 < CHUNK_SIZE)
-				{
-					total += roughHeight[i + 1][j];
-					++samples;
-				}
-
-				if (j > 0)
-				{
-					total += roughHeight[i][j - 1];
-					++samples;
-				}
-
-				if (j + 1 < CHUNK_SIZE)
-				{
-					total += roughHeight[i][j + 1];
-					++samples;
-				}
-
-				smoothHeight[i][j] = total / samples;
-			}
-		}
-
-		memcpy(roughHeight, smoothHeight, CHUNK_SIZE * CHUNK_SIZE * sizeof(float));
-	}
-
-
 	for (int i = 0; i < CHUNK_SIZE; ++i)
 	{
 		for (int j = 0; j < CHUNK_SIZE; ++j)
 		{
 			// Stone floor
-			uint8_t top = (uint8_t)smoothHeight[i][j];
-			highestPoint[i][j] = top;
+			uint8_t top = (uint8_t)terrainHeight(i, j);
 			for (int y = 0; y < top; ++y)
 			{
 				cubes.push_back(Cube(Coordinate(i, y, j), STONE));
@@ -576,6 +626,7 @@ void render(const std::vector<Cube*> activeCubes)
 const float PLAYER_HEIGHT = 1.8161;	// Height of eyes in blocks
 
 const float WALKING_SPEED = 4.3;	// Blocks / s
+const float FLYING_SPEED = 1.5 * WALKING_SPEED;
 const float GRAVITY = 32;			// Blocks / s^2
 const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
 const float JUMP_VELOCITY = 8.4;	// Blocks / s
@@ -589,6 +640,14 @@ void GLFWCALL windowResized(int width, int height)
 	glViewport(0, 0, width, height);
 
 	rotationSpeed = 640.0 / width;
+}
+
+bool gravity = true;
+bool jump = false;
+void GLFWCALL keyCallback(int key, int action)
+{
+	if (key == 'G' && action == GLFW_PRESS)
+		gravity = !gravity;
 }
 
 int main()
@@ -626,6 +685,7 @@ int main()
 
 	glfwSetWindowTitle("MyCraft");
 	glfwSetWindowSizeCallback(windowResized);
+	glfwSetKeyCallback(keyCallback);
 
 	// Ensure we can capture the escape key being pressed below
 	glfwEnable(GLFW_STICKY_KEYS);
@@ -682,54 +742,76 @@ int main()
 			glfwEnable(GLFW_MOUSE_CURSOR);
 		}
 
-		// Speed = 2 blocks / sec
+		// Falling and rising
+		int i = camera.eye.x;
+		int j = camera.eye.z;
+		int height;
+		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE)
+			height = terrainHeight(i, j);
+		else
+			height = -1000;
+
 		float blocksPerFrame = WALKING_SPEED * lastFrame;
+		if (!gravity && camera.eye.y - (height + PLAYER_HEIGHT) > 1e-3)
+		{
+			blocksPerFrame = FLYING_SPEED * lastFrame;
+		}
 
 		glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::vec3 facing = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 right = glm::cross(facing, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		if (glfwGetKey('W') == GLFW_PRESS)
-			camera.eye = camera.eye + (blocksPerFrame * facing);
+			camera.eye += (blocksPerFrame * facing);
 
 		if (glfwGetKey('S') == GLFW_PRESS)
-			camera.eye = camera.eye - (blocksPerFrame * facing);
+			camera.eye -= (blocksPerFrame * facing);
 
 		if (glfwGetKey('A') == GLFW_PRESS)
-			camera.eye = camera.eye - (blocksPerFrame * right);
+			camera.eye -= (blocksPerFrame * right);
 
 		if (glfwGetKey('D') == GLFW_PRESS)
-			camera.eye = camera.eye + (blocksPerFrame * right);
+			camera.eye += (blocksPerFrame * right);
 
-		// Falling and rising
-		int i = camera.eye.x;
-		int j = camera.eye.z;
-		int terrainHeight;
-		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE)
-			terrainHeight = highestPoint[i][j];
-		else
-			terrainHeight = -1000;
-
-		// Jumping (only if on the ground)
-		if (glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS && camera.eye.y - (terrainHeight + PLAYER_HEIGHT) < 1e-4)
+		if (glfwGetKey('R') == GLFW_PRESS && gravity && (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4))
 		{
-			velocity.y += JUMP_VELOCITY;
+			velocity.y += 10 * JUMP_VELOCITY;
 		}
 
-		// Impose gravity
-		if (camera.eye.y > terrainHeight + PLAYER_HEIGHT)
+		// Jumping / Flying
+		if (glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
-			velocity -= GRAVITY * lastFrame * glm::vec3(0.0f, 1.0f, 0.0f);
-			velocity *= (1 - AIR_RESISTANCE * lastFrame);
+			if (gravity && (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4))
+			{
+				velocity.y += JUMP_VELOCITY;
+			}
+			else if (!gravity)
+			{
+				camera.eye.y += blocksPerFrame;
+			}
 		}
 
+		// Falling
+		if (gravity)
+		{
+			if (camera.eye.y > height + PLAYER_HEIGHT)
+			{
+				velocity -= GRAVITY * lastFrame * glm::vec3(0.0f, 1.0f, 0.0f);
+				velocity *= (1 - AIR_RESISTANCE * lastFrame);
+			}
+		}
+		else if (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS)
+		{
+			camera.eye.y -= blocksPerFrame;
+		}
+		
 		// Actually do the falling / rising
-		camera.eye += velocity * lastFrame;;
+		camera.eye += velocity * lastFrame;
 
 		// Stop falling once the ground is hit
-		if (camera.eye.y < terrainHeight + PLAYER_HEIGHT)
+		if (camera.eye.y < height + PLAYER_HEIGHT)
 		{
-			camera.eye.y = terrainHeight + PLAYER_HEIGHT;
+			camera.eye.y = height + PLAYER_HEIGHT;
 			velocity.y = 0;
 		}
 
