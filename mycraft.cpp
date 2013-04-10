@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <map>
 #include <vector>
 #include <GL/glew.h>
 #include <GL/glfw.h>
@@ -267,16 +268,30 @@ const VertexData cubeData[] =
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, modelMatrix, mvpMatrix, vertexUv, normal, textureSampler;
+GLint position, modelMatrix, vpMatrix, vertexUv, normal, textureSampler;
 GLuint programId;
+
+struct Coordinate
+{
+	Coordinate(int x, int y, int z)
+	: x(x), y(y), z(z)
+	{}
+
+	glm::vec3 vec3()
+	{
+		return glm::vec3(x, y, z);
+	}
+
+	int x, y, z;
+};
 
 struct Cube
 {
-	Cube(const glm::vec3& location, CubeType cubeType)
+	Cube(const Coordinate& location, CubeType cubeType)
 	: location(location), cubeType(cubeType)
 	{}
 
-	glm::vec3 location;
+	Coordinate location;
 	CubeType cubeType;
 };
 
@@ -298,7 +313,7 @@ float random()
 	return static_cast<float>(rand()) / RAND_MAX;
 }
 
-const uint32_t CHUNK_SIZE = 16;
+const uint32_t CHUNK_SIZE = 256;
 uint8_t highestPoint[CHUNK_SIZE][CHUNK_SIZE];
 
 void initialize()
@@ -324,7 +339,7 @@ void initialize()
 	normal = glGetAttribLocation(programId, "normal");
 
 	// Get ids for the uniform variables
-	mvpMatrix = glGetUniformLocation(programId, "mvpMatrix");
+	vpMatrix = glGetUniformLocation(programId, "vpMatrix");
 	modelMatrix = glGetUniformLocation(programId, "modelMatrix");
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
 
@@ -390,23 +405,24 @@ void initialize()
 			highestPoint[i][j] = top;
 			for (int y = 0; y < top; ++y)
 			{
-				cubes.push_back(Cube(glm::vec3(i, y, j), STONE));
+				cubes.push_back(Cube(Coordinate(i, y, j), STONE));
 			}
 
 			// Trees
-			if (rand() % 15 == 0)
+			if (rand() % 256 == 0)
 			{
 				int treeHeight = 4 + (rand() % 3);
 				for (int k = 0; k < treeHeight; ++k)
 				{
-					cubes.push_back(Cube(glm::vec3(i, top + k, j), TREE));
+					cubes.push_back(Cube(Coordinate(i, top + k, j), TREE));
 				}
 			}
 		}
 	}
 
 	// Start up in the air
-	camera.eye = glm::vec3(8.5f, 11.5, 8.5f);
+	float location = (CHUNK_SIZE / 2.0) + 0.5;
+	camera.eye = glm::vec3(location, 50.0, location);
 
 	// Load the texture
 	glGenTextures(BLOCK_TYPES, textures);
@@ -417,7 +433,7 @@ void initialize()
 int windowWidth = 640;
 int windowHeight = 480;
 
-void buildMatrices(const glm::vec3& location)
+void buildViewProjectionMatrix()
 {
 	float aspectRatio = static_cast<float>(windowWidth) / windowHeight;
 
@@ -425,7 +441,7 @@ void buildMatrices(const glm::vec3& location)
 		45.0f,			// Field of view
 		aspectRatio,
 		0.1f,			// Near clipping plane
-		100.0f			// Far clipping plane
+		256.0f			// Far clipping plane
 	);
 
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -435,19 +451,62 @@ void buildMatrices(const glm::vec3& location)
 
 	glm::mat4 view = glm::lookAt(camera.eye, camera.eye + gaze, up);
 
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), location);
-	glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, &model[0][0]);
-
-	glm::mat4 mvp = projection * view * model;
+	glm::mat4 mvp = projection * view;
 	glUniformMatrix4fv(
-		mvpMatrix,	// Id of this uniform variable
+		vpMatrix,	// Id of this uniform variable
 		1,			// Number of matrices
 		GL_FALSE,	// Transpose
 		&mvp[0][0]	// The location of the data
 	);
 }
 
-void render()
+bool operator<(const Coordinate& lhs, const Coordinate& rhs)
+{
+	if (lhs.x < rhs.x) return true;
+	else if (lhs.x > rhs.x) return false;
+
+	if (lhs.y < rhs.y) return true;
+	else if (lhs.y > rhs.y) return false;
+
+	if (lhs.z < rhs.z) return true;
+	else return false;
+}
+
+std::vector<Cube*> getActiveCubes()
+{
+	std::map<Coordinate, Cube*> allCubes;
+	for (auto& cube : cubes)
+	{
+		Coordinate r(cube.location.x, cube.location.y, cube.location.z);
+		allCubes[r] = &cube;
+	}
+
+	std::cout << "Total cubes: " << allCubes.size() << std::endl;
+
+	std::vector<Cube*> activeCubes;
+	for (auto& i : allCubes)
+	{
+		const Coordinate r = i.first;
+		Cube* cube = i.second;
+
+		// Check all sides of the cube
+		if (allCubes.find(Coordinate(r.x + 1, r.y, r.z)) == allCubes.end() ||
+			allCubes.find(Coordinate(r.x - 1, r.y, r.z)) == allCubes.end() ||
+			allCubes.find(Coordinate(r.x, r.y + 1, r.z)) == allCubes.end() ||
+			allCubes.find(Coordinate(r.x, r.y - 1, r.z)) == allCubes.end() ||
+			allCubes.find(Coordinate(r.x, r.y, r.z + 1)) == allCubes.end() ||
+			allCubes.find(Coordinate(r.x, r.y, r.z - 1)) == allCubes.end())
+		{
+			activeCubes.push_back(cube);
+		}
+	}
+
+	std::cout << "Active cubes: " << activeCubes.size() << std::endl;
+
+	return activeCubes;
+}
+
+void render(const std::vector<Cube*> activeCubes)
 {
 	glUseProgram(programId);
 
@@ -487,16 +546,18 @@ void render()
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(textureSampler, 0);
 
+	buildViewProjectionMatrix();
 
 	// Fill the screen with blue
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-	for (auto& cube : cubes)
+	for (auto& cube : activeCubes)
 	{
-		glBindTexture(GL_TEXTURE_2D, textures[cube.cubeType]);
-		buildMatrices(cube.location);
+		glBindTexture(GL_TEXTURE_2D, textures[cube->cubeType]);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
+		glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, &model[0][0]);
 
 		// Draw a cube
 		glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
@@ -592,6 +653,8 @@ int main()
 	float lastFrame = 0.0f;
  	int nbFrames = 0;
 
+ 	std::vector<Cube*> activeCubes = getActiveCubes();
+
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
@@ -684,7 +747,7 @@ int main()
 		lastx = x;
 		lasty = y;
 
-		render();
+		render(activeCubes);
 
 		// Display on the screen
 		glfwSwapBuffers();

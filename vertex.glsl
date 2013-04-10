@@ -1,6 +1,6 @@
 #version 330 core
 
-uniform mat4 mvpMatrix;
+uniform mat4 vpMatrix;
 uniform mat4 modelMatrix;
 
 in vec3 position;
@@ -10,6 +10,7 @@ in vec3 normal;
 out float shading;
 out vec2 uv;
 out vec3 originalPosition;
+out float fogFactor;
 
 void main()
 {
@@ -22,7 +23,8 @@ void main()
 	float ambient = 0.2;
 	shading = clamp(diffuse + ambient, 0.0, 1.0);
 
-	gl_Position = mvpMatrix * vec4(position, 1.0);
+	gl_Position = vpMatrix * modelMatrix * vec4(position, 1.0);
 	uv = vertexUv;
+	fogFactor = clamp((length(gl_Position) - 100.0) / 128.0, 0.0, 1.0);
 }
 
