@@ -323,8 +323,8 @@ public:
 		}
 
 		// Fill in the corners first
-		int scale = 1 << k;
-		int d = range / 4;
+		unsigned int scale = 1 << k;
+		unsigned int d = range / 4;
 		m_grid[0][0] = fuzz(d);
 		m_grid[0][scale] = fuzz(d);
 		m_grid[scale][0] = fuzz(d);
@@ -372,7 +372,7 @@ public:
 		return (rand() % (2 * range + 1)) - range;
 	}
 
-	int averageCorners(size_t i, size_t j, int scale)
+	int averageCorners(size_t i, size_t j, unsigned int scale)
 	{
 		return (m_grid[i - scale][j - scale] +
 				m_grid[i + scale][j - scale] +
@@ -380,7 +380,7 @@ public:
 				m_grid[i + scale][j - scale]) / 4;
 	}
 
-	int averageNeighbors(size_t i, size_t j, int scale)
+	int averageNeighbors(size_t i, size_t j, unsigned int scale)
 	{
 		int total = 0;
 		int count = 0;
@@ -418,7 +418,7 @@ private:
 };
 
 const uint8_t CHUNK_BITS = 8;
-const uint32_t CHUNK_SIZE = 1 << CHUNK_BITS;
+const int CHUNK_SIZE = 1 << CHUNK_BITS;
 Noise terrainHeight(CHUNK_BITS, (1 << CHUNK_BITS) / 4);
 
 void initialize()
