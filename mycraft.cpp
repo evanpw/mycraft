@@ -473,7 +473,7 @@ void initialize()
 
 	// Start up in the air
 	float location = (CHUNK_SIZE / 2.0) + 0.5;
-	camera.eye = glm::vec3(location, 50.0, location);
+	camera.eye = glm::vec3(location, 64.0, location);
 
 	// Load the texture
 	glGenTextures(BLOCK_TYPES, textures);
@@ -523,9 +523,9 @@ bool operator<(const Coordinate& lhs, const Coordinate& rhs)
 	else return false;
 }
 
+std::map<Coordinate, Cube*> allCubes;
 std::vector<Cube*> getActiveCubes()
 {
-	std::map<Coordinate, Cube*> allCubes;
 	for (auto& cube : cubes)
 	{
 		Coordinate r(cube.location.x, cube.location.y, cube.location.z);
@@ -626,7 +626,7 @@ void render(const std::vector<Cube*> activeCubes)
 const float PLAYER_HEIGHT = 1.8161;	// Height of eyes in blocks
 
 const float WALKING_SPEED = 4.3;	// Blocks / s
-const float FLYING_SPEED = 1.5 * WALKING_SPEED;
+const float FLYING_SPEED = 2.5 * WALKING_SPEED;
 const float GRAVITY = 32;			// Blocks / s^2
 const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
 const float JUMP_VELOCITY = 8.4;	// Blocks / s
@@ -648,6 +648,9 @@ void GLFWCALL keyCallback(int key, int action)
 {
 	if (key == 'G' && action == GLFW_PRESS)
 		gravity = !gravity;
+
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+		jump = true;
 }
 
 int main()
@@ -730,19 +733,6 @@ int main()
 	         lastTime = currentTime;
 	     }
 
-		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		{
-			mouseCaptured = true;
-			glfwDisable(GLFW_MOUSE_CURSOR);
-		}
-
-		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
-		{
-			mouseCaptured = false;
-			glfwEnable(GLFW_MOUSE_CURSOR);
-		}
-
-		// Falling and rising
 		int i = camera.eye.x;
 		int j = camera.eye.z;
 		int height;
@@ -761,34 +751,26 @@ int main()
 		glm::vec3 facing = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
 		glm::vec3 right = glm::cross(facing, glm::vec3(0.0f, 1.0f, 0.0f));
 
-		if (glfwGetKey('W') == GLFW_PRESS)
-			camera.eye += (blocksPerFrame * facing);
-
-		if (glfwGetKey('S') == GLFW_PRESS)
-			camera.eye -= (blocksPerFrame * facing);
-
-		if (glfwGetKey('A') == GLFW_PRESS)
-			camera.eye -= (blocksPerFrame * right);
-
-		if (glfwGetKey('D') == GLFW_PRESS)
-			camera.eye += (blocksPerFrame * right);
-
+		// Rocket mode
 		if (glfwGetKey('R') == GLFW_PRESS && gravity && (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4))
 		{
 			velocity.y += 10 * JUMP_VELOCITY;
 		}
 
-		// Jumping / Flying
-		if (glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS)
+		glm::vec3 step;
+
+		// Jumping
+		if (jump)
 		{
-			if (gravity && (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4))
-			{
-				velocity.y += JUMP_VELOCITY;
-			}
-			else if (!gravity)
-			{
-				camera.eye.y += blocksPerFrame;
-			}
+			jump = false;
+			if (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4)
+				velocity.y = JUMP_VELOCITY;
+		}
+
+		// Flying
+		if (!gravity && glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			step.y += blocksPerFrame;
 		}
 
 		// Falling
@@ -802,33 +784,94 @@ int main()
 		}
 		else if (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS)
 		{
-			camera.eye.y -= blocksPerFrame;
+			step.y -= blocksPerFrame;
 		}
-		
+
+		if (glfwGetKey('W') == GLFW_PRESS)
+			step += blocksPerFrame * facing;
+
+		if (glfwGetKey('S') == GLFW_PRESS)
+			step -= blocksPerFrame * facing;
+
+		if (glfwGetKey('A') == GLFW_PRESS)
+			step -= blocksPerFrame * right;
+
+		if (glfwGetKey('D') == GLFW_PRESS)
+			step += blocksPerFrame * right;
+
 		// Actually do the falling / rising
-		camera.eye += velocity * lastFrame;
+		step += velocity * lastFrame;
 
-		// Stop falling once the ground is hit
-		if (camera.eye.y < height + PLAYER_HEIGHT)
+		int oldX = camera.eye.x;
+		int oldZ = camera.eye.z;
+		int newX = camera.eye.x + step.x;
+		int newZ = camera.eye.z + step.z;
+		int oldY = int(camera.eye.y) - int(PLAYER_HEIGHT);
+		int newY = int(camera.eye.y + step.y) - int(PLAYER_HEIGHT);
+		if (oldX != newX)
 		{
-			camera.eye.y = height + PLAYER_HEIGHT;
-			velocity.y = 0;
+			if (allCubes.find(Coordinate(newX, oldY, oldZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, oldY, newZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, newY, oldZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			{
+				step.x = 0;
+				velocity.x = 0;
+			}
 		}
 
-		int x, y;
-		glfwGetMousePos(&x, &y);
+		if (oldY != newY)
+		{
+			if (allCubes.find(Coordinate(oldX, newY, oldZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(oldX, newY, newZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, newY, oldZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			{
+				step.y = 0;
+				velocity.y = 0;
+			}
+		}
+
+		if (oldZ != newZ)
+		{
+			if (allCubes.find(Coordinate(oldX, oldY, newZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(oldX, newY, newZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, oldY, newZ)) != allCubes.end() ||
+				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			{
+				step.z = 0;
+				velocity.z = 0;
+			}
+		}
+
+		camera.eye += step;
+
+		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		{
+			mouseCaptured = true;
+			glfwDisable(GLFW_MOUSE_CURSOR);
+		}
+
+		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
+		{
+			mouseCaptured = false;
+			glfwEnable(GLFW_MOUSE_CURSOR);
+		}
+
+		int mouseX, mouseY;
+		glfwGetMousePos(&mouseX, &mouseY);
 
 		if (mouseCaptured)
 		{
-			camera.horizontalAngle -= rotationSpeed * (x - lastx);
-			camera.verticalAngle -= rotationSpeed * (y - lasty);
+			camera.horizontalAngle -= rotationSpeed * (mouseX - lastx);
+			camera.verticalAngle -= rotationSpeed * (mouseY - lasty);
 
 			if (camera.verticalAngle < -90.0) camera.verticalAngle = -90.0;
 			if (camera.verticalAngle > 90.0) camera.verticalAngle = 90.0;
 		}
 
-		lastx = x;
-		lasty = y;
+		lastx = mouseX;
+		lasty = mouseY;
 
 		render(activeCubes);
 
