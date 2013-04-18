@@ -1,6 +1,11 @@
-#include <cstdio>
+#include "block_library.hpp"
+#include "chunk.hpp"
+#include "coordinate.hpp"
+#include "shaders.hpp"
+
 #include <cstdint>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -10,186 +15,14 @@
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <png.h>
 
-uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
+std::ostream& operator<<(std::ostream& out, const glm::vec3& v)
 {
-    png_structp png_ptr;
-    png_infop info_ptr;
-    FILE *fp;
-
-    if ((fp = fopen(fileName, "rb")) == nullptr)
-    {
-    	std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
-        return nullptr;
-    }
-
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (png_ptr == nullptr)
-    {
-    	std::cerr << "readPng: Unable to create read_struct" << std::endl;
-        fclose(fp);
-        return nullptr;
-    }
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == nullptr)
-    {
-    	std::cerr << "readPng: Unable to create info struct" << std::endl;
-        fclose(fp);
-        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-        return nullptr;
-    }
-
-
-    if (setjmp(png_jmpbuf(png_ptr)))
-    {
-    	std::cerr << "Error calling setjmp" << std::endl;
-        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-        fclose(fp);
-        return false;
-    }
-
-    png_init_io(png_ptr, fp);
-
-    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
-
-    png_uint_32 width = png_get_image_width(png_ptr, info_ptr);
-    png_uint_32 height = png_get_image_height(png_ptr, info_ptr);
-
-    png_uint_32 bitdepth   = png_get_bit_depth(png_ptr, info_ptr);
-    png_uint_32 channels   = png_get_channels(png_ptr, info_ptr);
-    png_uint_32 color_type = png_get_color_type(png_ptr, info_ptr);
-
-    std::cout << "Bit depth: " << bitdepth << std::endl;
-    std::cout << "Channels: " << channels << std::endl;
-    std::cout << "Color type: " << color_type << std::endl;
-
-    *outWidth = width;
-    *outHeight = height;
-
-    png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
-
-    static_assert(sizeof(uint32_t) == 4, "uint32_t not 32 bits");
-
-    uint32_t* data = new uint32_t[width * height];
-    for (size_t i = 0; i < height; ++i)
-    {
-    	// Invert the y-coordinate
-        memcpy(&data[i * width], row_pointers[height -1 - i], width * sizeof(uint32_t));
-    }
-
-    png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-    fclose(fp);
-
-    return data;
+	out << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	return out;
 }
 
-enum CubeType { TREE = 0, STONE = 1};
-const size_t BLOCK_TYPES = 2;
-GLuint textures[BLOCK_TYPES];
-
-bool makeTexture(const char* filename, CubeType type)
-{
-    int width, height;
-    uint32_t* pixels = readPng(filename, &width, &height);
-    if (pixels == 0)
-    {
-    	std::cerr << "Problem loading texture " << filename << std::endl;
-    	return false;
-    }
-    
-    glBindTexture(GL_TEXTURE_2D, textures[type]);
-
-    glTexImage2D(
-        GL_TEXTURE_2D,				// Target
-        0,           				// Level of detail
-        GL_RGBA8,                   // Internal format
-        width, height, 0,           // Width, Height, and Border
-        GL_RGBA, GL_UNSIGNED_BYTE,  // External format, type
-        pixels                      // Pixel data
-    );
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    delete[] pixels;
-    return true;
-}
-
-void readFile(const char* fileName, std::string& buffer)
-{
-	std::ifstream f(fileName);
-	std::stringstream ss;
-	ss << f.rdbuf();
-
-	buffer = ss.str();
-}
-
-GLuint loadShader(const char* fileName, GLenum shaderType)
-{
-	GLuint shaderId = glCreateShader(shaderType);
-
-	std::string code;
-	readFile(fileName, code);
-	if (code.size() == 0)
-	{
-		std::cerr << "Unable to read shader: " << fileName << std::endl;
-		return 0;
-	}     
-
-	std::cout << "Compiling shader: " << fileName << std::endl;
-	const char* codePointer = code.c_str();
-	glShaderSource(shaderId, 1, &codePointer, nullptr);
-	glCompileShader(shaderId);
-
-	// Check the shader
-	GLint result = GL_FALSE;
-	int logLength;
-	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &result);
-	glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLength);
-	if (logLength > 0)
-	{
-		char* errorMessage = new char[logLength];
-		glGetShaderInfoLog(shaderId, logLength, nullptr, errorMessage);
-		std::cout << errorMessage << std::endl;
-
-		delete[] errorMessage;
-	}
-
-	return shaderId;
-}
-
-GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
-{
-	std::cout << "Linking shaders" << std::endl;
-	GLuint programId = glCreateProgram();
-	glAttachShader(programId, vertexShader);
-	glAttachShader(programId, fragmentShader);
-	glLinkProgram(programId);
-
-	// Check the linked program
-	GLint result;
-	int logLength;
-	glGetProgramiv(programId, GL_LINK_STATUS, &result);
-	glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLength);
-	if (logLength > 0)
-	{
-		char* errorMessage = new char[logLength];
-		glGetProgramInfoLog(programId, logLength, nullptr, errorMessage);
-		std::cerr << errorMessage << std::endl;
-
-		delete[] errorMessage;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	return programId;
-}
+BlockLibrary* blockLibrary;
 
 struct VertexData
 {
@@ -199,7 +32,7 @@ struct VertexData
 };
 
 // First three elements of each sub-array are vertex position in model coordinates,
-// and the last two are the texture coordinates
+// middle two are the texture coordinates, and last three are the normals
 const VertexData cubeData[] =
 {
 	// Front face
@@ -269,38 +102,15 @@ const VertexData cubeData[] =
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, modelMatrix, vpMatrix, vertexUv, normal, textureSampler;
+GLint position, modelMatrix, vpMatrix, vertexUv, normal, textureSampler, highlight, resolution;
 GLuint programId;
 
-struct Coordinate
-{
-	Coordinate(int x, int y, int z)
-	: x(x), y(y), z(z)
-	{}
-
-	glm::vec3 vec3()
-	{
-		return glm::vec3(x, y, z);
-	}
-
-	int x, y, z;
-};
-
-struct Cube
-{
-	Cube(const Coordinate& location, CubeType cubeType)
-	: location(location), cubeType(cubeType)
-	{}
-
-	Coordinate location;
-	CubeType cubeType;
-};
-
-std::vector<Cube> cubes;
+std::vector<Block> cubes;
 
 struct Camera
 {
 	Camera() : horizontalAngle(0), verticalAngle(0) {}
+
 	glm::vec3 eye;	// Camera location in world coordinates
 	float horizontalAngle, verticalAngle;
 };
@@ -367,6 +177,11 @@ public:
 		return m_grid[i][j];
 	}
 
+	const std::vector<std::vector<int>> grid() const
+	{
+		return m_grid;
+	}
+
 	int fuzz(unsigned int range)
 	{
 		return (rand() % (2 * range + 1)) - range;
@@ -417,9 +232,8 @@ private:
 	std::vector<std::vector<int>> m_grid;
 };
 
-const uint8_t CHUNK_BITS = 8;
-const int CHUNK_SIZE = 1 << CHUNK_BITS;
-Noise terrainHeight(CHUNK_BITS, (1 << CHUNK_BITS) / 4);
+Noise terrainHeight(Chunk::BITS, Chunk::SIZE / 4);
+Chunk* chunk;
 
 void initialize()
 {
@@ -447,38 +261,16 @@ void initialize()
 	vpMatrix = glGetUniformLocation(programId, "vpMatrix");
 	modelMatrix = glGetUniformLocation(programId, "modelMatrix");
 	textureSampler = glGetUniformLocation(programId, "textureSampler");
+	highlight = glGetUniformLocation(programId, "highlight");
+	resolution = glGetUniformLocation(programId, "resolution");
 
-	for (int i = 0; i < CHUNK_SIZE; ++i)
-	{
-		for (int j = 0; j < CHUNK_SIZE; ++j)
-		{
-			// Stone floor
-			uint8_t top = (uint8_t)terrainHeight(i, j);
-			for (int y = 0; y < top; ++y)
-			{
-				cubes.push_back(Cube(Coordinate(i, y, j), STONE));
-			}
-
-			// Trees
-			if (rand() % 256 == 0)
-			{
-				int treeHeight = 4 + (rand() % 3);
-				for (int k = 0; k < treeHeight; ++k)
-				{
-					cubes.push_back(Cube(Coordinate(i, top + k, j), TREE));
-				}
-			}
-		}
-	}
+	chunk = new Chunk(terrainHeight.grid());
 
 	// Start up in the air
-	float location = (CHUNK_SIZE / 2.0) + 0.5;
+	float location = (Chunk::SIZE / 2.0) + 0.5;
 	camera.eye = glm::vec3(location, 64.0, location);
 
-	// Load the texture
-	glGenTextures(BLOCK_TYPES, textures);
-	makeTexture("tree.png", TREE);
-	makeTexture("stone.png", STONE);
+	blockLibrary = new BlockLibrary();
 }
 
 int windowWidth = 640;
@@ -511,54 +303,91 @@ void buildViewProjectionMatrix()
 	);
 }
 
-bool operator<(const Coordinate& lhs, const Coordinate& rhs)
+const float PLAYER_HEIGHT = 1.62;	// Height of eyes in blocks
+const float WALKING_SPEED = 4.3;	// Blocks / s
+const float FLYING_SPEED = 2.5 * WALKING_SPEED;
+const float GRAVITY = 32;			// Blocks / s^2
+const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
+const float JUMP_VELOCITY = 8.4;	// Blocks / s
+
+// Maximum distance at which one can target (and destroy / place) a block
+const float MAX_TARGET_DISTANCE = 10.0f;
+
+// Determine the block that the camera is looking directly at
+bool castRay(Coordinate& result)
 {
-	if (lhs.x < rhs.x) return true;
-	else if (lhs.x > rhs.x) return false;
+	glm::vec3 current = camera.eye;
 
-	if (lhs.y < rhs.y) return true;
-	else if (lhs.y > rhs.y) return false;
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
 
-	if (lhs.z < rhs.z) return true;
-	else return false;
-}
+	Coordinate currentBlock(current);
+	glm::vec3 fractional = glm::fract(current);
 
-std::map<Coordinate, Cube*> allCubes;
-std::vector<Cube*> getActiveCubes()
-{
-	for (auto& cube : cubes)
+	// The direction of travel, in block coordinates
+	Coordinate step(glm::sign(gaze));
+
+	// The distance along gaze between consecutive blocks walls
+	glm::vec3 delta = glm::length(gaze) / glm::abs(gaze);
+
+	// The distance along gaze to the first block wall
+	glm::vec3 distance;
+	distance.x = gaze.x < 0 ? fractional.x : 1 - fractional.x;
+	distance.y = gaze.y < 0 ? fractional.y : 1 - fractional.y;
+	distance.z = gaze.z < 0 ? fractional.z : 1 - fractional.z;
+	distance *= delta;
+
+	do
 	{
-		Coordinate r(cube.location.x, cube.location.y, cube.location.z);
-		allCubes[r] = &cube;
-	}
+		// Travel the smallest distance necessary to hit the next block
 
-	std::cout << "Total cubes: " << allCubes.size() << std::endl;
-
-	std::vector<Cube*> activeCubes;
-	for (auto& i : allCubes)
-	{
-		const Coordinate r = i.first;
-		Cube* cube = i.second;
-
-		// Check all sides of the cube
-		if (allCubes.find(Coordinate(r.x + 1, r.y, r.z)) == allCubes.end() ||
-			allCubes.find(Coordinate(r.x - 1, r.y, r.z)) == allCubes.end() ||
-			allCubes.find(Coordinate(r.x, r.y + 1, r.z)) == allCubes.end() ||
-			allCubes.find(Coordinate(r.x, r.y - 1, r.z)) == allCubes.end() ||
-			allCubes.find(Coordinate(r.x, r.y, r.z + 1)) == allCubes.end() ||
-			allCubes.find(Coordinate(r.x, r.y, r.z - 1)) == allCubes.end())
+		// Intersects x-wall first
+		if (distance.x <= distance.y && distance.x <= distance.z)
 		{
-			activeCubes.push_back(cube);
+			current += distance.x * gaze;
+			currentBlock.x += step.x;
+			distance -= glm::vec3(distance.x);
+			distance.x = delta.x;
 		}
-	}
+		else if (distance.y <= distance.x && distance.y <= distance.z)
+		{
+			current += distance.y * gaze;
+			currentBlock.y += step.y;
+			distance -= glm::vec3(distance.y);
+			distance.y = delta.y;
+		}
+		else if (distance.z <= distance.x && distance.z <= distance.y)
+		{
+			current += distance.z * gaze;
+			currentBlock.z += step.z;
+			distance -= glm::vec3(distance.z);
+			distance.z = delta.z;
+		}
+		else
+		{
+			std::cout << distance << std::endl;
 
-	std::cout << "Active cubes: " << activeCubes.size() << std::endl;
+			// Numerical error?
+			assert(false);
+		}
 
-	return activeCubes;
+		// There are never any blocks above a certain y value
+		if (glm::length(current - camera.eye) > MAX_TARGET_DISTANCE)
+			return false;
+
+	} while (chunk->isTransparent(currentBlock));
+
+	result = currentBlock;
+	return true;
 }
 
-void render(const std::vector<Cube*> activeCubes)
+void render(const Chunk& chunk)
 {
+	// Determine which block (if any) to highlight
+	Coordinate targetedBlock;
+	bool targeted = castRay(targetedBlock);
+
 	glUseProgram(programId);
 
 	// Bind vertexBuffer to GL_ARRAY_BUFFER
@@ -596,6 +425,7 @@ void render(const std::vector<Cube*> activeCubes)
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(textureSampler, 0);
+	glUniform2f(resolution, windowWidth, windowHeight);
 
 	buildViewProjectionMatrix();
 
@@ -604,42 +434,40 @@ void render(const std::vector<Cube*> activeCubes)
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-	for (auto& cube : activeCubes)
+	for (auto& cubeSet : chunk.liveBlocks())
 	{
-		glBindTexture(GL_TEXTURE_2D, textures[cube->cubeType]);
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
-		glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, &model[0][0]);
+		BlockLibrary::Tag blockType = cubeSet.first;
+		glBindTexture(GL_TEXTURE_2D, blockLibrary->get(blockType).texture);
 
-		// Draw a cube
-		glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
+		for (auto& cube : cubeSet.second)
+		{
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
+			glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, &model[0][0]);
+
+			if (targeted && cube->location == targetedBlock)
+				glUniform1i(highlight, GL_TRUE);
+			else
+				glUniform1i(highlight, GL_FALSE);
+
+			// Draw a cube
+			glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
+		}
 	}
-	
+
 	glDisableVertexAttribArray(position);
 	glDisableVertexAttribArray(vertexUv);
 	glDisableVertexAttribArray(normal);
 }
 
-// Minecraft's value
-//const float PLAYER_HEIGHT = 1.62;	// Height of eyes in blocks
-
-// The real-world height of my eyes
-const float PLAYER_HEIGHT = 1.8161;	// Height of eyes in blocks
-
-const float WALKING_SPEED = 4.3;	// Blocks / s
-const float FLYING_SPEED = 2.5 * WALKING_SPEED;
-const float GRAVITY = 32;			// Blocks / s^2
-const float AIR_RESISTANCE = 0.4;	// s^{-1} (of the player)
-const float JUMP_VELOCITY = 8.4;	// Blocks / s
-
 // A movement of 1 pixel corresponds to a rotation of how many degrees?
-float rotationSpeed = 1.0;
+float rotationSpeed = 0.5;
 void GLFWCALL windowResized(int width, int height)
 {
 	windowWidth = width;
 	windowHeight = height;
 	glViewport(0, 0, width, height);
 
-	rotationSpeed = 640.0 / width;
+	rotationSpeed = 320.0 / width;
 }
 
 bool gravity = true;
@@ -651,6 +479,30 @@ void GLFWCALL keyCallback(int key, int action)
 
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 		jump = true;
+}
+
+bool mouseCaptured = false;
+void GLFWCALL mouseButtonCallback(int button, int action)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		if (mouseCaptured)
+		{
+			// Determine which block to destroy
+			Coordinate targetedBlock;
+			bool targeted = castRay(targetedBlock);
+
+			if (targeted)
+			{
+				chunk->removeBlock(targetedBlock);
+			}
+		}
+		else
+		{
+			mouseCaptured = true;
+			glfwDisable(GLFW_MOUSE_CURSOR);
+		}
+	}
 }
 
 int main()
@@ -689,6 +541,7 @@ int main()
 	glfwSetWindowTitle("MyCraft");
 	glfwSetWindowSizeCallback(windowResized);
 	glfwSetKeyCallback(keyCallback);
+	glfwSetMouseButtonCallback(mouseButtonCallback);
 
 	// Ensure we can capture the escape key being pressed below
 	glfwEnable(GLFW_STICKY_KEYS);
@@ -710,39 +563,39 @@ int main()
 	int lastx, lasty;
 	glfwGetMousePos(&lastx, &lasty);
 
-	bool mouseCaptured = false;
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
 	float lastTime = glfwGetTime();
 	float lastFrame = 0.0f;
  	int nbFrames = 0;
 
- 	std::vector<Cube*> activeCubes = getActiveCubes();
-
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Measure speed
-	     float currentTime = glfwGetTime();
-	     if (currentTime - lastTime >= 1.0)
-	     {
-	         std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
-	         std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
-	         std::cout << "velocity.y = " << velocity.y << std::endl;
-	         nbFrames = 0;
-	         lastTime = currentTime;
-	     }
+	    float currentTime = glfwGetTime();
+	    if (currentTime - lastTime >= 1.0)
+	    {
+	        std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
+	        std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
+	        std::cout << "velocity.y = " << velocity.y << std::endl;
+	        nbFrames = 0;
+	        lastTime = currentTime;
+	    }
 
-		int i = camera.eye.x;
-		int j = camera.eye.z;
-		int height;
-		if (i >= 0 && i < CHUNK_SIZE && j >= 0 && j < CHUNK_SIZE)
-			height = terrainHeight(i, j);
-		else
-			height = -1000;
+	    // y-coordinate of the player's feet
+	    float feetY = camera.eye.y - PLAYER_HEIGHT;
+
+	    // Height of the player's feet above the block directly below
+	    float heightAboveBlock = feetY - static_cast<int>(feetY);
+
+	    // Coordinates the block directly below the player's feet
+	    Coordinate blockBelow(camera.eye.x, int(feetY) - 1, camera.eye.z);
+
+	    bool inAir = (heightAboveBlock > 1e-4) || !chunk->isSolid(blockBelow);
 
 		float blocksPerFrame = WALKING_SPEED * lastFrame;
-		if (!gravity && camera.eye.y - (height + PLAYER_HEIGHT) > 1e-3)
+		if (!gravity && inAir)
 		{
 			blocksPerFrame = FLYING_SPEED * lastFrame;
 		}
@@ -752,7 +605,7 @@ int main()
 		glm::vec3 right = glm::cross(facing, glm::vec3(0.0f, 1.0f, 0.0f));
 
 		// Rocket mode
-		if (glfwGetKey('R') == GLFW_PRESS && gravity && (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4))
+		if (glfwGetKey('R') == GLFW_PRESS && gravity && !inAir)
 		{
 			velocity.y += 10 * JUMP_VELOCITY;
 		}
@@ -763,7 +616,7 @@ int main()
 		if (jump)
 		{
 			jump = false;
-			if (camera.eye.y - (height + PLAYER_HEIGHT) < 1e-4)
+			if (!inAir && velocity.y == 0.0)
 				velocity.y = JUMP_VELOCITY;
 		}
 
@@ -776,7 +629,7 @@ int main()
 		// Falling
 		if (gravity)
 		{
-			if (camera.eye.y > height + PLAYER_HEIGHT)
+			if (inAir)
 			{
 				velocity -= GRAVITY * lastFrame * glm::vec3(0.0f, 1.0f, 0.0f);
 				velocity *= (1 - AIR_RESISTANCE * lastFrame);
@@ -803,17 +656,52 @@ int main()
 		step += velocity * lastFrame;
 
 		int oldX = camera.eye.x;
+		int oldY = camera.eye.y - PLAYER_HEIGHT;
+		int oldZ = camera.eye.z;
+
+		// Try moving in the x-direction
+		int newX = camera.eye.x + step.x;
+		if (chunk->isSolid(newX, oldY, oldZ))
+		{
+			step.x = 0;
+			velocity.x = 0;
+			newX = oldX;
+		}
+
+		// Now try the y-direction
+		int newY = camera.eye.y + step.y - PLAYER_HEIGHT;
+		if (chunk->isSolid(newX, newY, oldZ))
+		{
+			step.y = 0;
+			camera.eye.y = oldY + PLAYER_HEIGHT + 1e-4;
+			velocity.y = 0;
+			newY = oldY;
+		}
+
+		// Finally, the z-direction
+		int newZ = camera.eye.z + step.z;
+		if (chunk->isSolid(newX, newY, newZ))
+		{
+			step.z = 0;
+			velocity.z = 0;
+			newZ = oldZ;
+		}
+
+		/*
+		int oldX = camera.eye.x;
 		int oldZ = camera.eye.z;
 		int newX = camera.eye.x + step.x;
 		int newZ = camera.eye.z + step.z;
-		int oldY = int(camera.eye.y) - int(PLAYER_HEIGHT);
-		int newY = int(camera.eye.y + step.y) - int(PLAYER_HEIGHT);
+		int oldY = int(camera.eye.y - PLAYER_HEIGHT);
+		int newY = int(camera.eye.y + step.y - PLAYER_HEIGHT);
+
+		std::cout << oldX << ", " << oldY << ", " << oldZ << " -> " << newX << ", " << newY << ", " << newZ << std::endl;
 		if (oldX != newX)
 		{
-			if (allCubes.find(Coordinate(newX, oldY, oldZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, oldY, newZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, newY, oldZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			if (chunk->isSolid(newX, oldY, oldZ) ||
+				chunk->isSolid(newX, oldY, newZ) ||
+				chunk->isSolid(newX, newY, oldZ) ||
+				chunk->isSolid(newX, newY, newZ))
 			{
 				step.x = 0;
 				velocity.x = 0;
@@ -822,10 +710,10 @@ int main()
 
 		if (oldY != newY)
 		{
-			if (allCubes.find(Coordinate(oldX, newY, oldZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(oldX, newY, newZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, newY, oldZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			if (chunk->isSolid(oldX, newY, oldZ) ||
+				chunk->isSolid(oldX, newY, newZ) ||
+				chunk->isSolid(newX, newY, oldZ) ||
+				chunk->isSolid(newX, newY, newZ))
 			{
 				step.y = 0;
 				velocity.y = 0;
@@ -834,23 +722,18 @@ int main()
 
 		if (oldZ != newZ)
 		{
-			if (allCubes.find(Coordinate(oldX, oldY, newZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(oldX, newY, newZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, oldY, newZ)) != allCubes.end() ||
-				allCubes.find(Coordinate(newX, newY, newZ)) != allCubes.end())
+			if (chunk->isSolid(oldX, oldY, newZ) ||
+				chunk->isSolid(oldX, newY, newZ) ||
+				chunk->isSolid(newX, oldY, newZ) ||
+				chunk->isSolid(newX, newY, newZ))
 			{
 				step.z = 0;
 				velocity.z = 0;
 			}
 		}
+		*/
 
 		camera.eye += step;
-
-		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		{
-			mouseCaptured = true;
-			glfwDisable(GLFW_MOUSE_CURSOR);
-		}
 
 		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
 		{
@@ -873,7 +756,10 @@ int main()
 		lastx = mouseX;
 		lasty = mouseY;
 
-		render(activeCubes);
+		render(*chunk);
+
+		Coordinate targetedBlock;
+		castRay(targetedBlock);
 
 		// Display on the screen
 		glfwSwapBuffers();
