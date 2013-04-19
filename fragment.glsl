@@ -1,21 +1,19 @@
 #version 330 core
 
-uniform sampler2D textureSampler;
+uniform sampler2DArray textureSampler;
 uniform bool highlight;
 uniform vec2 resolution;
 
 in float fogFactor;
 in float shading;
-in vec2 uv;
-in vec3 originalPosition;
+in vec3 fragTexCoord;
 in vec4 gl_FragCoord;
 
 out vec4 fragColor;
 
 void main()
 {
-	vec4 texColor = texture(textureSampler, uv);
-	fragColor = vec4(vec3(shading), 1.0) * texture(textureSampler, uv);
+	fragColor = vec4(vec3(shading), 1.0) * texture(textureSampler, fragTexCoord);
 	fragColor = mix(fragColor, vec4(0.8f, 0.8f, 1.0f, 1.0f), fogFactor);
 
 	if (highlight)

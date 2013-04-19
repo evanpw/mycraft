@@ -28,82 +28,80 @@ BlockLibrary* blockLibrary;
 struct VertexData
 {
 	GLfloat position[3];
-	GLfloat uv[2];
+	GLfloat texCoord[3];
 	GLfloat normal[3];
 };
 
-// First three elements of each sub-array are vertex position in model coordinates,
-// middle two are the texture coordinates, and last three are the normals
 const VertexData cubeData[] =
 {
 	// Front face
-	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
-	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{1.0f, 1.0f, 1.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
+	{{1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
+	{{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
 
-	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
+	{{1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
+	{{0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, SIDE}, {0.0f, 0.0f, 1.0f}},
 
 
 
 	// Right face
-	{{1.0f, 1.0f, 0.0f}, {0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}},
-	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
-	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
 
-	{{1.0f, 0.0f, 1.0f}, {0.0f, 0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
+	{{1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, SIDE}, {1.0f, 0.0f, 0.0f}},
 
 
 
 	// Back face
-	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, -1.0f}},
-	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
-	{{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}, {0.0f, 0.0f, -1.0f}},
+	{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
+	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
+	{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
 
-	{{1.0f, 0.0f, 0.0f}, {0.0f, 0.5f}, {0.0f, 0.0f, -1.0f}},
-	{{0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}, {0.0f, 0.0f, -1.0f}},
-	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, -1.0f}},
+	{{1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
+	{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
+	{{1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, SIDE}, {0.0f, 0.0f, -1.0f}},
 
 
 
 	// Left face
-	{{0.0f, 1.0f, 1.0f}, {0.5f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
-	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
-	{{0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 1.0f, 1.0f}, {1.0f, 1.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
 
-	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.5f}, {-1.0f, 0.0f, 0.0f}},
-	{{0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}},
-	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, SIDE}, {-1.0f, 0.0f, 0.0f}},
 
 
 
 	// Top face
-	{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}},
-	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+	{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, TOP}, {0.0f, 1.0f, 0.0f}},
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, TOP}, {0.0f, 1.0f, 0.0f}},
+	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, TOP}, {0.0f, 1.0f, 0.0f}},
 
-	{{0.0f, 1.0f, 1.0f}, {0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{0.0f, 1.0f, 0.0f}, {0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}},
+	{{0.0f, 1.0f, 1.0f}, {0.0f, 0.0f, TOP}, {0.0f, 1.0f, 0.0f}},
+	{{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, TOP}, {0.0f, 1.0f, 0.0f}},
+	{{0.0f, 1.0f, 0.0f}, {0.0f, 1.0f, TOP}, {0.0f, 1.0f, 0.0f}},
 
 
 
 	// Bottom face
-	{{1.0f, 0.0f, 1.0f}, {0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}},
-	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}, {0.0f, -1.0f, 0.0f}},
-	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}, {0.0f, -1.0f, 0.0f}},
+	{{1.0f, 0.0f, 1.0f}, {1.0f, 1.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}},
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}},
+	{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}},
 
-	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-	{{1.0f, 0.0f, 0.0f}, {0.5f, 0.0f}, {0.0f, -1.0f, 0.0f}},
-	{{0.0f, 0.0f, 1.0f}, {0.0f, 0.5f}, {0.0f, -1.0f, 0.0f}}
+	{{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}},
+	{{1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}},
+	{{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}}
 };
 
 
 GLuint vertexBuffer, elementBuffer;
-GLint position, modelMatrix, vpMatrix, vertexUv, normal, textureSampler, highlight, resolution;
+GLint position, modelMatrix, vpMatrix, texCoord, normal, highlight, textureSampler, resolution;
 GLuint programId;
 
 std::vector<Block> cubes;
@@ -140,7 +138,7 @@ void initialize()
 
 	// Get the attribute id of the input variable "position" to the vertex shader
 	position = glGetAttribLocation(programId, "position");
-	vertexUv = glGetAttribLocation(programId, "vertexUv");
+	texCoord = glGetAttribLocation(programId, "texCoord");
 	normal = glGetAttribLocation(programId, "normal");
 
 	// Get ids for the uniform variables
@@ -284,20 +282,20 @@ void render(const Chunk& chunk)
 	   	3,                  	// number of components
 	   	GL_FLOAT,           	// type
 	   	GL_FALSE,           	// normalize?
-	   	sizeof(VertexData),    // skip the two uv coordinates to get to the next position
+	   	sizeof(VertexData),
 	   	(void*)offsetof(VertexData, position)
 	);
 	glEnableVertexAttribArray(position);
 
 	glVertexAttribPointer(
-		vertexUv,
-		2,
+		texCoord,
+		3,
 		GL_FLOAT,
 		GL_FALSE,
 		sizeof(VertexData),
-		(void*)offsetof(VertexData, uv)
+		(void*)offsetof(VertexData, texCoord)
 	);
-	glEnableVertexAttribArray(vertexUv);
+	glEnableVertexAttribArray(texCoord);
 
 	glVertexAttribPointer(
 		normal,
@@ -323,7 +321,7 @@ void render(const Chunk& chunk)
 	for (auto& cubeSet : chunk.liveBlocks())
 	{
 		BlockLibrary::Tag blockType = cubeSet.first;
-		glBindTexture(GL_TEXTURE_2D, blockLibrary->get(blockType).texture);
+	    glBindTexture(GL_TEXTURE_2D_ARRAY, blockLibrary->get(blockType).texture);
 
 		for (auto& cube : cubeSet.second)
 		{
@@ -341,7 +339,7 @@ void render(const Chunk& chunk)
 	}
 
 	glDisableVertexAttribArray(position);
-	glDisableVertexAttribArray(vertexUv);
+	glDisableVertexAttribArray(texCoord);
 	glDisableVertexAttribArray(normal);
 }
 

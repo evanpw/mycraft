@@ -5,10 +5,10 @@
 #include <memory>
 #include <vector>
 
+enum Face {SIDE = 0, TOP = 1, BOTTOM = 2};
+
 struct BlockType
 {
-	BlockType(GLuint texture) : texture(texture) {}
-
 	GLuint texture;
 };
 

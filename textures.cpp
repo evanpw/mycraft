@@ -6,7 +6,7 @@
 #include <png.h>
 #include <gl/glfw.h>
 
-uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
+bool readPng(const char* fileName, uint32_t* data)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -15,7 +15,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     if ((fp = fopen(fileName, "rb")) == nullptr)
     {
     	std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
-        return nullptr;
+        return false;
     }
 
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
@@ -23,7 +23,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     {
     	std::cerr << "readPng: Unable to create read_struct" << std::endl;
         fclose(fp);
-        return nullptr;
+        return false;
     }
 
     info_ptr = png_create_info_struct(png_ptr);
@@ -32,7 +32,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     	std::cerr << "readPng: Unable to create info struct" << std::endl;
         fclose(fp);
         png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-        return nullptr;
+        return false;
     }
 
     if (setjmp(png_jmpbuf(png_ptr)))
@@ -40,7 +40,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     	std::cerr << "Error calling setjmp" << std::endl;
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         fclose(fp);
-        return nullptr;
+        return false;
     }
 
     png_init_io(png_ptr, fp);
@@ -48,6 +48,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
 
     png_uint_32 width = png_get_image_width(png_ptr, info_ptr);
     png_uint_32 height = png_get_image_height(png_ptr, info_ptr);
+    assert(width == 256 && height == 256);
 
     png_uint_32 bitdepth   = png_get_bit_depth(png_ptr, info_ptr);
     png_uint_32 channels   = png_get_channels(png_ptr, info_ptr);
@@ -55,12 +56,7 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     std::cout << fileName << ": " << bitdepth << " " << channels << " " << color_type << std::endl;
     assert(bitdepth == 8);
 
-    *outWidth = width;
-    *outHeight = height;
-
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
-
-    uint32_t* data = new uint32_t[width * height];
     for (size_t i = 0; i < height; ++i)
     {
     	// Invert the y-coordinate so that (0, 0) is the bottom-left corner
@@ -70,37 +66,33 @@ uint32_t* readPng(const char* fileName, int* outWidth, int* outHeight)
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
     fclose(fp);
 
-    return data;
+    return true;
 }
 
-GLuint makeTexture(const char* filename)
+GLuint makeTextures(const char* fileNames[])
 {
-    int width, height;
-    uint32_t* pixels = readPng(filename, &width, &height);
-    if (pixels == 0)
-    {
-    	std::cerr << "Problem loading texture " << filename << std::endl;
-    	return 0;
-    }
-
     GLuint texture;
     glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexImage2D(
-        GL_TEXTURE_2D,				// Target
-        0,           				// Level of detail
-        GL_RGBA8,                   // Internal format
-        width, height, 0,           // Width, Height, and Border
-        GL_RGBA, GL_UNSIGNED_BYTE,  // External format, type
-        pixels                      // Pixel data
-    );
+    uint32_t* pixels = new uint32_t[3 * 256 * 256];
+    for (size_t i = 0; i < 3; ++i)
+    {
+        bool success = readPng(fileNames[i], &pixels[256 * 256 * i]);
+        if (!success)
+        {
+            std::cerr << "Problem loading texture " << fileNames[i] << std::endl;
+        }
+    }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    int width = 256, height = 256, levelCount = 3;
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, levelCount, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 
     delete[] pixels;
     return texture;
