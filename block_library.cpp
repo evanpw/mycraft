@@ -4,10 +4,10 @@
 BlockLibrary::BlockLibrary()
 {
 	// TODO: Load all of this info from a file
-	const char* textureFiles[] = {"tree.png", "stone.png"};
-	for (size_t i = 0; i < 2; ++i)
+	const char* textureFiles[] = {"tree.png", "stone.png", "grass.png"};
+	for (const char* filename : textureFiles)
 	{
-		GLuint texture = makeTexture(textureFiles[i]);
+		GLuint texture = makeTexture(filename);
 		BlockType* blockType = new BlockType(texture);
 		std::unique_ptr<BlockType> ptr(blockType);
 

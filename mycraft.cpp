@@ -1,6 +1,7 @@
 #include "block_library.hpp"
 #include "chunk.hpp"
 #include "coordinate.hpp"
+#include "noise.hpp"
 #include "shaders.hpp"
 
 #include <cstdint>
@@ -118,121 +119,6 @@ struct Camera
 Camera camera;
 glm::vec3 velocity;
 
-// Generate noise via the midpoint displacement algorithm
-// http://www.lighthouse3d.com/opengl/terrain/index.php3?mpd2
-class Noise
-{
-public:
-	Noise(uint8_t k, int range = 16)
-	: m_size((1 << k) + 1)
-	{
-		m_grid.resize(m_size);
-		for (size_t i = 0; i < m_size; ++i)
-		{
-			m_grid[i].resize(m_size);
-		}
-
-		// Fill in the corners first
-		unsigned int scale = 1 << k;
-		unsigned int d = range / 4;
-		m_grid[0][0] = fuzz(d);
-		m_grid[0][scale] = fuzz(d);
-		m_grid[scale][0] = fuzz(d);
-		m_grid[scale][scale] = fuzz(d);
-
-		while (scale > 1)
-		{
-			scale /= 2;
-
-			// Center of squares
-			for (size_t i = scale; i < m_size; i += scale * 2)
-				for (size_t j = scale; j < m_size; j += scale * 2)
-					m_grid[i][j] = averageCorners(i, j, scale) + fuzz(d);
-
-			// Sides of squares
-			for (size_t i = 0; i < m_size; i += scale * 2)
-				for (size_t j = scale; j < m_size; j += scale * 2)
-					m_grid[i][j] = averageNeighbors(i, j, scale) + fuzz(d);
-
-			for (size_t i = scale; i < m_size; i += scale * 2)
-				for (size_t j = 0; j < m_size; j += scale * 2)
-					m_grid[i][j] = averageNeighbors(i, j, scale) + fuzz(d);
-
-			d /= 2;
-		}
-
-		// Shift upward to yield positive numbers
-		for (size_t i = 0; i < m_size; ++i)
-		{
-			for (size_t j = 0; j < m_size; ++j)
-			{
-				m_grid[i][j] += (range / 2);
-				assert(m_grid[i][j] >= 0 && m_grid[i][j] < range);
-			}
-		}
-	}
-
-	int operator()(size_t i, size_t j)
-	{
-		return m_grid[i][j];
-	}
-
-	const std::vector<std::vector<int>> grid() const
-	{
-		return m_grid;
-	}
-
-	int fuzz(unsigned int range)
-	{
-		return (rand() % (2 * range + 1)) - range;
-	}
-
-	int averageCorners(size_t i, size_t j, unsigned int scale)
-	{
-		return (m_grid[i - scale][j - scale] +
-				m_grid[i + scale][j - scale] +
-				m_grid[i - scale][j + scale] +
-				m_grid[i + scale][j - scale]) / 4;
-	}
-
-	int averageNeighbors(size_t i, size_t j, unsigned int scale)
-	{
-		int total = 0;
-		int count = 0;
-
-		if (i >= scale)
-		{
-			total += m_grid[i - scale][j];
-			++count;
-		}
-
-		if (i + scale < m_size)
-		{
-			total += m_grid[i + scale][j];
-			++count;
-		}
-
-		if (j >= scale)
-		{
-			total += m_grid[i][j - scale];
-			++count;
-		}
-
-		if (j + scale < m_size)
-		{
-			total += m_grid[i][j + scale];
-			++count;
-		}
-
-		return total / count;
-	}
-
-private:
-	size_t m_size;
-	std::vector<std::vector<int>> m_grid;
-};
-
-Noise terrainHeight(Chunk::BITS, Chunk::SIZE / 4);
 Chunk* chunk;
 
 void initialize()
@@ -264,13 +150,13 @@ void initialize()
 	highlight = glGetUniformLocation(programId, "highlight");
 	resolution = glGetUniformLocation(programId, "resolution");
 
-	chunk = new Chunk(terrainHeight.grid());
+	chunk = new Chunk;
 
 	// Start up in the air
 	float location = (Chunk::SIZE / 2.0) + 0.5;
 	camera.eye = glm::vec3(location, 64.0, location);
 
-	blockLibrary = new BlockLibrary();
+	blockLibrary = new BlockLibrary;
 }
 
 int windowWidth = 640;
@@ -366,7 +252,7 @@ bool castRay(Coordinate& result)
 		}
 		else
 		{
-			std::cout << distance << std::endl;
+			std::cerr << distance << std::endl;
 
 			// Numerical error?
 			assert(false);
@@ -592,7 +478,7 @@ int main()
 	    // Coordinates the block directly below the player's feet
 	    Coordinate blockBelow(camera.eye.x, int(feetY) - 1, camera.eye.z);
 
-	    bool inAir = (heightAboveBlock > 1e-4) || !chunk->isSolid(blockBelow);
+	    bool inAir = (heightAboveBlock > 1e-3) || !chunk->isSolid(blockBelow);
 
 		float blocksPerFrame = WALKING_SPEED * lastFrame;
 		if (!gravity && inAir)
@@ -686,52 +572,6 @@ int main()
 			velocity.z = 0;
 			newZ = oldZ;
 		}
-
-		/*
-		int oldX = camera.eye.x;
-		int oldZ = camera.eye.z;
-		int newX = camera.eye.x + step.x;
-		int newZ = camera.eye.z + step.z;
-		int oldY = int(camera.eye.y - PLAYER_HEIGHT);
-		int newY = int(camera.eye.y + step.y - PLAYER_HEIGHT);
-
-		std::cout << oldX << ", " << oldY << ", " << oldZ << " -> " << newX << ", " << newY << ", " << newZ << std::endl;
-		if (oldX != newX)
-		{
-			if (chunk->isSolid(newX, oldY, oldZ) ||
-				chunk->isSolid(newX, oldY, newZ) ||
-				chunk->isSolid(newX, newY, oldZ) ||
-				chunk->isSolid(newX, newY, newZ))
-			{
-				step.x = 0;
-				velocity.x = 0;
-			}
-		}
-
-		if (oldY != newY)
-		{
-			if (chunk->isSolid(oldX, newY, oldZ) ||
-				chunk->isSolid(oldX, newY, newZ) ||
-				chunk->isSolid(newX, newY, oldZ) ||
-				chunk->isSolid(newX, newY, newZ))
-			{
-				step.y = 0;
-				velocity.y = 0;
-			}
-		}
-
-		if (oldZ != newZ)
-		{
-			if (chunk->isSolid(oldX, oldY, newZ) ||
-				chunk->isSolid(oldX, newY, newZ) ||
-				chunk->isSolid(newX, oldY, newZ) ||
-				chunk->isSolid(newX, newY, newZ))
-			{
-				step.z = 0;
-				velocity.z = 0;
-			}
-		}
-		*/
 
 		camera.eye += step;
 

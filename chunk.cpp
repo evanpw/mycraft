@@ -1,28 +1,28 @@
 #include "chunk.hpp"
+#include "noise.hpp"
 #include <cstdlib>
 
-Chunk::Chunk(const std::vector<std::vector<int>>& heightMap)
+Chunk::Chunk()
 {
+	Noise stoneDepth(Chunk::BITS, Chunk::SIZE / 4);
+	Noise dirtDepth(Chunk::BITS, 3.0);
+
 	for (int i = 0; i < SIZE; ++i)
 	{
 		for (int j = 0; j < SIZE; ++j)
 		{
-			// Stone floor
-			uint8_t top = (uint8_t)heightMap[i][j];
-			for (int y = 0; y < top; ++y)
-			{
-				newBlock(i, y, j, BlockLibrary::STONE);
-			}
+			int stone = stoneDepth(i, j);
+			int dirt = dirtDepth(i, j);
+			int tree = (rand() % 256 == 0) ? (4 + rand() % 3) : 0;
 
-			// Trees
-			if (rand() % 256 == 0)
-			{
-				int treeHeight = 4 + (rand() % 3);
-				for (int k = 0; k < treeHeight; ++k)
-				{
-					newBlock(i, top + k, j, BlockLibrary::TREE);
-				}
-			}
+			for (int k = 0; k < stone; ++k)
+				newBlock(i, k, j, BlockLibrary::STONE);
+
+			for (int k = stone; k < stone + dirt; ++k)
+				newBlock(i, k, j, BlockLibrary::DIRT);
+
+			for (int k = stone + dirt; k < stone + dirt + tree; ++k)
+				newBlock(i, k, j, BlockLibrary::TREE);
 		}
 	}
 
@@ -62,6 +62,8 @@ void Chunk::newBlock(int x, int y, int z, BlockLibrary::Tag tag)
 
 void Chunk::removeBlock(const Coordinate& location)
 {
+	std::cout << "Deleting " << location << std::endl;
+
 	const Block* block = m_allBlocks[location].get();
 	m_liveBlocks[block->blockType].erase(block);
 	m_allBlocks.erase(location);
@@ -78,7 +80,8 @@ void Chunk::removeBlock(const Coordinate& location)
 		const Block* neighbor = get(r);
 		if (neighbor)
 		{
-			m_liveBlocks[block->blockType].insert(neighbor);
+			m_liveBlocks[neighbor->blockType].insert(neighbor);
+			std::cout << "Now live: " << neighbor->location << std::endl;
 		}
 	}
 }

@@ -15,7 +15,7 @@ public:
 	static const uint8_t BITS = 8;
 	static const int SIZE = 1 << BITS;
 
-	Chunk(const std::vector<std::vector<int>>& heightMap);
+	Chunk();
 
 	const std::map<BlockLibrary::Tag, std::set<const Block*>>& liveBlocks() const { return m_liveBlocks; }
 

@@ -21,6 +21,7 @@ public:
 	// in terrain generation
 	static const Tag TREE = 0;
 	static const Tag STONE = 1;
+	static const Tag DIRT = 2;
 
 	BlockLibrary();
 
