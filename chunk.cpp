@@ -1,28 +1,39 @@
 #include "chunk.hpp"
-#include "noise.hpp"
+#include "perlin_noise.hpp"
 #include <cstdlib>
+#include <ctime>
 
 Chunk::Chunk()
 {
-	Noise stoneDepth(Chunk::BITS, Chunk::SIZE / 4);
-	Noise dirtDepth(Chunk::BITS, 3.0);
+	unsigned int seed = time(0);
+	PerlinNoise heightMap(seed);
+	PerlinNoise noise(seed + 1);
+
+	// Higher means more mountains and valleys
+	const float ROUGHNESS = 10.0;
 
 	for (int i = 0; i < SIZE; ++i)
 	{
 		for (int j = 0; j < SIZE; ++j)
 		{
-			int stone = stoneDepth(i, j);
-			int dirt = dirtDepth(i, j);
-			int tree = (rand() % 256 == 0) ? (4 + rand() % 3) : 0;
+			float heightSample = heightMap.sample(ROUGHNESS * i / float(SIZE), 0.0, ROUGHNESS * j / float(SIZE));
+			float height = 16 + 8 * heightSample;
 
-			for (int k = 0; k < stone; ++k)
-				newBlock(i, k, j, BlockLibrary::STONE);
+			for (int k = 0; k < 32; ++k)
+			{
+				float sample = noise.sample(i / float(SIZE), k / float(32), j / float(SIZE));
+				sample += (height - k) / 16.0;
 
-			for (int k = stone; k < stone + dirt; ++k)
-				newBlock(i, k, j, BlockLibrary::DIRT);
-
-			for (int k = stone + dirt; k < stone + dirt + tree; ++k)
-				newBlock(i, k, j, BlockLibrary::TREE);
+				// Ground threshold
+				if (sample > 0.0f)
+				{
+					// Stone threshold
+					if (sample > 0.2f)
+						newBlock(i, k, j, BlockLibrary::STONE);
+					else
+						newBlock(i, k, j, BlockLibrary::DIRT);
+				}
+			}
 		}
 	}
 

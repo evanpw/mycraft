@@ -23,8 +23,6 @@ std::ostream& operator<<(std::ostream& out, const glm::vec3& v)
 	return out;
 }
 
-BlockLibrary* blockLibrary;
-
 struct VertexData
 {
 	GLfloat position[3];
@@ -99,11 +97,6 @@ const VertexData cubeData[] =
 	{{0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, BOTTOM}, {0.0f, -1.0f, 0.0f}}
 };
 
-
-GLuint vertexBuffer, elementBuffer;
-GLint position, modelMatrix, vpMatrix, texCoord, normal, highlight, textureSampler, resolution;
-GLuint programId;
-
 std::vector<Block> cubes;
 
 struct Camera
@@ -119,73 +112,8 @@ glm::vec3 velocity;
 
 Chunk* chunk;
 
-void initialize()
-{
-	// Create a vertex array object
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-
-	// Create a vertex buffer and send the vertex data
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeData), cubeData, GL_STATIC_DRAW);
-
-	// Load, compile, and link the shaders
-	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
-	GLuint fragmentShader = loadShader("fragment.glsl", GL_FRAGMENT_SHADER);
-	programId = linkShaders(vertexShader, fragmentShader);
-
-	// Get the attribute id of the input variable "position" to the vertex shader
-	position = glGetAttribLocation(programId, "position");
-	texCoord = glGetAttribLocation(programId, "texCoord");
-	normal = glGetAttribLocation(programId, "normal");
-
-	// Get ids for the uniform variables
-	vpMatrix = glGetUniformLocation(programId, "vpMatrix");
-	modelMatrix = glGetUniformLocation(programId, "modelMatrix");
-	textureSampler = glGetUniformLocation(programId, "textureSampler");
-	highlight = glGetUniformLocation(programId, "highlight");
-	resolution = glGetUniformLocation(programId, "resolution");
-
-	chunk = new Chunk;
-
-	// Start up in the air
-	float location = (Chunk::SIZE / 2.0) + 0.5;
-	camera.eye = glm::vec3(location, 64.0, location);
-
-	blockLibrary = new BlockLibrary;
-}
-
 int windowWidth = 640;
 int windowHeight = 480;
-
-void buildViewProjectionMatrix()
-{
-	float aspectRatio = static_cast<float>(windowWidth) / windowHeight;
-
-	glm::mat4 projection = glm::perspective(
-		45.0f,			// Field of view
-		aspectRatio,
-		0.1f,			// Near clipping plane
-		256.0f			// Far clipping plane
-	);
-
-	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
-	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
-	glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 up = glm::mat3(rotation) * glm::vec3(0.0, 1.0f, 0.0f);
-
-	glm::mat4 view = glm::lookAt(camera.eye, camera.eye + gaze, up);
-
-	glm::mat4 mvp = projection * view;
-	glUniformMatrix4fv(
-		vpMatrix,	// Id of this uniform variable
-		1,			// Number of matrices
-		GL_FALSE,	// Transpose
-		&mvp[0][0]	// The location of the data
-	);
-}
 
 const float PLAYER_HEIGHT = 1.62;	// Height of eyes in blocks
 const float WALKING_SPEED = 4.3;	// Blocks / s
@@ -266,92 +194,177 @@ bool castRay(Coordinate& result)
 	return true;
 }
 
-void render(const Chunk& chunk)
+class Renderer
+{
+public:
+	Renderer(int width, int height);
+
+	Renderer(const Renderer& other) = delete;
+	Renderer& operator=(const Renderer& other) = delete;
+
+	void render(const Chunk& chunk, const Camera& camera) const;
+	void setSize(int width, int height);
+
+private:
+	void buildViewProjectionMatrix(const Camera& camera) const;
+
+	int m_width, m_height;
+
+	std::unique_ptr<BlockLibrary> m_blockLibrary;
+
+	GLuint m_vertexBuffer;
+	GLuint m_programId;
+
+	// Shader input variables
+	GLint m_position, m_texCoord, m_normal;
+
+	// Shader uniform variables
+	GLint m_modelMatrix, m_vpMatrix, m_highlight, m_textureSampler, m_resolution;
+};
+
+Renderer::Renderer(int width, int height)
+: m_blockLibrary(new BlockLibrary)
+{
+	setSize(width, height);
+
+	// Sky color
+	glClearColor(0.8f, 0.8f, 1.0f, 0.0f);
+
+	// Cull back faces
+	glEnable(GL_CULL_FACE);
+
+	// We don't sort blocks ourselves, so we need depth testing
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	// For transparent blocks
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Create a vertex array object
+	GLuint vertexArray;
+	glGenVertexArrays(1, &vertexArray);
+	glBindVertexArray(vertexArray);
+
+	// Create a vertex buffer and send the vertex data
+	glGenBuffers(1, &m_vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeData), cubeData, GL_STATIC_DRAW);
+
+	// Load, compile, and link the shaders
+	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
+	GLuint fragmentShader = loadShader("fragment.glsl", GL_FRAGMENT_SHADER);
+	m_programId = linkShaders(vertexShader, fragmentShader);
+
+	// Get the attribute id of the input variables
+	m_position = glGetAttribLocation(m_programId, "position");
+	m_texCoord = glGetAttribLocation(m_programId, "texCoord");
+	m_normal = glGetAttribLocation(m_programId, "normal");
+
+	// Get ids for the uniform variables
+	m_vpMatrix = glGetUniformLocation(m_programId, "vpMatrix");
+	m_modelMatrix = glGetUniformLocation(m_programId, "modelMatrix");
+	m_textureSampler = glGetUniformLocation(m_programId, "textureSampler");
+	m_highlight = glGetUniformLocation(m_programId, "highlight");
+	m_resolution = glGetUniformLocation(m_programId, "resolution");
+}
+
+void Renderer::render(const Chunk& chunk, const Camera& camera) const
 {
 	// Determine which block (if any) to highlight
 	Coordinate targetedBlock;
 	bool targeted = castRay(targetedBlock);
 
-	glUseProgram(programId);
+	glUseProgram(m_programId);
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
 
-	// Bind vertexBuffer to GL_ARRAY_BUFFER
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, position));
+	glEnableVertexAttribArray(m_position);
 
-	glVertexAttribPointer(
-		position,           	// This is the id we got for the "position" input variable
-	   	3,                  	// number of components
-	   	GL_FLOAT,           	// type
-	   	GL_FALSE,           	// normalize?
-	   	sizeof(VertexData),
-	   	(void*)offsetof(VertexData, position)
-	);
-	glEnableVertexAttribArray(position);
+	glVertexAttribPointer(m_texCoord, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
+	glEnableVertexAttribArray(m_texCoord);
 
-	glVertexAttribPointer(
-		texCoord,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(VertexData),
-		(void*)offsetof(VertexData, texCoord)
-	);
-	glEnableVertexAttribArray(texCoord);
-
-	glVertexAttribPointer(
-		normal,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(VertexData),
-		(void*)offsetof(VertexData, normal)
-	);
-	glEnableVertexAttribArray(normal);
+	glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
+	glEnableVertexAttribArray(m_normal);
 
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(textureSampler, 0);
-	glUniform2f(resolution, windowWidth, windowHeight);
+	glUniform1i(m_textureSampler, 0);
+	glUniform2f(m_resolution, windowWidth, windowHeight);
 
-	buildViewProjectionMatrix();
+	// All of the blocks have the same view and projection matrices
+	buildViewProjectionMatrix(camera);
 
-	// Fill the screen with blue
+	// Fill the screen with sky color
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
 	for (auto& cubeSet : chunk.liveBlocks())
 	{
+		// A cube set is the collection of all live blocks with the same block type
 		BlockLibrary::Tag blockType = cubeSet.first;
-	    glBindTexture(GL_TEXTURE_2D_ARRAY, blockLibrary->get(blockType).texture);
+	    glBindTexture(GL_TEXTURE_2D_ARRAY, m_blockLibrary->get(blockType).texture);
 
 		for (auto& cube : cubeSet.second)
 		{
+			// All of the blocks use the same cube mesh, in model coordinates. We pass the location
+			// and the shader does the translation.
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
-			glUniformMatrix4fv(modelMatrix, 1, GL_FALSE, &model[0][0]);
+			glUniformMatrix4fv(m_modelMatrix, 1, GL_FALSE, &model[0][0]);
 
+			// We highlight the block that the player is looking directly at
 			if (targeted && cube->location == targetedBlock)
-				glUniform1i(highlight, GL_TRUE);
+				glUniform1i(m_highlight, GL_TRUE);
 			else
-				glUniform1i(highlight, GL_FALSE);
+				glUniform1i(m_highlight, GL_FALSE);
 
-			// Draw a cube
+			// Draw the block
 			glDrawArrays(GL_TRIANGLES, 0, 3 * 12);
 		}
 	}
 
-	glDisableVertexAttribArray(position);
-	glDisableVertexAttribArray(texCoord);
-	glDisableVertexAttribArray(normal);
+	// Good OpenGL hygiene
+	glDisableVertexAttribArray(m_position);
+	glDisableVertexAttribArray(m_texCoord);
+	glDisableVertexAttribArray(m_normal);
 }
+
+void Renderer::setSize(int width, int height)
+{
+	m_width = width;
+	m_height = height;
+	glViewport(0, 0, m_width, m_height);
+}
+
+void Renderer::buildViewProjectionMatrix(const Camera& camera) const
+{
+	float aspectRatio = float(m_width) / m_height;
+
+	glm::mat4 projection = glm::perspective(
+		45.0f,			// Field of view
+		aspectRatio,
+		0.1f,			// Near clipping plane
+		256.0f			// Far clipping plane
+	);
+
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 up = glm::mat3(rotation) * glm::vec3(0.0, 1.0f, 0.0f);
+
+	glm::mat4 view = glm::lookAt(camera.eye, camera.eye + gaze, up);
+
+	glm::mat4 mvp = projection * view;
+	glUniformMatrix4fv(m_vpMatrix, 1, GL_FALSE, &mvp[0][0]);
+}
+
+Renderer* renderer;
 
 // A movement of 1 pixel corresponds to a rotation of how many degrees?
 float rotationSpeed = 0.5;
 void GLFWCALL windowResized(int width, int height)
 {
-	windowWidth = width;
-	windowHeight = height;
-	glViewport(0, 0, width, height);
-
 	rotationSpeed = 320.0 / width;
+	if (renderer)
+		renderer->setSize(width, height);
 }
 
 bool gravity = true;
@@ -359,7 +372,10 @@ bool jump = false;
 void GLFWCALL keyCallback(int key, int action)
 {
 	if (key == 'G' && action == GLFW_PRESS)
+	{
 		gravity = !gravity;
+		std::cout << "Gravity: " << gravity << std::endl;
+	}
 
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 		jump = true;
@@ -431,18 +447,12 @@ int main()
 	glfwEnable(GLFW_STICKY_KEYS);
 	glfwEnable(GLFW_STICKY_MOUSE_BUTTONS);
 
-	// Light blue background
-	glClearColor(0.8f, 0.8f, 1.0f, 0.0f);
+	renderer = new Renderer(windowWidth, windowHeight);
+	chunk = new Chunk;
 
-	glEnable(GL_CULL_FACE);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	initialize();
+	// Start up in the air
+	float location = (Chunk::SIZE / 2.0) + 0.5;
+	camera.eye = glm::vec3(location, 64.0, location);
 
 	int lastx, lasty;
 	glfwGetMousePos(&lastx, &lasty);
@@ -500,13 +510,14 @@ int main()
 		if (jump)
 		{
 			jump = false;
-			if (!inAir && velocity.y == 0.0)
+			if (!inAir && velocity.y == 0.0f)
 				velocity.y = JUMP_VELOCITY;
 		}
 
 		// Flying
 		if (!gravity && glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
+			velocity.y = 0.0f;
 			step.y += blocksPerFrame;
 		}
 
@@ -594,7 +605,7 @@ int main()
 		lastx = mouseX;
 		lasty = mouseY;
 
-		render(*chunk);
+		renderer->render(*chunk, camera);
 
 		Coordinate targetedBlock;
 		castRay(targetedBlock);
