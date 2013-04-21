@@ -37,6 +37,16 @@ Chunk::Chunk()
 		}
 	}
 
+	// Dirt with air above it becomes grass
+	for (auto& i : m_allBlocks)
+	{
+		const Coordinate& location = i.first;
+		auto& block = i.second;
+
+		if (block->blockType == BlockLibrary::DIRT && !get(location.addY(1)))
+			block->blockType = BlockLibrary::GRASS;
+	}
+
 	updateLiveBlocks();
 }
 

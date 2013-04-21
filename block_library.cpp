@@ -9,7 +9,8 @@ BlockLibrary::BlockLibrary()
 	{
 		{"textures/tree_side.png", "textures/tree_top_bottom.png", "textures/tree_top_bottom.png"},
 		{"textures/stone.png", "textures/stone.png", "textures/stone.png"},
-		{"textures/grass_side.png", "textures/grass_top.png", "textures/grass_bottom.png"}
+		{"textures/dirt.png", "textures/dirt.png", "textures/dirt.png"},
+		{"textures/grass_side.png", "textures/grass_top.png", "textures/dirt.png"}
 	};
 
 	for (const char** fileNames : textureFiles)

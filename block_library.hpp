@@ -22,6 +22,7 @@ public:
 	static const Tag TREE = 0;
 	static const Tag STONE = 1;
 	static const Tag DIRT = 2;
+	static const Tag GRASS = 3;
 
 	BlockLibrary();
 
