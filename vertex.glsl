@@ -10,9 +10,11 @@ in vec3 texCoord;
 out float shading;
 out float fogFactor;
 out vec3 fragTexCoord;
+out vec3 modelCoordinates;
 
 void main()
 {
+	modelCoordinates = position;
 	fragTexCoord = texCoord;
 
 	vec3 n = normalize((modelMatrix * vec4(normal, 0.0)).xyz);

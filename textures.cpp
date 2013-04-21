@@ -1,12 +1,17 @@
+#include "exceptions.hpp"
 #include "textures.hpp"
+#include <array>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <sstream>
 #include <png.h>
 #include <gl/glfw.h>
 
-bool readPng(const char* fileName, uint32_t* data)
+uint32_t* readPng(const char* fileName, size_t& width, size_t& height)
 {
     png_structp png_ptr;
     png_infop info_ptr;
@@ -14,41 +19,40 @@ bool readPng(const char* fileName, uint32_t* data)
 
     if ((fp = fopen(fileName, "rb")) == nullptr)
     {
-    	std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
-        return false;
+        std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
+        return nullptr;
     }
 
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (png_ptr == nullptr)
     {
-    	std::cerr << "readPng: Unable to create read_struct" << std::endl;
+        std::cerr << "readPng: Unable to create read_struct" << std::endl;
         fclose(fp);
-        return false;
+        return nullptr;
     }
 
     info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == nullptr)
     {
-    	std::cerr << "readPng: Unable to create info struct" << std::endl;
+        std::cerr << "readPng: Unable to create info struct" << std::endl;
         fclose(fp);
         png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-        return false;
+        return nullptr;
     }
 
     if (setjmp(png_jmpbuf(png_ptr)))
     {
-    	std::cerr << "Error calling setjmp" << std::endl;
+        std::cerr << "Error calling setjmp" << std::endl;
         png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
         fclose(fp);
-        return false;
+        return nullptr;
     }
 
     png_init_io(png_ptr, fp);
     png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
 
-    png_uint_32 width = png_get_image_width(png_ptr, info_ptr);
-    png_uint_32 height = png_get_image_height(png_ptr, info_ptr);
-    assert(width == 256 && height == 256);
+    width = png_get_image_width(png_ptr, info_ptr);
+    height = png_get_image_height(png_ptr, info_ptr);
 
     png_uint_32 bitdepth   = png_get_bit_depth(png_ptr, info_ptr);
     png_uint_32 channels   = png_get_channels(png_ptr, info_ptr);
@@ -56,44 +60,123 @@ bool readPng(const char* fileName, uint32_t* data)
     std::cout << fileName << ": " << bitdepth << " " << channels << " " << color_type << std::endl;
     assert(bitdepth == 8);
 
+    uint32_t* data = new uint32_t[width * height];
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
     for (size_t i = 0; i < height; ++i)
     {
-    	// Invert the y-coordinate so that (0, 0) is the bottom-left corner
-        memcpy(&data[i * width], row_pointers[height - 1 - i], width * sizeof(uint32_t));
+        memcpy(&data[i * width], row_pointers[i], width * sizeof(uint32_t));
     }
 
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
     fclose(fp);
 
-    return true;
+    return data;
 }
 
-GLuint makeTextures(const char* fileNames[])
+void getPngSize(const char* fileName, size_t& width, size_t& height)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+    FILE *fp;
+
+    if ((fp = fopen(fileName, "rb")) == nullptr)
+    {
+        std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
+    }
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png_ptr == nullptr)
+    {
+        std::cerr << "readPng: Unable to create read_struct" << std::endl;
+        fclose(fp);
+        return;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == nullptr)
+    {
+        std::cerr << "readPng: Unable to create info struct" << std::endl;
+        fclose(fp);
+        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        return;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        std::cerr << "Error calling setjmp" << std::endl;
+        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+        fclose(fp);
+        return;
+    }
+
+    png_init_io(png_ptr, fp);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
+
+    width = png_get_image_width(png_ptr, info_ptr);
+    height = png_get_image_height(png_ptr, info_ptr);
+
+    png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+    fclose(fp);
+}
+
+GLuint createCubeMap(const std::array<const char*, 6>& fileNames)
 {
     GLuint texture;
     glGenTextures(1, &texture);
 
-    uint32_t* pixels = new uint32_t[3 * 256 * 256];
-    for (size_t i = 0; i < 3; ++i)
+    size_t width, height;
+    getPngSize(fileNames[0], width, height);
+
+    // Many block types will have the same textures on some sides of the cube. We
+    // use a map here so that we don't read the same pixel data multiple times
+    std::map<const char*, std::unique_ptr<uint32_t>> pixelData;
+    for (const char* fileName : fileNames)
     {
-        bool success = readPng(fileNames[i], &pixels[256 * 256 * i]);
-        if (!success)
+        if (pixelData.find(fileName) == pixelData.end())
         {
-            std::cerr << "Problem loading texture " << fileNames[i] << std::endl;
+            size_t thisWidth, thisHeight;
+            std::unique_ptr<uint32_t> data(readPng(fileName, thisWidth, thisHeight));
+            if (!data)
+            {
+                std::stringstream msg;
+                msg << "Problem loading texture " << fileName;
+                throw TextureException(msg.str());
+            }
+            else if (thisWidth != width || thisHeight != height)
+            {
+                std::stringstream msg;
+                msg << "Error: " << fileName << " has size "
+                    << "(" << thisWidth << ", " << thisHeight << "), expected "
+                    << "(" << width << ", " << height << ")";
+                throw TextureException(msg.str());
+            }
+
+            pixelData[fileName] = std::move(data);
         }
     }
 
-    int width = 256, height = 256, levelCount = 3;
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, levelCount, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+    GLenum sides[] =
+    {
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+    };
 
-    delete[] pixels;
+    for (size_t i = 0; i < 6; ++i)
+    {
+        glTexImage2D(sides[i], 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelData[fileNames[i]].get());
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
     return texture;
 }

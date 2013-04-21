@@ -1,7 +1,6 @@
 #include "block_library.hpp"
 #include "chunk.hpp"
 #include "coordinate.hpp"
-#include "noise.hpp"
 #include "shaders.hpp"
 
 #include <cstdint>
@@ -301,7 +300,7 @@ void Renderer::render(const Chunk& chunk, const Camera& camera) const
 	{
 		// A cube set is the collection of all live blocks with the same block type
 		BlockLibrary::Tag blockType = cubeSet.first;
-	    glBindTexture(GL_TEXTURE_2D_ARRAY, m_blockLibrary->get(blockType).texture);
+	    glBindTexture(GL_TEXTURE_CUBE_MAP, m_blockLibrary->get(blockType).texture);
 
 		for (auto& cube : cubeSet.second)
 		{
@@ -375,6 +374,16 @@ void GLFWCALL keyCallback(int key, int action)
 	{
 		gravity = !gravity;
 		std::cout << "Gravity: " << gravity << std::endl;
+	}
+
+	if (key == 'I' && action == GLFW_PRESS)
+	{
+		glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+		rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
+        std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
+        std::cout << "velocity.y = " << velocity.y << std::endl;
+        std::cout << "gaze = " << gaze << std::endl;
 	}
 
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
@@ -471,8 +480,6 @@ int main()
 	    if (currentTime - lastTime >= 1.0)
 	    {
 	        std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
-	        std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
-	        std::cout << "velocity.y = " << velocity.y << std::endl;
 	        nbFrames = 0;
 	        lastTime = currentTime;
 	    }
