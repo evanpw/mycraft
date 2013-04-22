@@ -3,6 +3,7 @@
 uniform samplerCube textureSampler;
 //uniform bool highlight;
 uniform vec2 resolution;
+uniform float brightness;
 
 in float fogFactor;
 in float shading;
@@ -14,7 +15,9 @@ out vec4 fragColor;
 void main()
 {
 	fragColor = vec4(vec3(shading), 1.0) * texture(textureSampler, fragTexCoord - vec3(0.5));
-	fragColor = mix(fragColor, vec4(0.8f, 0.8f, 1.0f, 1.0f), fogFactor);
+
+	vec3 skyColor = brightness * glm::vec3(0.6f, 0.6f, 1.0f);
+	fragColor = mix(fragColor, vec4(skyColor, 1.0), fogFactor);
 
 	/*
 	if (highlight)

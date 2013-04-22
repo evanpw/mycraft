@@ -54,7 +54,7 @@ private:
 	GLint m_position, m_texCoord, m_normal;
 
 	// Shader uniform variables
-	GLint m_modelMatrix, m_vpMatrix, m_highlight, m_textureSampler, m_resolution;
+	GLint m_modelMatrix, m_vpMatrix, m_highlight, m_textureSampler, m_resolution, m_sunPosition, m_brightness;
 };
 
 #endif

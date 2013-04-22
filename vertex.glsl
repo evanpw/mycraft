@@ -1,6 +1,8 @@
 #version 330 core
 
 uniform mat4 vpMatrix;
+uniform vec3 sunPosition;
+uniform float brightness;
 
 in vec3 position;
 in vec3 texCoord;
@@ -15,8 +17,10 @@ void main()
 	fragTexCoord = texCoord;
 
 	vec3 n = normalize(normal);
-	vec3 l = normalize(vec3(-4.0, 2.0, 1.0));
+	vec3 l = normalize(sunPosition);
 	float diffuse = clamp(dot(n, l), 0.0, 1.0);
+	diffuse *= brightness;
+
 	float ambient = 0.2;
 	shading = clamp(diffuse + ambient, 0.0, 1.0);
 

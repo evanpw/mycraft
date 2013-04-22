@@ -110,9 +110,6 @@ Renderer::Renderer(int width, int height, const World& world)
 {
 	setSize(width, height);
 
-	// Sky color
-	glClearColor(0.8f, 0.8f, 1.0f, 0.0f);
-
 	// Cull back faces
 	glEnable(GL_CULL_FACE);
 
@@ -141,10 +138,11 @@ Renderer::Renderer(int width, int height, const World& world)
 
 	// Get ids for the uniform variables
 	m_vpMatrix = glGetUniformLocation(m_programId, "vpMatrix");
-	//m_modelMatrix = glGetUniformLocation(m_programId, "modelMatrix");
 	m_textureSampler = glGetUniformLocation(m_programId, "textureSampler");
 	//m_highlight = glGetUniformLocation(m_programId, "highlight");
 	m_resolution = glGetUniformLocation(m_programId, "resolution");
+	m_sunPosition = glGetUniformLocation(m_programId, "sunPosition");
+	m_brightness = glGetUniformLocation(m_programId, "brightness");
 }
 
 void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData& data)
@@ -211,11 +209,26 @@ void Renderer::invalidate(const Chunk* chunk)
 
 void Renderer::render(const Camera& camera)
 {
+	static glm::vec3 sun(-4.0, 2.0, 1.0);
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
+	sun = glm::vec3(rotation * glm::vec4(sun, 1.0));
+
 	// All of the blocks have the same view and projection matrices
 	buildViewProjectionMatrix(camera);
 
+	// Adjust the brighness level depending on the height of the sun
+	float brightness = 1.0;
+	float sunHeight = sun.y / sqrt(sun.y * sun.y + sun.z * sun.z);
+	if (sunHeight < 0.2)
+		brightness = glm::clamp(sunHeight + 0.8, 0.0, 1.0);
+	glUniform1f(m_brightness, brightness);
+
 	// Fill the screen with sky color
+	glm::vec3 skyColor = brightness * glm::vec3(0.6f, 0.6f, 1.0f);
+	glClearColor(skyColor.r, skyColor.g, skyColor.b, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUniform3fv(m_sunPosition, 1, &sun[0]);
 
 	for (auto& i : m_world.chunks)
 	{
