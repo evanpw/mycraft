@@ -1,0 +1,497 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "Packages/Makefile/Make.sublime-build",
+	"command_palette":
+	{
+		"height": 35.0,
+		"selected_items":
+		[
+			[
+				"lint",
+				"SublimeLinter: Show Error List"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"SublimeLinter",
+				"SublimeLinter: Extract Annotations"
+			],
+			[
+				"Sublime",
+				"SublimeLinter: Disable Linting"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Enable Package"
+			]
+		],
+		"width": 450.0
+	},
+	"console":
+	{
+		"height": 146.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Users/Evan/Workspace/mycraft/mycraft.sublime-project",
+		"/C/Users/Evan/Workspace/mycraft/vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/fragment.glsl",
+		"/c/mingw/lib/gcc/mingw32/4.7.2/include/c++/bits/char_traits.h",
+		"/C/Users/Evan/Workspace/mycraft/Makefile",
+		"/C/Users/Evan/Workspace/mycraft/mycraft.cpp",
+		"/C/Users/Evan/Workspace/mycraft/perlin_noise.hpp",
+		"/C/Users/Evan/Workspace/mycraft/perlin_noise.cpp",
+		"/C/Users/Evan/Workspace/mycraft/coordinate.hpp",
+		"/C/Users/Evan/Workspace/mycraft/coordinate.cpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Abby-Weight.csv",
+		"/C/Users/Evan/Workspace/mycraft/chunk.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
+		"/C/Users/Evan/Workspace/mycraft/shaders.hpp",
+		"/C/Users/Evan/Workspace/mycraft/shaders.cpp",
+		"/C/Users/Evan/Workspace/mycraft/textures.hpp",
+		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
+		"/C/Users/Evan/Workspace/mycraft/exceptions.hpp",
+		"/C/Users/Evan/Workspace/mycraft/noise.hpp",
+		"/C/Users/Evan/Workspace/mycraft/test.cpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Walking.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Exercise Regimen.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Exercise.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Accomplishments.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Year28.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Abby.csv",
+		"/C/Users/Evan/Documents/Dropbox/Settings/Sublime Text 2/Packages/User/Default (Windows).sublime-mousemap",
+		"/C/Users/Evan/Documents/Dropbox/Settings/Sublime Text 2/Packages/Default/Default (Windows).sublime-mousemap",
+		"/c/mingw/lib/gcc/mingw32/4.6.2/include/c++/ext/new_allocator.h",
+		"/C/Users/Evan/Workspace/mycraft/block_type.hpp",
+		"/C/Users/Evan/Workspace/raytracer/Makefile",
+		"/C/Users/Evan/Workspace/raytracer/raytracer.cpp",
+		"/C/MinGW/msys/1.0/home/Evan/test.cpp",
+		"/C/Users/Evan/Workspace/raytracer/raytracer.sublime-workspace",
+		"/C/Users/Evan/Workspace/raytracer/settings.ini",
+		"/C/Users/Evan/Workspace/raytracer/sphere.hpp",
+		"/C/Users/Evan/Workspace/raytracer/transformation.hpp",
+		"/C/Users/Evan/Workspace/raytracer/ray.hpp",
+		"/C/Users/Evan/Workspace/raytracer/quad.hpp",
+		"/C/Users/Evan/Workspace/raytracer/plane.hpp",
+		"/C/Users/Evan/Workspace/raytracer/light.hpp",
+		"/C/Users/Evan/Workspace/raytracer/debug.hpp",
+		"/C/Users/Evan/Workspace/raytracer/vector.hpp",
+		"/C/Users/Evan/Workspace/raytracer/triangle.cpp",
+		"/C/Users/Evan/Workspace/raytracer/triangle.hpp",
+		"/C/Users/Evan/Workspace/raytracer/object.hpp",
+		"/C/Users/Evan/Workspace/raytracer/object.cpp",
+		"/C/Users/Evan/Workspace/raytracer/sphere.cpp",
+		"/C/Users/Evan/Workspace/raytracer/random.hpp",
+		"/C/Users/Evan/Workspace/raytracer/random.cpp",
+		"/C/Users/Evan/Workspace/raytracer/settings.cpp",
+		"/C/Users/Evan/Workspace/raytracer/settings.hpp",
+		"/C/Users/Evan/Workspace/raytracer/surface.cpp",
+		"/C/Users/Evan/Workspace/raytracer/surface.hpp",
+		"/C/Users/Evan/Workspace/raytracer/transformation.cpp",
+		"/C/Users/Evan/Workspace/raytracer/transformed_object.cpp",
+		"/C/Users/Evan/Workspace/raytracer/transformed_object.hpp",
+		"/C/Users/Evan/Workspace/raytracer/color.cpp",
+		"/C/Users/Evan/Workspace/raytracer/color.hpp",
+		"/C/Users/Evan/Workspace/raytracer/material.hpp",
+		"/C/Users/Evan/Workspace/raytracer/plane.cpp",
+		"/C/Users/Evan/Workspace/raytracer/quad.cpp",
+		"/C/Users/Evan/Workspace/raytracer/ray.cpp",
+		"/c/mingw/lib/gcc/mingw32/4.6.2/include/c++/ostream",
+		"/C/Users/Evan/Workspace/raytracer/world.hpp",
+		"/c/mingw/include/glm/core/type_half.inl",
+		"/C/Users/Evan/Workspace/raytracer/vector.cpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/April2013.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/To Read.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Todo.text",
+		"/C/Users/Evan/Documents/Dropbox/Unsorted/Future Me.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Projects.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Notions.tex",
+		"/C/Users/Evan/Workspace/simple/Makefile",
+		"/C/Users/Evan/Workspace/simple/string_table.cpp",
+		"/C/MinGW/src/boost_1_53_0/tools/build/v2/build-system.jam",
+		"/C/MinGW/src/boost_1_53_0/project-config.jam",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/Python.sublime-settings",
+		"/Y/workspace/control_panel/control_panel/common.py",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/C++.sublime-settings",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/Git/Git.sublime-settings",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/SublimeLinter.sublime-settings",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/SublimeLinter/SublimeLinter.sublime-settings",
+		"/C/Users/Evan/Workspace/mycraft/stone-small.png",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/Git.sublime-settings",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Settings/Session.sublime_session",
+		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/Accomplishments2012.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/Accomplishments2011.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Library Books.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Research.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/April.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/December.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/Feb2013.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/March.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/May.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/November.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/October.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/September.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Past/Year27.tex",
+		"/C/Users/Evan/Documents/Dropbox/Unsorted/Problems",
+		"/C/Users/Evan/Documents/Dropbox/Today.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Goals/Lifetime.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/.html",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Great Ideas.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Today.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Thoughts about the system.txt",
+		"/C/Users/Evan/Documents/Dropbox/Progress/System.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Routine.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Programming Todo.tex",
+		"/C/Users/Evan/Documents/Dropbox/Progress/March2013.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Ideas",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Hugo Winners.tex",
+		"/C/Users/Evan/AppData/Local/Temp/Temp1_pngbook-20080316-src.zip/readpng.c",
+		"/C/Users/Evan/AppData/Local/Temp/Temp1_pngbook-20080316-src.zip/Makefile.mingw32",
+		"/C/Users/Evan/Downloads/soil/Simple OpenGL Image Library/test_SOIL.cpp",
+		"/C/Users/Evan/Workspace/mycraft/SOIL.h",
+		"/C/Users/Evan/AppData/Local/Temp/Temp1_soil.zip/Simple OpenGL Image Library/src/SOIL.c",
+		"/C/Users/Evan/AppData/Local/Temp/Temp1_pngbook-20080316-src.zip/readpng2.c",
+		"/C/Users/Evan/Downloads/soil/Simple OpenGL Image Library/src/test_SOIL.cpp",
+		"/Y/workspace/thesis/Thesis Todo",
+		"/Y/workspace/thesis/thesis.tex"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"<open folders>,C:\\Users\\Evan\\Workspace\\mycraft",
+			"<open folders>",
+			"Y:\\workspace\\thesis",
+			"<open folders>"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"255",
+			"256",
+			"double",
+			"m_blockLibrary",
+			"renderer",
+			"elementBuffer",
+			", BOTTOM",
+			", TOP",
+			", SIDE",
+			"Face::",
+			"BOTTOM",
+			"TOP",
+			"SIDE",
+			"float",
+			"grid()",
+			"STONE",
+			"liveBlocks",
+			"castRay",
+			"CHUNK_ISZ",
+			"m_chunk->",
+			" != allBlocks.end()",
+			"allBlocks.find(Coordinate",
+			"Cube",
+			"cubeType",
+			"jump",
+			"textures",
+			"texture",
+			"textures",
+			"TREE",
+			"CubeType",
+			"doFastLighting",
+			"doLighting",
+			"e2",
+			"e1",
+			"Transformation",
+			"glm.hpp",
+			"1e-4",
+			"1e-5",
+			"float",
+			"1e-5",
+			"1e-4",
+			"1e-",
+			"vector.hpp",
+			"double",
+			"Vector3",
+			"double",
+			"Vector3",
+			"double",
+			"Vector3",
+			"double",
+			"Vector3",
+			"double",
+			"Vector3",
+			"double",
+			"Vector3",
+			"Box",
+			"Vector3",
+			"best_t",
+			"gcc",
+			"allCubes",
+			"CHUNK_SIZE",
+			"fuzz(range)",
+			"rand() % range",
+			"result",
+			"Cube",
+			"mvpMatrix",
+			"640",
+			"double",
+			"camera.eye",
+			"will travel",
+			"* ",
+			"Vinge",
+			"strstr",
+			"SOIL_internal_create_OGL_texture",
+			"Anderson",
+			"Atiyah",
+			"Hitchin",
+			"isometric quotient",
+			"\\subsection",
+			"\\section",
+			"space form grou",
+			"\\section",
+			"space form group",
+			"\\section",
+			"space form group",
+			"\\section",
+			"section",
+			"1.0f,-1.0f, 1.0f",
+			"1.0f, 1.0f,-1.0f,",
+			"1.0f, 1.0f, 1.0f",
+			"1.0f,  1.0f,  1.0f",
+			"g_vertex_buffer_data",
+			"state.board",
+			"SignatureALE",
+			"property",
+			"Zagier",
+			"Gilkey",
+			"Hitchin",
+			"dean",
+			"@dean",
+			"Saveliev",
+			"Kirby",
+			"Neumann",
+			"(\\cite",
+			"TODO",
+			"Calabi",
+			"TODO",
+			"Quaternions",
+			"Rokhlin invariant",
+			"qtheorem",
+			" qtheorem\n",
+			" \n",
+			"Cheeger",
+			"BKN",
+			"Anderson",
+			"EventSource",
+			"top",
+			"keyval",
+			"Calabi",
+			"Ioana",
+			"factors = []",
+			"► ",
+			"Riemmanian",
+			"TODO",
+			"m_offset",
+			"-=",
+			"m_size",
+			"size"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"double",
+			"",
+			"chunk->get",
+			"1e-6",
+			"double",
+			"1e-4",
+			"1e-5",
+			"float",
+			"glm::vec3",
+			"float",
+			"\\item ",
+			"2",
+			"1",
+			"0",
+			"result",
+			"theorem",
+			"m_digits"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 118.0
+	},
+	"output.git":
+	{
+		"height": 120.0
+	},
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"textures",
+				"/C/Users/Evan/Workspace/mycraft/textures.hpp"
+			],
+			[
+				"block_",
+				"/C/Users/Evan/Workspace/mycraft/block_library.cpp"
+			],
+			[
+				"blockl",
+				"/C/Users/Evan/Workspace/mycraft/block_library.cpp"
+			],
+			[
+				"block_lib",
+				"/C/Users/Evan/Workspace/mycraft/block_library.cpp"
+			],
+			[
+				"chunk",
+				"/C/Users/Evan/Workspace/mycraft/chunk.cpp"
+			],
+			[
+				"settings.ini",
+				"settings.ini"
+			],
+			[
+				"raytra",
+				"raytracer.cpp"
+			],
+			[
+				"make",
+				"Makefile"
+			],
+			[
+				"makefil",
+				"Makefile"
+			],
+			[
+				"object.cpp",
+				"object.cpp"
+			],
+			[
+				"object.hpp",
+				"object.hpp"
+			],
+			[
+				"tria",
+				"triangle.cpp"
+			],
+			[
+				"quad.hpp",
+				"quad.hpp"
+			],
+			[
+				"light.hpp",
+				"light.hpp"
+			],
+			[
+				"ray.hpp",
+				"ray.hpp"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 232.0,
+	"status_bar_visible": true
+}
