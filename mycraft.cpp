@@ -226,15 +226,12 @@ int main()
 	glfwEnable(GLFW_STICKY_MOUSE_BUTTONS);
 
 	world = new World;
-	for (size_t i = 0; i < 8; ++i)
-	{
-		for (size_t j = 0; j < 8; ++j)
-		{
-			world->newChunk(i, j);
-		}
-	}
-
 	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT, *world);
+
+	// Make sure that there is a world before we start animating
+	for (int x = -4; x <= 4; ++x)
+		for (int z = -4; z <= 4; ++z)
+			world->chunkAt(x, z);
 
 	// Start up in the air
 	float location = (Chunk::SIZE / 2.0) + 0.5;

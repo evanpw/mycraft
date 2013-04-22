@@ -19,7 +19,7 @@ struct ChunkRenderingData
 class Renderer
 {
 public:
-	Renderer(int width, int height, const World& world);
+	Renderer(int width, int height, World& world);
 
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;
@@ -42,7 +42,7 @@ private:
 	void buildViewProjectionMatrix(const Camera& camera) const;
 
 	int m_width, m_height;
-	const World& m_world;
+	World& m_world;
 
 	std::map<const Chunk*, ChunkRenderingData> m_chunkData;
 

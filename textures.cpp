@@ -73,6 +73,71 @@ uint32_t* readPng(const char* fileName, size_t& width, size_t& height)
     return data;
 }
 
+bool readPng(const char* fileName, uint32_t* buffer, size_t size)
+{
+    png_structp png_ptr;
+    png_infop info_ptr;
+    FILE *fp;
+
+    if ((fp = fopen(fileName, "rb")) == nullptr)
+    {
+        std::cerr << "readPng: Unable to open file: " << fileName << std::endl;
+        return false;
+    }
+
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (png_ptr == nullptr)
+    {
+        std::cerr << "readPng: Unable to create read_struct" << std::endl;
+        fclose(fp);
+        return false;
+    }
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == nullptr)
+    {
+        std::cerr << "readPng: Unable to create info struct" << std::endl;
+        fclose(fp);
+        png_destroy_read_struct(&png_ptr, nullptr, nullptr);
+        return false;
+    }
+
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        std::cerr << "Error calling setjmp" << std::endl;
+        png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+        fclose(fp);
+        return false;
+    }
+
+    png_init_io(png_ptr, fp);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
+
+    size_t width = png_get_image_width(png_ptr, info_ptr);
+    size_t height = png_get_image_height(png_ptr, info_ptr);
+    if (width != size || height != size)
+    {
+        std::cerr << "readPng: " << fileName << " is not of the expected size." << std::endl;
+        return false;
+    }
+
+    png_uint_32 bitdepth   = png_get_bit_depth(png_ptr, info_ptr);
+    png_uint_32 channels   = png_get_channels(png_ptr, info_ptr);
+    png_uint_32 color_type = png_get_color_type(png_ptr, info_ptr);
+    assert(bitdepth == 8 && channels == 4 && color_type == 6);
+
+    png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
+    for (size_t i = 0; i < height; ++i)
+    {
+        memcpy(&buffer[i * width], row_pointers[i], width * sizeof(uint32_t));
+    }
+
+    png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
+    fclose(fp);
+
+    return true;
+}
+
 void getPngSize(const char* fileName, size_t& width, size_t& height)
 {
     png_structp png_ptr;

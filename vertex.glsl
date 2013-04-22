@@ -1,16 +1,16 @@
-#version 330 core
+#version 400 core
 
 uniform mat4 vpMatrix;
 uniform vec3 sunPosition;
 uniform float brightness;
 
 in vec3 position;
-in vec3 texCoord;
+in vec4 texCoord;
 in vec3 normal;
 
 out float shading;
 out float fogFactor;
-out vec3 fragTexCoord;
+out vec4 fragTexCoord;
 
 void main()
 {

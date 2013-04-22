@@ -40,7 +40,7 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 				if (sample > 0.0f && caveSample > -0.5)
 				{
 					// Stone threshold
-					if (sample > 0.2f)
+					if (sample > 0.5f)
 						newBlock(x * SIZE + i, k, z * SIZE + j, BlockLibrary::STONE);
 					else
 						newBlock(x * SIZE + i, k, z * SIZE + j, BlockLibrary::DIRT);

@@ -4,34 +4,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
 
-// This struct can be passed directly in a vertex buffer, but we can assign
-// to it from a glm::vec3
-struct raw_vec3
-{
-	GLfloat value[3];
-
-	raw_vec3& operator=(const glm::vec3& that)
-	{
-		value[0] = that.x;
-		value[1] = that.y;
-		value[2] = that.z;
-
-		return *this;
-	}
-};
-
-std::ostream& operator<<(std::ostream& out, const raw_vec3& v)
-{
-	out << v.value[0] << ", " << v.value[1] << ", " << v.value[2];
-	return out;
-}
-
 struct VertexData
 {
-	raw_vec3 position;
-	raw_vec3 texCoord;
-	raw_vec3 normal;
+	GLfloat position[3];
+	GLfloat texCoord[4];
+	GLfloat normal[3];
 };
+
+void copyVector(GLfloat* dest, const glm::vec3& source)
+{
+	dest[0] = source.x;
+	dest[1] = source.y;
+	dest[2] = source.z;
+}
 
 struct MeshVertex
 {
@@ -105,7 +90,7 @@ const std::array<MeshVertex, 36> cubeMesh =
 	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}
 }};
 
-Renderer::Renderer(int width, int height, const World& world)
+Renderer::Renderer(int width, int height, World& world)
 : m_world(world), m_blockLibrary(new BlockLibrary)
 {
 	setSize(width, height);
@@ -160,9 +145,10 @@ void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData& data)
 		for (auto& meshVertex : cubeMesh)
 		{
 			VertexData vertex;
-			vertex.position = glm::vec3(model * glm::vec4(meshVertex.position, 1.0));
-			vertex.texCoord = meshVertex.position;
-			vertex.normal = meshVertex.normal;
+			copyVector(vertex.position, glm::vec3(model * glm::vec4(meshVertex.position, 1.0)));
+			copyVector(vertex.texCoord, meshVertex.position);
+			vertex.texCoord[3] = cube->blockType;
+			copyVector(vertex.normal, meshVertex.normal);
 
 			vertices.push_back(vertex);
 		}
@@ -211,7 +197,7 @@ void Renderer::render(const Camera& camera)
 {
 	static glm::vec3 sun(-4.0, 2.0, 1.0);
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-	sun = glm::vec3(rotation * glm::vec4(sun, 1.0));
+	//sun = glm::vec3(rotation * glm::vec4(sun, 1.0));
 
 	// All of the blocks have the same view and projection matrices
 	buildViewProjectionMatrix(camera);
@@ -230,10 +216,15 @@ void Renderer::render(const Camera& camera)
 
 	glUniform3fv(m_sunPosition, 1, &sun[0]);
 
-	for (auto& i : m_world.chunks)
+	int x = floor(camera.eye.x / (float)Chunk::SIZE);
+	int z = floor(camera.eye.z / (float)Chunk::SIZE);
+	for (int i = -4; i <= 4; ++i)
 	{
-		const Chunk* chunk = i.second.get();
-		renderChunk(chunk);
+		for (int j = -4; j <= 4; ++j)
+		{
+			const Chunk* chunk = m_world.chunkAt(x + i, z + j);
+			renderChunk(chunk);
+		}
 	}
 }
 
@@ -247,7 +238,7 @@ void Renderer::renderChunk(const Chunk* chunk)
 	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, position));
 	glEnableVertexAttribArray(m_position);
 
-	glVertexAttribPointer(m_texCoord, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
+	glVertexAttribPointer(m_texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
 	glEnableVertexAttribArray(m_texCoord);
 
 	glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
@@ -257,7 +248,7 @@ void Renderer::renderChunk(const Chunk* chunk)
 	glUniform1i(m_textureSampler, 0);
 	glUniform2f(m_resolution, m_width, m_height);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP, m_blockLibrary->get(BlockLibrary::GRASS).texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
 	glDrawArrays(GL_TRIANGLES, 0, chunkData.vertexCount);
 
 	// Good OpenGL hygiene

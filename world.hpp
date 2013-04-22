@@ -18,7 +18,8 @@ public:
 	bool isSolid(int x, int y, int z) const { return isSolid(Coordinate(x, y, z)); } // This is a hack to support the awful collision-detection
 	bool isSolid(const Coordinate& location) const;
 
-	void newChunk(int x, int z);
+	// Get the chunk at the given location, creating a new one if necessary
+	Chunk* chunkAt(int x, int z);
 
 	// Get all blocks which are open on at least one side in the chunk with the given coordinates
 	const std::set<const Block*>& liveBlocks(const Chunk* chunk) const;

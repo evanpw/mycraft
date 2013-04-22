@@ -12,6 +12,7 @@ struct BlockType
 	GLuint texture;
 };
 
+// Keeps track of the properties and textures for the various block types
 class BlockLibrary
 {
 public:
@@ -23,13 +24,17 @@ public:
 	static const Tag STONE = 1;
 	static const Tag DIRT = 2;
 	static const Tag GRASS = 3;
+	static const Tag LEAVES = 4;
+	static const Tag WATER = 5;
 
 	BlockLibrary();
 
 	const BlockType& get(Tag tag) const;
+	GLuint getTextureArray() const { return m_textureArray; }
 	size_t size() const { return m_blockTypes.size(); }
 
 private:
+	GLuint m_textureArray;
 	std::vector<std::unique_ptr<BlockType>> m_blockTypes;
 };
 
