@@ -1,8 +1,14 @@
 #include "renderer.hpp"
 #include "shaders.hpp"
+#include <array>
+#include <cmath>
+#include <boost/bind.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <array>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 struct VertexData
 {
@@ -130,10 +136,13 @@ Renderer::Renderer(int width, int height, World& world)
 	m_brightness = glGetUniformLocation(m_programId, "brightness");
 }
 
-void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData& data)
+Renderer::~Renderer()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, data.vertexBuffer);
+	// TODO: Kill chunkMaker thread
+}
 
+void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
+{
 	std::vector<VertexData> vertices;
 
 	// Create the vertex data
@@ -156,32 +165,25 @@ void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData& data)
 
 	std::cout << "Vertex count: " << vertices.size() << std::endl;
 	std::cout << "VBO size: " << (sizeof(VertexData) * vertices.size() / (1 << 20)) << "MB" << std::endl;
+
+	glBindBuffer(GL_ARRAY_BUFFER, data->vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
-	data.vertexCount = vertices.size();
-	data.dirty = false;
+	data->vertexCount = vertices.size();
+	data->dirty = false;
 }
 
-const ChunkRenderingData& Renderer::getRenderingData(const Chunk* chunk)
+ChunkRenderingData* Renderer::getRenderingData(const Chunk* chunk)
 {
-	// Create a new ChunkRenderingData instance if one doesn't already exist
-	if (m_chunkData.find(chunk) == m_chunkData.end())
+	auto i = m_chunkData.find(chunk);
+	if (i != m_chunkData.end())
 	{
-		ChunkRenderingData data;
-		glGenBuffers(1, &data.vertexBuffer);
-		data.dirty = true;
-
-		m_chunkData[chunk] = data;
+		return i->second.get();
 	}
-
-	// If dirty, update the buffer
-	ChunkRenderingData& data = m_chunkData[chunk];
-	if (data.dirty)
+	else
 	{
-		processChunk(chunk, data);
+		return nullptr;
 	}
-
-	return data;
 }
 
 void Renderer::invalidate(const Chunk* chunk)
@@ -189,12 +191,82 @@ void Renderer::invalidate(const Chunk* chunk)
 	auto i = m_chunkData.find(chunk);
 	if (i != m_chunkData.end())
 	{
-		i->second.dirty = true;
+		i->second->dirty = true;
 	}
+}
+
+// Normalize an angle into [0, 2pi)
+float normalizeAngle(float angle)
+{
+	while (angle < 0) angle += 2 * M_PI;
+	while (angle > 2 * M_PI) angle -= 2 * M_PI;
+
+	return angle;
+}
+
+// Determine if two arcs of a circle intersect. All parameters are in radians,
+// but they may not be normalized
+bool arcsIntersect(float lower1, float upper1, float lower2, float upper2)
+{
+	lower1 = normalizeAngle(lower1);
+	upper1 = normalizeAngle(upper1);
+	lower2 = normalizeAngle(lower2);
+	upper2 = normalizeAngle(upper2);
+
+	if (lower1 > upper1) lower1 -= 2 * M_PI;
+	if (lower2 > upper2) lower2 -= 2 * M_PI;
+
+	std::cout << "arcsIntersect: " << lower1 << " " << upper1 << " " << lower2 << " " << upper2 << std::endl;
+
+	return !((upper1 < lower2) || (upper2 < lower1));
+}
+
+const int RENDER_RADIUS = 4;
+
+void Renderer::findFrustum(const Camera& camera)
+{
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::vec3 gaze = glm::normalize(glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f));
+	glm::vec3 up = glm::normalize(glm::mat3(rotation) * glm::vec3(0.0, 1.0f, 0.0f));
+	glm::vec3 right = glm::cross(up, gaze);
+
+	float halfHeight = tan((M_PI / 4.0) * 0.5);
+	float halfWidth = (halfHeight * m_height) / m_width;
+
+	glm::vec3 corner0 = gaze - (halfWidth * right) + (halfHeight * up);
+	glm::vec3 corner1 = gaze + (halfWidth * right) + (halfHeight * up);
+	glm::vec3 corner2 = gaze + (halfWidth * right) - (halfHeight * up);
+	glm::vec3 corner3 = gaze - (halfWidth * right) - (halfHeight * up);
 }
 
 void Renderer::render(const Camera& camera)
 {
+	// Update up to one chunk per frame
+	if (!m_queue.empty())
+	{
+		std::pair<int, int> coordinate = *(m_queue.begin());
+		m_queue.erase(m_queue.begin());
+		int x = coordinate.first;
+		int z = coordinate.second;
+
+		// First, get the chunk, creating if necessary (this can take some time)
+		const Chunk* chunk = m_world.chunkAt(x, z);
+
+		ChunkRenderingData* data = getRenderingData(chunk);
+		if (!data)
+		{
+			// Then, generate the vertex buffer for the chunk (this also may take some time)
+			data = new ChunkRenderingData;
+			std::unique_ptr<ChunkRenderingData> ptr(data);
+
+			glGenBuffers(1, &data->vertexBuffer);
+			m_chunkData[chunk] = std::move(ptr);
+		}
+
+		processChunk(chunk, data);
+	}
+
 	static glm::vec3 sun(-4.0, 2.0, 1.0);
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 	//sun = glm::vec3(rotation * glm::vec4(sun, 1.0));
@@ -218,22 +290,29 @@ void Renderer::render(const Camera& camera)
 
 	int x = floor(camera.eye.x / (float)Chunk::SIZE);
 	int z = floor(camera.eye.z / (float)Chunk::SIZE);
-	for (int i = -4; i <= 4; ++i)
+	for (int i = -RENDER_RADIUS; i <= RENDER_RADIUS; ++i)
 	{
-		for (int j = -4; j <= 4; ++j)
+		for (int j = -RENDER_RADIUS; j <= RENDER_RADIUS; ++j)
 		{
-			const Chunk* chunk = m_world.chunkAt(x + i, z + j);
-			renderChunk(chunk);
+			const Chunk* chunk = m_world.getChunk(x + i, z + j);
+			const ChunkRenderingData* chunkData = getRenderingData(chunk);
+			if (chunkData && !chunkData->dirty)
+			{
+				renderChunk(chunk, chunkData);
+			}
+			else
+			{
+				m_queue.insert(std::make_pair(x + i, z + j));
+			}
 		}
 	}
 }
 
-void Renderer::renderChunk(const Chunk* chunk)
+void Renderer::renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkData)
 {
-	const ChunkRenderingData& chunkData = getRenderingData(chunk);
-
 	glUseProgram(m_programId);
-	glBindBuffer(GL_ARRAY_BUFFER, chunkData.vertexBuffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, chunkData->vertexBuffer);
 
 	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, position));
 	glEnableVertexAttribArray(m_position);
@@ -249,7 +328,8 @@ void Renderer::renderChunk(const Chunk* chunk)
 	glUniform2f(m_resolution, m_width, m_height);
 
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
-	glDrawArrays(GL_TRIANGLES, 0, chunkData.vertexCount);
+
+	glDrawArrays(GL_TRIANGLES, 0, chunkData->vertexCount);
 
 	// Good OpenGL hygiene
 	glDisableVertexAttribArray(m_position);

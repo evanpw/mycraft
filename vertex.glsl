@@ -25,6 +25,6 @@ void main()
 	shading = clamp(diffuse + ambient, 0.0, 1.0);
 
 	gl_Position = vpMatrix * vec4(position, 1.0);
-	fogFactor = clamp((length(gl_Position) - 100.0) / 128.0, 0.0, 1.0);
+	fogFactor = clamp((length(gl_Position) - 90.0) / 90.0, 0.0, 1.0);
 }
 

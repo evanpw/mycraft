@@ -1,14 +1,21 @@
 #include "world.hpp"
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+
+World::World()
+: m_seed(rand())
+{
+}
 
 const Chunk* World::getChunk(int x, int z) const
 {
-	auto i = chunks.find(std::make_pair(x, z));
+	auto i = m_chunks.find(std::make_pair(x, z));
 	return i->second.get();
 }
 
 Chunk* World::getChunk(int x, int z)
 {
-	return chunks[std::make_pair(x, z)].get();
+	return m_chunks[std::make_pair(x, z)].get();
 }
 
 const Chunk* World::getChunk(const Coordinate& location) const
@@ -26,14 +33,14 @@ Chunk* World::chunkAt(int x, int z)
 	Chunk* chunk = getChunk(x, z);
 	if (!chunk)
 	{
-		std::cout << "Creating chunk at " << x << ", " << z << std::endl;
+		std::cout << "Creating chunk at " << x << " " << z << std::endl;
 
-		chunk = new Chunk(x, z);
+		chunk = new Chunk(x, z, m_seed);
 		std::unique_ptr<Chunk> ptr(chunk);
-		chunks[std::make_pair(x, z)] = std::move(ptr);
+		m_chunks[std::make_pair(x, z)] = std::move(ptr);
 
-		// TODO: Update live blocks based on this, so that we can add a new
-		// chunk in the middle of a game.
+		// TODO: Update live blocks based on this, so that boundaries are not
+		// permanently live
 	}
 
 	return chunk;

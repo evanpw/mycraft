@@ -8,6 +8,8 @@
 #include <gl/glew.h>
 #include <map>
 #include <memory>
+#include <boost/thread.hpp>
+#include <tbb/concurrent_queue.h>
 
 struct ChunkRenderingData
 {
@@ -20,6 +22,7 @@ class Renderer
 {
 public:
 	Renderer(int width, int height, World& world);
+	~Renderer();
 
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;
@@ -32,19 +35,27 @@ public:
 	void invalidate(const Chunk* chunk);
 
 private:
-	// Fills the vertex buffer specified by data.vertexBuffer with the current
-	// data from chunk. Updates data.vertexCount and set data.dirty to false.
-	void processChunk(const Chunk* chunk, ChunkRenderingData& data);
+	void findFrustum(const Camera& camera);
 
-	const ChunkRenderingData& getRenderingData(const Chunk* chunk);
-	void renderChunk(const Chunk* chunk);
+	// Generates the vertex buffer for the given chunk. This will only ever be
+	// called from the chunkMaker thread
+	void processChunk(const Chunk* chunk, ChunkRenderingData* data);
+
+	// This is an accessor only. If the given data has not been generated, returns
+	// nullptr
+	ChunkRenderingData* getRenderingData(const Chunk* chunk);
+
+	// Assumes that chunk and chunkData are not null
+	void renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkData);
 
 	void buildViewProjectionMatrix(const Camera& camera) const;
 
 	int m_width, m_height;
 	World& m_world;
 
-	std::map<const Chunk*, ChunkRenderingData> m_chunkData;
+	std::set<std::pair<int, int>> m_queue;
+
+	std::map<const Chunk*, std::unique_ptr<ChunkRenderingData>> m_chunkData;
 
 	std::unique_ptr<BlockLibrary> m_blockLibrary;
 

@@ -14,9 +14,11 @@
 #include <sstream>
 #include <map>
 #include <vector>
+
 #include <GL/glew.h>
 #include <GL/glfw.h>
 #include <glm/glm.hpp>
+#include <boost/thread.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 void checkError(const char* where)
@@ -183,9 +185,32 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 	}
 }
 
+size_t frames = 0;
+bool running = true;
+void fpsThread()
+{
+	while (running)
+	{
+		boost::chrono::milliseconds duration(2000);
+
+		size_t lastFrames = frames;
+		float lastTime = glfwGetTime();
+
+    	boost::this_thread::sleep_for(duration);
+
+    	// Measure speed
+    	size_t currentFrames = frames;
+	    float currentTime = glfwGetTime();
+
+        std::cout << float(currentFrames - lastFrames) / (currentTime - lastTime) << " fps" << std::endl;
+    }
+}
+
 int main()
 {
 	srand(time(0));
+
+	boost::thread thread(fpsThread);
 
 	// Initialize glfw
 	if (!glfwInit())
@@ -229,40 +254,29 @@ int main()
 	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT, *world);
 
 	// Make sure that there is a world before we start animating
-	for (int x = -4; x <= 4; ++x)
-		for (int z = -4; z <= 4; ++z)
-			world->chunkAt(x, z);
+	world->chunkAt(0, 0);
 
 	// Start up in the air
-	float location = (Chunk::SIZE / 2.0) + 0.5;
-	camera.eye = glm::vec3(location, 64.0, location);
+	camera.eye = glm::vec3(0.0, 64.0, 0.0);
 
 	int lastx, lasty;
 	glfwGetMousePos(&lastx, &lasty);
 
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
-	float lastTime = glfwGetTime();
 	float lastFrame = 0.0f;
- 	int nbFrames = 0;
 
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Measure speed
 	    float currentTime = glfwGetTime();
-	    if (currentTime - lastTime >= 1.0)
-	    {
-	        std::cout << float(nbFrames) / (currentTime - lastTime) << " fps" << std::endl;
-	        nbFrames = 0;
-	        lastTime = currentTime;
-	    }
 
 	    // y-coordinate of the player's feet
 	    float feetY = camera.eye.y - PLAYER_HEIGHT;
 
 	    // Height of the player's feet above the block directly below
-	    float heightAboveBlock = feetY - static_cast<int>(feetY);
+	    float heightAboveBlock = feetY - int(floor(feetY));
 
 	    // Coordinates the block directly below the player's feet
 	    Coordinate blockBelow(camera.eye.x, int(feetY) - 1, camera.eye.z);
@@ -388,16 +402,15 @@ int main()
 
 		renderer->render(camera);
 
-		Coordinate targetedBlock;
-		castRay(targetedBlock);
-
 		// Display on the screen
 		glfwSwapBuffers();
-		nbFrames++;
+		frames++;
 		lastFrame = glfwGetTime() - currentTime;
 	}
 
 	// Close OpenGL window and terminate glfw
+	running = false;
+	thread.join();
 	glfwTerminate();
 	return 0;
 }
