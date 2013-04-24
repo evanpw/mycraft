@@ -1,10 +1,12 @@
+#define GLM_SWIZZLE
+#include <glm/glm.hpp>
+
 #include "renderer.hpp"
 #include "shaders.hpp"
 #include <array>
 #include <cmath>
-#include <boost/bind.hpp>
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <gl/glfw.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -136,14 +138,12 @@ Renderer::Renderer(int width, int height, World& world)
 	m_brightness = glGetUniformLocation(m_programId, "brightness");
 }
 
-Renderer::~Renderer()
-{
-	// TODO: Kill chunkMaker thread
-}
-
 void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
 {
+	float start = glfwGetTime();
+
 	std::vector<VertexData> vertices;
+	vertices.reserve(m_world.liveBlocks(chunk).size() * 36);
 
 	// Create the vertex data
 	for (auto& cube : m_world.liveBlocks(chunk))
@@ -163,11 +163,17 @@ void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
 		}
 	}
 
+	float generated = glfwGetTime();
+
 	std::cout << "Vertex count: " << vertices.size() << std::endl;
 	std::cout << "VBO size: " << (sizeof(VertexData) * vertices.size() / (1 << 20)) << "MB" << std::endl;
 
 	glBindBuffer(GL_ARRAY_BUFFER, data->vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	float uploaded = glfwGetTime();
+
+	std::cout << "Time to generate geometry: " << (generated - start) << ", time to upload geometry: " << (uploaded - generated) << std::endl;
 
 	data->vertexCount = vertices.size();
 	data->dirty = false;
@@ -240,13 +246,36 @@ void Renderer::findFrustum(const Camera& camera)
 	glm::vec3 corner3 = gaze - (halfWidth * right) - (halfHeight * up);
 }
 
+class DistanceToCamera
+{
+public:
+	DistanceToCamera(const Camera& camera)
+	{
+		m_camera = camera.eye.xz;
+	}
+
+	bool operator()(const std::pair<int, int>& lhs, const std::pair<int, int>& rhs)
+	{
+		glm::vec2 lhsCenter = float(Chunk::SIZE) * glm::vec2(lhs.first + 0.5, lhs.second + 0.5);
+		glm::vec2 rhsCenter = float(Chunk::SIZE) * glm::vec2(rhs.first + 0.5, rhs.second + 0.5);
+
+		return glm::distance(lhsCenter, m_camera) < glm::distance(rhsCenter, m_camera);
+	}
+
+private:
+	glm::vec2 m_camera;
+};
+
 void Renderer::render(const Camera& camera)
 {
 	// Update up to one chunk per frame
 	if (!m_queue.empty())
 	{
-		std::pair<int, int> coordinate = *(m_queue.begin());
-		m_queue.erase(m_queue.begin());
+		// Pop the nearest chunk from the queue
+		auto i = std::min_element(m_queue.begin(), m_queue.end(), DistanceToCamera(camera));
+		std::pair<int, int> coordinate = *i;
+		m_queue.erase(i);
+
 		int x = coordinate.first;
 		int z = coordinate.second;
 
@@ -288,6 +317,14 @@ void Renderer::render(const Camera& camera)
 
 	glUniform3fv(m_sunPosition, 1, &sun[0]);
 
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(m_textureSampler, 0);
+	glUniform2f(m_resolution, m_width, m_height);
+
+	glUseProgram(m_programId);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
+
 	int x = floor(camera.eye.x / (float)Chunk::SIZE);
 	int z = floor(camera.eye.z / (float)Chunk::SIZE);
 	for (int i = -RENDER_RADIUS; i <= RENDER_RADIUS; ++i)
@@ -296,11 +333,15 @@ void Renderer::render(const Camera& camera)
 		{
 			const Chunk* chunk = m_world.getChunk(x + i, z + j);
 			const ChunkRenderingData* chunkData = getRenderingData(chunk);
-			if (chunkData && !chunkData->dirty)
+
+			// Render dirty chunks also - it's better to show a slightly out-of-date
+			// image rather than a giant hole in the world.
+			if (chunkData)
 			{
 				renderChunk(chunk, chunkData);
 			}
-			else
+
+			if (!chunkData || chunkData->dirty)
 			{
 				m_queue.insert(std::make_pair(x + i, z + j));
 			}
@@ -310,8 +351,6 @@ void Renderer::render(const Camera& camera)
 
 void Renderer::renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkData)
 {
-	glUseProgram(m_programId);
-
 	glBindBuffer(GL_ARRAY_BUFFER, chunkData->vertexBuffer);
 
 	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, position));
@@ -322,12 +361,6 @@ void Renderer::renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkDa
 
 	glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
 	glEnableVertexAttribArray(m_normal);
-
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(m_textureSampler, 0);
-	glUniform2f(m_resolution, m_width, m_height);
-
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
 
 	glDrawArrays(GL_TRIANGLES, 0, chunkData->vertexCount);
 

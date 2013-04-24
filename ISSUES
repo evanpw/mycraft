@@ -1,0 +1,8 @@
+Known Bugs and Issues
+=====================
+* The targeted block is not highlighted
+* The Coordinate class should be replaced with glm::ivec3
+* The crosshairs don't appear over sky
+* Most of the chunk generation and geometry building should be offloaded to another thread
+* Need to implement frustum culling of chunks
+* Use a fixed-size array for chunks rather than a map

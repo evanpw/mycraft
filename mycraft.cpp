@@ -264,14 +264,9 @@ int main()
 
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
-	float lastFrame = 0.0f;
-
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
-		// Measure speed
-	    float currentTime = glfwGetTime();
-
 	    // y-coordinate of the player's feet
 	    float feetY = camera.eye.y - PLAYER_HEIGHT;
 
@@ -283,10 +278,10 @@ int main()
 
 	    bool inAir = (heightAboveBlock > 1e-3) || !world->isSolid(blockBelow);
 
-		float blocksPerFrame = WALKING_SPEED * lastFrame;
+		float blocksPerFrame = WALKING_SPEED / 15.0;
 		if (!gravity && inAir)
 		{
-			blocksPerFrame = FLYING_SPEED * lastFrame;
+			blocksPerFrame = FLYING_SPEED / 15.0;
 		}
 
 		glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -321,8 +316,8 @@ int main()
 		{
 			if (inAir)
 			{
-				velocity -= GRAVITY * lastFrame * glm::vec3(0.0f, 1.0f, 0.0f);
-				velocity *= (1 - AIR_RESISTANCE * lastFrame);
+				velocity -= GRAVITY / 15.0f * glm::vec3(0.0f, 1.0f, 0.0f);
+				velocity *= (1 - AIR_RESISTANCE / 15.0);
 			}
 		}
 		else if (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS)
@@ -343,7 +338,7 @@ int main()
 			step += blocksPerFrame * right;
 
 		// Actually do the falling / rising
-		step += velocity * lastFrame;
+		step += velocity / 15.0f;
 
 		int oldX = camera.eye.x;
 		int oldY = camera.eye.y - PLAYER_HEIGHT;
@@ -405,7 +400,6 @@ int main()
 		// Display on the screen
 		glfwSwapBuffers();
 		frames++;
-		lastFrame = glfwGetTime() - currentTime;
 	}
 
 	// Close OpenGL window and terminate glfw

@@ -22,7 +22,6 @@ class Renderer
 {
 public:
 	Renderer(int width, int height, World& world);
-	~Renderer();
 
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;

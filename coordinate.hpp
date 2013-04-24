@@ -15,8 +15,11 @@ struct Coordinate
 	{}
 
 	Coordinate(const glm::vec3& v)
-	: x(v.x), y(v.y), z(v.z)
-	{}
+	{
+		x = int(floor(v.x));
+		y = int(floor(v.y));
+		z = int(floor(v.z));
+	}
 
 	glm::vec3 vec3() const
 	{
