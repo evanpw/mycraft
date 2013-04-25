@@ -41,17 +41,6 @@ struct CubeVertex
 
 const std::array<CubeVertex, 36> cubeMesh =
 {{
-	// Front face
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-
-
 	// Right face
 	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
 	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
@@ -60,18 +49,6 @@ const std::array<CubeVertex, 36> cubeMesh =
 	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
 	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
 	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
-
-
-	// Back face
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-
 
 
 	// Left face
@@ -84,7 +61,6 @@ const std::array<CubeVertex, 36> cubeMesh =
 	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
 
 
-
 	// Top face
 	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
 	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
@@ -95,7 +71,6 @@ const std::array<CubeVertex, 36> cubeMesh =
 	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
 
 
-
 	// Bottom face
 	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
 	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
@@ -103,7 +78,27 @@ const std::array<CubeVertex, 36> cubeMesh =
 
 	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
 	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+
+
+	// Front face
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+
+
+	// Back face
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
 }};
 
 Renderer* renderer;
@@ -136,6 +131,7 @@ private:
 	Mesh* getMesh(const Chunk* chunk);
 
 	std::vector<Block*> getLiveBlocks(const Chunk* chunk);
+	unsigned int getLiveFaces(const Coordinate& r);
 
 	// Chunks are loaded/generated asynchronously
 	std::set<std::pair<int, int>> m_chunkQueue;
@@ -304,8 +300,8 @@ std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 		}
 	}
 
-	std::cout << "Loaded chunks: " << m_chunks.size() << ", loaded meshes = " << m_meshes.size() << std::endl;
-	std::cout << "In queue: " << m_chunkQueue.size() << std::endl;
+	//std::cout << "Loaded chunks: " << m_chunks.size() << ", loaded meshes = " << m_meshes.size() << std::endl;
+	//std::cout << "In queue: " << m_chunkQueue.size() << std::endl;
 
 	// Free/unload chunks and meshes that are far away from the camera
 	glm::vec2 camera2d = camera.eye.xz;
@@ -321,13 +317,13 @@ std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 		glm::vec2 chunkCenter = DistanceToCamera::chunkCenter(location);
 		if (glm::distance(chunkCenter, camera2d) > 5 * Renderer::RENDER_RADIUS * Chunk::SIZE)
 		{
-			std::cout << "Freeing chunk at " << chunk->x() << " " << chunk->z() << std::endl;
+			//std::cout << "Freeing chunk at " << chunk->x() << " " << chunk->z() << std::endl;
 			freeMesh(chunk);
 			m_chunks.erase(current);
 		}
 		else if (getMesh(chunk) && glm::distance(chunkCenter, camera2d) > 2 * Renderer::RENDER_RADIUS * Chunk::SIZE)
 		{
-			std::cout << "Freeing mesh at " << chunk->x() << " " << chunk->z() << std::endl;
+			//std::cout << "Freeing mesh at " << chunk->x() << " " << chunk->z() << std::endl;
 			freeMesh(chunk);
 		}
 	}
@@ -370,15 +366,31 @@ std::vector<Block*> ChunkManager::getLiveBlocks(const Chunk* chunk)
 		const std::unique_ptr<Block>& block = i.second;
 
 		// Check all sides of the cube
-		if (isTransparent(r.addX(1)) || isTransparent(r.addX(-1)) ||
-			isTransparent(r.addY(1)) || isTransparent(r.addY(-1)) ||
-			isTransparent(r.addZ(1)) || isTransparent(r.addZ(-1)))
-		{
+		if (getLiveFaces(r) != 0)
 			liveBlocks.push_back(block.get());
-		}
 	}
 
 	return liveBlocks;
+}
+
+const unsigned int PLUS_X = 1 << 0;
+const unsigned int MINUS_X = 1 << 1;
+const unsigned int PLUS_Y = 1 << 2;
+const unsigned int MINUS_Y = 1 << 3;
+const unsigned int PLUS_Z = 1 << 4;
+const unsigned int MINUS_Z = 1 << 5;
+
+unsigned int ChunkManager::getLiveFaces(const Coordinate& r)
+{
+	unsigned int mask = 0;
+	if (isTransparent(r.addX(1))) mask |= PLUS_X;
+	if (isTransparent(r.addX(-1))) mask |= MINUS_X;
+	if (isTransparent(r.addY(1))) mask |= PLUS_Y;
+	if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
+	if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
+	if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
+
+	return mask;
 }
 
 void ChunkManager::rebuildMesh(const Chunk* chunk)
@@ -388,21 +400,37 @@ void ChunkManager::rebuildMesh(const Chunk* chunk)
 
 	mesh->vertices.clear();
 
+	unsigned int masks[6] =
+	{
+		PLUS_X, MINUS_X,
+		PLUS_Y, MINUS_Y,
+		PLUS_Z, MINUS_Z
+	};
+
 	// Create the vertex data
 	for (auto& cube : getLiveBlocks(chunk))
 	{
 		// Translate the cube mesh to the appropriate place in world coordinates
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
 
-		for (auto& meshVertex : cubeMesh)
+		unsigned int liveFaces = getLiveFaces(cube->location);
+		for (size_t face = 0; face < 6; ++face)
 		{
-			Vertex vertex;
-			copyVector(vertex.position, glm::vec3(model * glm::vec4(meshVertex.position, 1.0)));
-			copyVector(vertex.texCoord, meshVertex.position);
-			vertex.texCoord[3] = cube->blockType;
-			copyVector(vertex.normal, meshVertex.normal);
+			if (liveFaces & masks[face])
+			{
+				for (size_t i = 0; i < 6; ++i)
+				{
+					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
 
-			mesh->vertices.push_back(vertex);
+					Vertex vertex;
+					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
+					copyVector(vertex.texCoord, cubeVertex.position);
+					vertex.texCoord[3] = cube->blockType;
+					copyVector(vertex.normal, cubeVertex.normal);
+
+					mesh->vertices.push_back(vertex);
+				}
+			}
 		}
 	}
 
@@ -641,11 +669,6 @@ int main()
 
 	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT);
 	chunkManager = new ChunkManager(rand());
-	//world = new World;
-	//renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT, *world);
-
-	// Make sure that there is a world before we start animating
-	//world->chunkAt(0, 0);
 
 	// Start up in the air
 	camera.eye = glm::vec3(0.0, 64.0, 0.0);
@@ -655,9 +678,16 @@ int main()
 
 	glfwEnable(GLFW_MOUSE_CURSOR);
 
+	float lastUpdate = glfwGetTime();
+
 	// Loop until the escape key is pressed or the window is closed
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
+		// Time elapsed since last update
+		float now = glfwGetTime();
+		float elapsed = now - lastUpdate;
+		lastUpdate = now;
+
 	    // y-coordinate of the player's feet
 	    float feetY = camera.eye.y - PLAYER_HEIGHT;
 
@@ -668,12 +698,7 @@ int main()
 	    Coordinate blockBelow(camera.eye.x, int(feetY) - 1, camera.eye.z);
 
 	    bool inAir = (heightAboveBlock > 1e-3) || true; //!world->isSolid(blockBelow);
-
-		float blocksPerFrame = WALKING_SPEED / 15.0;
-		if (!gravity && inAir)
-		{
-			blocksPerFrame = FLYING_SPEED / 15.0;
-		}
+	    float speed = (!gravity && inAir) ? FLYING_SPEED : WALKING_SPEED;
 
 		glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::vec3 facing = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
@@ -699,7 +724,7 @@ int main()
 		if (!gravity && glfwGetKey(GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
 			velocity.y = 0.0f;
-			step.y += blocksPerFrame;
+			step.y += speed;
 		}
 
 		// Falling
@@ -707,30 +732,29 @@ int main()
 		{
 			if (inAir)
 			{
-				velocity -= GRAVITY / 15.0f * glm::vec3(0.0f, 1.0f, 0.0f);
-				velocity *= (1 - AIR_RESISTANCE / 15.0);
+				velocity -= elapsed * GRAVITY * glm::vec3(0.0f, 1.0f, 0.0f);
+				velocity *= (1 - AIR_RESISTANCE * elapsed);
 			}
 		}
 		else if (glfwGetKey(GLFW_KEY_LSHIFT) == GLFW_PRESS)
 		{
-			step.y -= blocksPerFrame;
+			step.y -= speed;
 		}
 
 		if (glfwGetKey('W') == GLFW_PRESS)
-			//step += blocksPerFrame * facing;
-			velocity = 15.0f * blocksPerFrame * facing;
+			step += speed * facing;
 
 		if (glfwGetKey('S') == GLFW_PRESS)
-			step -= blocksPerFrame * facing;
+			step -= speed * facing;
 
 		if (glfwGetKey('A') == GLFW_PRESS)
-			step -= blocksPerFrame * right;
+			step -= speed * right;
 
 		if (glfwGetKey('D') == GLFW_PRESS)
-			step += blocksPerFrame * right;
+			step += speed * right;
 
 		// Actually do the falling / rising
-		step += velocity / 15.0f;
+		step += velocity;
 
 		/*
 		int oldX = camera.eye.x;
@@ -766,7 +790,7 @@ int main()
 		}
 		*/
 
-		camera.eye += step;
+		camera.eye += step * elapsed;
 
 		if (glfwGetKey(GLFW_KEY_ESC) == GLFW_PRESS)
 		{
