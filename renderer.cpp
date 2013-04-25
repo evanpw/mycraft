@@ -12,94 +12,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-struct VertexData
-{
-	GLfloat position[3];
-	GLfloat texCoord[4];
-	GLfloat normal[3];
-};
-
-void copyVector(GLfloat* dest, const glm::vec3& source)
-{
-	dest[0] = source.x;
-	dest[1] = source.y;
-	dest[2] = source.z;
-}
-
-struct MeshVertex
-{
-	glm::vec3 position, normal;
-};
-
-const std::array<MeshVertex, 36> cubeMesh =
-{{
-	// Front face
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-
-
-	// Right face
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
-
-
-	// Back face
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-
-
-
-	// Left face
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-
-
-
-	// Top face
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-
-
-
-	// Bottom face
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}
-}};
-
-Renderer::Renderer(int width, int height, World& world)
-: m_world(world), m_blockLibrary(new BlockLibrary)
+Renderer::Renderer(int width, int height)
+: m_blockLibrary(new BlockLibrary)
 {
 	setSize(width, height);
 
@@ -115,9 +29,8 @@ Renderer::Renderer(int width, int height, World& world)
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Create a vertex array object
-	GLuint vertexArray;
-	glGenVertexArrays(1, &vertexArray);
-	glBindVertexArray(vertexArray);
+	glGenVertexArrays(1, &m_vertexArray);
+	glBindVertexArray(m_vertexArray);
 
 	// Load, compile, and link the shaders
 	GLuint vertexShader = loadShader("vertex.glsl", GL_VERTEX_SHADER);
@@ -138,11 +51,89 @@ Renderer::Renderer(int width, int height, World& world)
 	m_brightness = glGetUniformLocation(m_programId, "brightness");
 }
 
+Renderer::~Renderer()
+{
+	glDeleteVertexArrays(1, &m_vertexArray);
+	glDeleteProgram(m_programId);
+}
+
+void Renderer::uploadMesh(Mesh* mesh)
+{
+	assert(mesh->needsUploaded);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * mesh->vertices.size(), &mesh->vertices[0], GL_STATIC_DRAW);
+
+	// We no longer need to store the mesh vertex data in main memory
+	mesh->vertexCount = mesh->vertices.size();
+	mesh->vertices.clear();
+	mesh->vertices.shrink_to_fit();
+	mesh->needsUploaded = false;
+}
+
+void Renderer::renderMeshes(const Camera& camera, const std::vector<Mesh*>& meshes)
+{
+	static glm::vec3 sun(-4.0, 2.0, 1.0);
+	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
+	//sun = glm::vec3(rotation * glm::vec4(sun, 1.0));
+
+	// All of the blocks have the same view and projection matrices
+	buildViewProjectionMatrix(camera);
+
+	// Adjust the brighness level depending on the height of the sun
+	float brightness = 1.0;
+	float sunHeight = sun.y / sqrt(sun.y * sun.y + sun.z * sun.z);
+	if (sunHeight < 0.2)
+		brightness = glm::clamp(sunHeight + 0.8, 0.0, 1.0);
+	glUniform1f(m_brightness, brightness);
+
+	// Fill the screen with sky color
+	glm::vec3 skyColor = brightness * glm::vec3(0.6f, 0.6f, 1.0f);
+	glClearColor(skyColor.r, skyColor.g, skyColor.b, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glUniform3fv(m_sunPosition, 1, &sun[0]);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(m_textureSampler, 0);
+	glUniform2f(m_resolution, m_width, m_height);
+
+	glUseProgram(m_programId);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
+
+	glEnableVertexAttribArray(m_position);
+	glEnableVertexAttribArray(m_texCoord);
+	glEnableVertexAttribArray(m_normal);
+
+	size_t uploaded = 0;
+	for (Mesh* mesh : meshes)
+	{
+		if (mesh->needsUploaded)
+		{
+			uploadMesh(mesh);
+			++uploaded;
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+		glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+		glVertexAttribPointer(m_texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+		glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
+	}
+
+	// Good OpenGL hygiene
+	glDisableVertexAttribArray(m_position);
+	glDisableVertexAttribArray(m_texCoord);
+	glDisableVertexAttribArray(m_normal);
+}
+
+/*
 void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
 {
 	float start = glfwGetTime();
 
-	std::vector<VertexData> vertices;
+	std::vector<Vertex> vertices;
 	vertices.reserve(m_world.liveBlocks(chunk).size() * 36);
 
 	// Create the vertex data
@@ -153,7 +144,7 @@ void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
 
 		for (auto& meshVertex : cubeMesh)
 		{
-			VertexData vertex;
+			Vertex vertex;
 			copyVector(vertex.position, glm::vec3(model * glm::vec4(meshVertex.position, 1.0)));
 			copyVector(vertex.texCoord, meshVertex.position);
 			vertex.texCoord[3] = cube->blockType;
@@ -166,10 +157,10 @@ void Renderer::processChunk(const Chunk* chunk, ChunkRenderingData* data)
 	float generated = glfwGetTime();
 
 	std::cout << "Vertex count: " << vertices.size() << std::endl;
-	std::cout << "VBO size: " << (sizeof(VertexData) * vertices.size() / (1 << 20)) << "MB" << std::endl;
+	std::cout << "VBO size: " << (sizeof(Vertex) * vertices.size() / (1 << 20)) << "MB" << std::endl;
 
 	glBindBuffer(GL_ARRAY_BUFFER, data->vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 
 	float uploaded = glfwGetTime();
 
@@ -226,6 +217,7 @@ bool arcsIntersect(float lower1, float upper1, float lower2, float upper2)
 
 	return !((upper1 < lower2) || (upper2 < lower1));
 }
+
 
 const int RENDER_RADIUS = 4;
 
@@ -353,13 +345,13 @@ void Renderer::renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkDa
 {
 	glBindBuffer(GL_ARRAY_BUFFER, chunkData->vertexBuffer);
 
-	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, position));
+	glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 	glEnableVertexAttribArray(m_position);
 
-	glVertexAttribPointer(m_texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, texCoord));
+	glVertexAttribPointer(m_texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 	glEnableVertexAttribArray(m_texCoord);
 
-	glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void*)offsetof(VertexData, normal));
+	glVertexAttribPointer(m_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 	glEnableVertexAttribArray(m_normal);
 
 	glDrawArrays(GL_TRIANGLES, 0, chunkData->vertexCount);
@@ -369,6 +361,7 @@ void Renderer::renderChunk(const Chunk* chunk, const ChunkRenderingData* chunkDa
 	glDisableVertexAttribArray(m_texCoord);
 	glDisableVertexAttribArray(m_normal);
 }
+*/
 
 void Renderer::setSize(int width, int height)
 {

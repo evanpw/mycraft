@@ -4,6 +4,7 @@
 #include <ctime>
 
 Chunk::Chunk(int x, int z, unsigned int seed)
+: m_x(x), m_z(z)
 {
 	PerlinNoise heightMap(seed);
 	PerlinNoise noise(seed + 1);
@@ -50,7 +51,7 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 	}
 
 	// Dirt with air above it becomes grass
-	for (auto& i : m_allBlocks)
+	for (auto& i : m_blocks)
 	{
 		const Coordinate& location = i.first;
 		auto& block = i.second;
@@ -62,8 +63,8 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 
 const Block* Chunk::get(const Coordinate& location) const
 {
-	auto i = m_allBlocks.find(location);
-	if (i == m_allBlocks.end())
+	auto i = m_blocks.find(location);
+	if (i == m_blocks.end())
 	{
 		return nullptr;
 	}
@@ -76,10 +77,10 @@ const Block* Chunk::get(const Coordinate& location) const
 void Chunk::newBlock(int x, int y, int z, BlockLibrary::Tag tag)
 {
 	Coordinate location(x, y, z);
-	m_allBlocks[location] = std::unique_ptr<Block>(new Block(location, tag));
+	m_blocks[location] = std::unique_ptr<Block>(new Block(location, tag));
 }
 
 void Chunk::removeBlock(const Coordinate& location)
 {
-	m_allBlocks.erase(location);
+	m_blocks.erase(location);
 }

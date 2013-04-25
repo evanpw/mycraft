@@ -1,9 +1,11 @@
+#define GLM_SWIZZLE
+#include <glm/glm.hpp>
+
 #include "block_library.hpp"
 #include "chunk.hpp"
 #include "coordinate.hpp"
 #include "renderer.hpp"
 #include "shaders.hpp"
-#include "world.hpp"
 
 #include <array>
 #include <cstdint>
@@ -17,9 +19,401 @@
 
 #include <GL/glew.h>
 #include <GL/glfw.h>
-#include <glm/glm.hpp>
-#include <boost/thread.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+#include <tbb/concurrent_queue.h>
+
+const int INITIAL_WIDTH = 640;
+const int INITIAL_HEIGHT = 480;
+
+void copyVector(GLfloat* dest, const glm::vec3& source)
+{
+	dest[0] = source.x;
+	dest[1] = source.y;
+	dest[2] = source.z;
+}
+
+struct CubeVertex
+{
+	glm::vec3 position, normal;
+};
+
+const std::array<CubeVertex, 36> cubeMesh =
+{{
+	// Front face
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
+
+
+
+	// Right face
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+
+
+
+	// Back face
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
+
+
+
+	// Left face
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
+
+
+
+	// Top face
+	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+
+	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+
+
+
+	// Bottom face
+	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+
+	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
+	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)}
+}};
+
+Renderer* renderer;
+
+class ChunkManager
+{
+public:
+	ChunkManager(int seed);
+
+	std::vector<Mesh*> getVisibleMeshes(const Camera& camera);
+
+	// Access the world
+	const Block* getBlock(const Coordinate& r);
+	bool isTransparent(const Coordinate& r);
+
+	void setSize(int width, int height);
+
+private:
+	// The seed for the PRNG used by the terrain generator
+	int m_seed;
+
+	void createMesh(const Chunk* chunk);
+	void freeMesh(const Chunk* chunk);
+
+	// Gets the chunk at the given coordinates, or null if it has
+	// not yet been generated/loaded.
+	const Chunk* getChunk(int x, int z);
+
+	// Returns null if the mesh has not yet been generated.
+	Mesh* getMesh(const Chunk* chunk);
+
+	std::vector<Block*> getLiveBlocks(const Chunk* chunk);
+
+	// Chunks are loaded/generated asynchronously
+	std::set<std::pair<int, int>> m_chunkQueue;
+	void loadOrCreateChunk(int x, int z);
+
+	// Twice the number of chunks in the render radius
+	static const size_t MAX_OBJECTS = 200;
+	std::vector<GLuint> m_vboPool;
+
+	std::map<std::pair<int, int>, std::unique_ptr<Chunk>> m_chunks;
+
+	// Meshes are rebuilt asynchronously
+	void rebuildMesh(const Chunk* chunk);
+
+	std::map<const Chunk*, std::unique_ptr<Mesh>> m_meshes;
+};
+
+ChunkManager::ChunkManager(int seed)
+: m_seed(seed)
+{
+	// Create a bunch of vertex buffers initially, so that we don't
+	// have to keep allocating and deleting
+	m_vboPool.resize(MAX_OBJECTS);
+	glGenBuffers(MAX_OBJECTS, &m_vboPool[0]);
+}
+
+void ChunkManager::createMesh(const Chunk* chunk)
+{
+	assert(!m_vboPool.empty());
+
+	Mesh* mesh = new Mesh;
+	mesh->vertexBuffer = m_vboPool.back();
+	m_vboPool.pop_back();
+	mesh->needsRebuilt = true;
+
+	m_meshes[chunk] = std::unique_ptr<Mesh>(mesh);
+}
+
+void ChunkManager::freeMesh(const Chunk* chunk)
+{
+	auto i = m_meshes.find(chunk);
+	if (i != m_meshes.end())
+	{
+		// Return the vertex buffer to the pool to be reused
+		m_vboPool.push_back(i->second->vertexBuffer);
+		m_meshes.erase(i);
+	}
+}
+
+const Chunk* ChunkManager::getChunk(int x, int z)
+{
+	auto i = m_chunks.find(std::make_pair(x, z));
+	if (i == m_chunks.end())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return i->second.get();
+	}
+}
+
+Mesh* ChunkManager::getMesh(const Chunk* chunk)
+{
+	auto i = m_meshes.find(chunk);
+	if (i == m_meshes.end())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return i->second.get();
+	}
+}
+
+void ChunkManager::loadOrCreateChunk(int x, int z)
+{
+	// TODO: Load from a file
+	std::unique_ptr<Chunk> newChunk(new Chunk(x, z, m_seed));
+	m_chunks[std::make_pair(x, z)] = std::move(newChunk);
+}
+
+class DistanceToCamera
+{
+public:
+	DistanceToCamera(const Camera& camera)
+	{
+		m_camera = camera.eye.xz;
+	}
+
+	static glm::vec2 chunkCenter(const std::pair<int, int>& location)
+	{
+		return float(Chunk::SIZE) * glm::vec2(location.first + 0.5, location.second + 0.5);
+	}
+
+	bool operator()(const std::pair<int, int>& lhs, const std::pair<int, int>& rhs)
+	{
+		return glm::distance(chunkCenter(lhs), m_camera) < glm::distance(chunkCenter(rhs), m_camera);
+	}
+
+private:
+	glm::vec2 m_camera;
+};
+
+const size_t MAX_PER_FRAME = 1;
+std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
+{
+	size_t processed = 0;
+	while (!m_chunkQueue.empty() && processed < MAX_PER_FRAME)
+	{
+		auto i = std::min_element(m_chunkQueue.begin(), m_chunkQueue.end(), DistanceToCamera(camera));
+		std::pair<int, int> chunkCoord = *i;
+		m_chunkQueue.erase(i);
+
+		if (!getChunk(chunkCoord.first, chunkCoord.second))
+		{
+			loadOrCreateChunk(chunkCoord.first, chunkCoord.second);
+			++processed;
+			if (processed >= MAX_PER_FRAME) break;
+		}
+
+		const Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
+		if (!getMesh(chunk))
+		{
+			createMesh(chunk);
+		}
+
+		if (getMesh(chunk)->needsRebuilt)
+		{
+			rebuildMesh(chunk);
+			++processed;
+		}
+	}
+
+	std::vector<Mesh*> meshes;
+
+	int x = floor(camera.eye.x / (float)Chunk::SIZE);
+	int z = floor(camera.eye.z / (float)Chunk::SIZE);
+	for (int i = -Renderer::RENDER_RADIUS; i <= Renderer::RENDER_RADIUS; ++i)
+	{
+		for (int j = -Renderer::RENDER_RADIUS; j <= Renderer::RENDER_RADIUS; ++j)
+		{
+			const Chunk* chunk = getChunk(x + i, z + j);
+			if (!chunk)
+			{
+				m_chunkQueue.insert(std::make_pair(x + i, z + j));
+				continue;
+			}
+
+			Mesh* mesh = getMesh(chunk);
+			if (!mesh)
+			{
+				m_chunkQueue.insert(std::make_pair(x + i, z + j));
+			}
+			else
+			{
+				if (mesh->needsRebuilt)
+				{
+					m_chunkQueue.insert(std::make_pair(x + i, z + j));
+				}
+
+				// Render dirty chunks also - it's better to show a slightly out-of-date
+				// image rather than a giant hole in the world.
+				meshes.push_back(mesh);
+			}
+		}
+	}
+
+	std::cout << "Loaded chunks: " << m_chunks.size() << ", loaded meshes = " << m_meshes.size() << std::endl;
+	std::cout << "In queue: " << m_chunkQueue.size() << std::endl;
+
+	// Free/unload chunks and meshes that are far away from the camera
+	glm::vec2 camera2d = camera.eye.xz;
+
+	// We have to do this loop manually because elements are being deleted inside the loop
+	auto j = m_chunks.begin();
+	while (j != m_chunks.end())
+	{
+		auto current = j++;
+		const std::pair<int, int>& location = current->first;
+		const Chunk* chunk = current->second.get();
+
+		glm::vec2 chunkCenter = DistanceToCamera::chunkCenter(location);
+		if (glm::distance(chunkCenter, camera2d) > 5 * Renderer::RENDER_RADIUS * Chunk::SIZE)
+		{
+			std::cout << "Freeing chunk at " << chunk->x() << " " << chunk->z() << std::endl;
+			freeMesh(chunk);
+			m_chunks.erase(current);
+		}
+		else if (getMesh(chunk) && glm::distance(chunkCenter, camera2d) > 2 * Renderer::RENDER_RADIUS * Chunk::SIZE)
+		{
+			std::cout << "Freeing mesh at " << chunk->x() << " " << chunk->z() << std::endl;
+			freeMesh(chunk);
+		}
+	}
+
+	return meshes;
+}
+
+const Block* ChunkManager::getBlock(const Coordinate& location)
+{
+	int x = floor(location.x / float(Chunk::SIZE));
+	int z = floor(location.z / float(Chunk::SIZE));
+
+	const Chunk* chunk = getChunk(x, z);
+	if (chunk)
+	{
+		return chunk->get(location);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+bool ChunkManager::isTransparent(const Coordinate& location)
+{
+	const Block* block = getBlock(location);
+
+	// TODO: Support transparent blocks other than air
+	return (block == nullptr);
+}
+
+std::vector<Block*> ChunkManager::getLiveBlocks(const Chunk* chunk)
+{
+	// TODO: Pre-compute a lot of this
+
+	std::vector<Block*> liveBlocks;
+	for (auto& i : chunk->blocks())
+	{
+		const Coordinate& r = i.first;
+		const std::unique_ptr<Block>& block = i.second;
+
+		// Check all sides of the cube
+		if (isTransparent(r.addX(1)) || isTransparent(r.addX(-1)) ||
+			isTransparent(r.addY(1)) || isTransparent(r.addY(-1)) ||
+			isTransparent(r.addZ(1)) || isTransparent(r.addZ(-1)))
+		{
+			liveBlocks.push_back(block.get());
+		}
+	}
+
+	return liveBlocks;
+}
+
+void ChunkManager::rebuildMesh(const Chunk* chunk)
+{
+	Mesh* mesh = getMesh(chunk);
+	assert(mesh != nullptr);
+
+	mesh->vertices.clear();
+
+	// Create the vertex data
+	for (auto& cube : getLiveBlocks(chunk))
+	{
+		// Translate the cube mesh to the appropriate place in world coordinates
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->location.vec3());
+
+		for (auto& meshVertex : cubeMesh)
+		{
+			Vertex vertex;
+			copyVector(vertex.position, glm::vec3(model * glm::vec4(meshVertex.position, 1.0)));
+			copyVector(vertex.texCoord, meshVertex.position);
+			vertex.texCoord[3] = cube->blockType;
+			copyVector(vertex.normal, meshVertex.normal);
+
+			mesh->vertices.push_back(vertex);
+		}
+	}
+
+	/*
+	std::cout << "Vertex count: " << mesh->vertices.size() << std::endl;
+	std::cout << "VBO size: " << (sizeof(Vertex) * mesh->vertices.size() / (1 << 20)) << "MB" << std::endl;
+	*/
+
+	mesh->needsRebuilt = false;
+	mesh->needsUploaded = true;
+}
 
 void checkError(const char* where)
 {
@@ -41,9 +435,6 @@ std::vector<Block> cubes;
 Camera camera;
 glm::vec3 velocity;
 
-const int INITIAL_WIDTH = 640;
-const int INITIAL_HEIGHT = 480;
-
 const float PLAYER_HEIGHT = 1.62;	// Height of eyes in blocks
 const float WALKING_SPEED = 4.3;	// Blocks / s
 const float FLYING_SPEED = 2.5 * WALKING_SPEED;
@@ -54,7 +445,7 @@ const float JUMP_VELOCITY = 8.4;	// Blocks / s
 // Maximum distance at which one can target (and destroy / place) a block
 const float MAX_TARGET_DISTANCE = 10.0f;
 
-World* world;
+ChunkManager* chunkManager;
 
 // Determine the block that the camera is looking directly at
 bool castRay(Coordinate& result)
@@ -119,13 +510,11 @@ bool castRay(Coordinate& result)
 		if (glm::length(current - camera.eye) > MAX_TARGET_DISTANCE)
 			return false;
 
-	} while (world->isTransparent(currentBlock));
+	} while (chunkManager->isTransparent(currentBlock));
 
 	result = currentBlock;
 	return true;
 }
-
-Renderer* renderer;
 
 // A movement of 1 pixel corresponds to a rotation of how many degrees?
 float rotationSpeed = 0.5;
@@ -136,7 +525,7 @@ void GLFWCALL windowResized(int width, int height)
 		renderer->setSize(width, height);
 }
 
-bool gravity = true;
+bool gravity = false;
 bool jump = false;
 void GLFWCALL keyCallback(int key, int action)
 {
@@ -168,14 +557,14 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 		if (mouseCaptured)
 		{
 			// Determine which block to destroy
-			Coordinate targetedBlock;
-			bool targeted = castRay(targetedBlock);
+			//Coordinate targetedBlock;
+			//bool targeted = castRay(targetedBlock);
 
-			if (targeted)
-			{
-				const Chunk* chunk = world->removeBlock(targetedBlock);
-				renderer->invalidate(chunk);
-			}
+			//if (targeted)
+			//{
+			//	const Chunk* chunk = world->removeBlock(targetedBlock);
+			//	renderer->invalidate(chunk);
+			//}
 		}
 		else
 		{
@@ -250,11 +639,13 @@ int main()
 	glfwEnable(GLFW_STICKY_KEYS);
 	glfwEnable(GLFW_STICKY_MOUSE_BUTTONS);
 
-	world = new World;
-	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT, *world);
+	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT);
+	chunkManager = new ChunkManager(rand());
+	//world = new World;
+	//renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT, *world);
 
 	// Make sure that there is a world before we start animating
-	world->chunkAt(0, 0);
+	//world->chunkAt(0, 0);
 
 	// Start up in the air
 	camera.eye = glm::vec3(0.0, 64.0, 0.0);
@@ -276,7 +667,7 @@ int main()
 	    // Coordinates the block directly below the player's feet
 	    Coordinate blockBelow(camera.eye.x, int(feetY) - 1, camera.eye.z);
 
-	    bool inAir = (heightAboveBlock > 1e-3) || !world->isSolid(blockBelow);
+	    bool inAir = (heightAboveBlock > 1e-3) || true; //!world->isSolid(blockBelow);
 
 		float blocksPerFrame = WALKING_SPEED / 15.0;
 		if (!gravity && inAir)
@@ -326,7 +717,8 @@ int main()
 		}
 
 		if (glfwGetKey('W') == GLFW_PRESS)
-			step += blocksPerFrame * facing;
+			//step += blocksPerFrame * facing;
+			velocity = 15.0f * blocksPerFrame * facing;
 
 		if (glfwGetKey('S') == GLFW_PRESS)
 			step -= blocksPerFrame * facing;
@@ -340,6 +732,7 @@ int main()
 		// Actually do the falling / rising
 		step += velocity / 15.0f;
 
+		/*
 		int oldX = camera.eye.x;
 		int oldY = camera.eye.y - PLAYER_HEIGHT;
 		int oldZ = camera.eye.z;
@@ -371,6 +764,7 @@ int main()
 			velocity.z = 0;
 			newZ = oldZ;
 		}
+		*/
 
 		camera.eye += step;
 
@@ -395,10 +789,10 @@ int main()
 		lastx = mouseX;
 		lasty = mouseY;
 
-		renderer->render(camera);
-
-		// Display on the screen
+		std::vector<Mesh*> visibleMeshes = chunkManager->getVisibleMeshes(camera);
+		renderer->renderMeshes(camera, visibleMeshes);
 		glfwSwapBuffers();
+
 		frames++;
 	}
 

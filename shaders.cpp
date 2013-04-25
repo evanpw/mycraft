@@ -69,6 +69,8 @@ GLuint linkShaders(GLuint vertexShader, GLuint fragmentShader)
 		delete[] errorMessage;
 	}
 
+	// These shaders will be flagged for deletion, but retained until the
+	// program object is deleted
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
