@@ -8,21 +8,10 @@
 #include <gl/glew.h>
 #include <map>
 #include <memory>
-#include <boost/thread.hpp>
-#include <tbb/concurrent_queue.h>
-
-struct ChunkRenderingData
-{
-	GLuint vertexBuffer;
-	size_t vertexCount;
-	bool dirty;
-};
 
 class Renderer
 {
 public:
-	static const int RENDER_RADIUS = 4;
-
 	Renderer(int width, int height);
 	~Renderer();
 
@@ -33,6 +22,8 @@ public:
 	void renderMeshes(const Camera& camera, const std::vector<Mesh*>& meshes);
 
 	void setSize(int width, int height);
+	int width() const { return m_width; }
+	int height() const { return m_height; }
 
 private:
 	void buildViewProjectionMatrix(const Camera& camera) const;

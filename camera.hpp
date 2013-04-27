@@ -7,6 +7,8 @@ struct Camera
 {
 	Camera() : horizontalAngle(0), verticalAngle(0) {}
 
+	glm::vec3 gaze() const;
+
 	// Camera location in world coordinates
 	glm::vec3 eye;
 

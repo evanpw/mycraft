@@ -1,0 +1,4 @@
+Ideas
+=====
+* Use fixed point arithmetic for position of player? This avoid
+  precision issues, and milliblocks should be enough for anything
