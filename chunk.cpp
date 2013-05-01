@@ -1,7 +1,9 @@
 #include "chunk.hpp"
+#include "cube.hpp"
 #include "perlin_noise.hpp"
 #include <cstdlib>
 #include <ctime>
+#include <glm/gtc/matrix_transform.hpp>
 
 Chunk::Chunk(int x, int z, unsigned int seed)
 : m_x(x), m_z(z)
@@ -83,4 +85,81 @@ void Chunk::newBlock(int x, int y, int z, BlockLibrary::Tag tag)
 void Chunk::removeBlock(const Coordinate& location)
 {
 	m_blocks.erase(location);
+}
+
+bool Chunk::isTransparent(const Coordinate& location) const
+{
+	const Block* block = get(location);
+
+	// TODO: Support transparent blocks other than air
+	return (block == nullptr);
+}
+
+bool Chunk::isSolid(const Coordinate& location) const
+{
+	const Block* block = get(location);
+
+	// TODO: Support non-solid blocks other than air
+	return (block != nullptr);
+}
+
+unsigned int Chunk::getLiveFaces(const Coordinate& r) const
+{
+	// TODO: Precompute a lot of this
+	unsigned int mask = 0;
+	if (isTransparent(r.addX(1))) mask |= PLUS_X;
+	if (isTransparent(r.addX(-1))) mask |= MINUS_X;
+	if (isTransparent(r.addY(1))) mask |= PLUS_Y;
+	if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
+	if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
+	if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
+
+	return mask;
+}
+
+std::vector<Vertex> Chunk::rebuildMesh()
+{
+	std::vector<Vertex> vertices;
+
+	unsigned int masks[6] =
+	{
+		PLUS_X, MINUS_X,
+		PLUS_Y, MINUS_Y,
+		PLUS_Z, MINUS_Z
+	};
+
+	// Create the vertex data
+	for (auto& itr : m_blocks)
+	{
+		const std::unique_ptr<Block>& block = itr.second;
+
+		// Translate the cube mesh to the appropriate place in world coordinates
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
+
+		unsigned int liveFaces = getLiveFaces(block->location);
+		for (size_t face = 0; face < 6; ++face)
+		{
+			if (liveFaces & masks[face])
+			{
+				for (size_t i = 0; i < 6; ++i)
+				{
+					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
+
+					Vertex vertex;
+					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
+					copyVector(vertex.texCoord, cubeVertex.position);
+					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.normal, cubeVertex.normal);
+
+					vertices.push_back(vertex);
+				}
+			}
+		}
+	}
+
+	//std::cout << "Vertex count: " << vertices.size() << std::endl;
+	//std::cout << "VBO size: " << (sizeof(Vertex) * vertices.size() / (1 << 20)) << "MB" << std::endl;
+
+	// Count on the RVO, or this would be very painful
+	return vertices;
 }

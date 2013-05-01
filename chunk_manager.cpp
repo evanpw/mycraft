@@ -3,82 +3,8 @@
 #include <boost/timer/timer.hpp>
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include "chunk_manager.hpp"
 #include "renderer.hpp"
-
-void copyVector(GLfloat* dest, const glm::vec3& source)
-{
-	memcpy(dest, glm::value_ptr(source), 3 * sizeof(GLfloat));
-}
-
-struct CubeVertex
-{
-	glm::vec3 position, normal;
-};
-
-const std::array<CubeVertex, 36> cubeMesh =
-{{
-	// Right face
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
-
-
-	// Left face
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f)},
-
-
-	// Top face
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
-
-
-	// Bottom face
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)},
-
-
-	// Front face
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-	{glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(1.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-	{glm::vec3(0.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
-
-
-	// Back face
-	{glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-
-	{glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-	{glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)},
-}};
 
 ChunkManager::ChunkManager(int seed)
 : m_seed(seed)
@@ -87,17 +13,6 @@ ChunkManager::ChunkManager(int seed)
 	// have to keep allocating and deleting
 	m_vboPool.resize(MAX_OBJECTS);
 	glGenBuffers(MAX_OBJECTS, &m_vboPool[0]);
-}
-
-void ChunkManager::createMesh(const Chunk* chunk)
-{
-	assert(!m_vboPool.empty());
-
-	Mesh* mesh = new Mesh;
-	mesh->vertexBuffer = m_vboPool.back();
-	m_vboPool.pop_back();
-
-	m_meshes[chunk] = std::unique_ptr<Mesh>(mesh);
 }
 
 void ChunkManager::freeMesh(const Chunk* chunk)
@@ -126,8 +41,8 @@ const Chunk* ChunkManager::getChunk(int x, int z) const
 
 Chunk* ChunkManager::getChunk(int x, int z)
 {
-	// This is ugly but Scott Meyers says it's okay. It's also better than
-	// copy-pasting code.
+	// This avoids duplicating code, but it is ugly. Scott Meyers says this is the best
+	// way.
 	return const_cast<Chunk*>(static_cast<const ChunkManager&>(*this).getChunk(x, z));
 }
 
@@ -143,6 +58,23 @@ Mesh* ChunkManager::getMesh(const Chunk* chunk) const
 		return i->second.get();
 	}
 }
+
+Mesh* ChunkManager::getOrCreateMesh(const Chunk* chunk)
+{
+	if (m_meshes.find(chunk) == m_meshes.end())
+	{
+		assert(!m_vboPool.empty());
+
+		std::unique_ptr<Mesh> mesh(new Mesh);
+		mesh->vertexBuffer = m_vboPool.back();
+		m_vboPool.pop_back();
+
+		m_meshes[chunk] = std::move(mesh);
+	}
+
+	return m_meshes[chunk].get();
+}
+
 
 void ChunkManager::loadOrCreateChunk(int x, int z)
 {
@@ -173,31 +105,32 @@ private:
 	glm::vec2 m_camera;
 };
 
-std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
+std::vector<const Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 {
 	if (!m_chunkQueue.empty())
 	{
 		auto i = std::min_element(m_chunkQueue.begin(), m_chunkQueue.end(), DistanceToCamera(camera));
 		std::pair<int, int> chunkCoord = *i;
 
-		if (!getChunk(chunkCoord.first, chunkCoord.second))
+		Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
+		if (!chunk)
 		{
 			loadOrCreateChunk(chunkCoord.first, chunkCoord.second);
 		}
 		else
 		{
-			const Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
-			if (!getMesh(chunk))
-			{
-				createMesh(chunk);
-			}
+			Mesh* mesh = getOrCreateMesh(chunk);
 
-			rebuildMesh(chunk);
+			std::vector<Vertex> vertices = chunk->rebuildMesh();
+			glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+			mesh->vertexCount = vertices.size();
+
 			m_chunkQueue.erase(i);
 		}
 	}
 
-	std::vector<Mesh*> meshes;
+	std::vector<const Mesh*> meshes;
 
 	int x = floor(camera.eye.x / (float)Chunk::SIZE);
 	int z = floor(camera.eye.z / (float)Chunk::SIZE);
@@ -206,23 +139,16 @@ std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 		for (int j = -RENDER_RADIUS; j <= RENDER_RADIUS; ++j)
 		{
 			const Chunk* chunk = getChunk(x + i, z + j);
-			if (!chunk)
+			const Mesh* mesh = chunk ? getMesh(chunk) : nullptr;
+			if (!mesh)
 			{
 				m_chunkQueue.insert(std::make_pair(x + i, z + j));
 				continue;
 			}
 
-			Mesh* mesh = getMesh(chunk);
-			if (!mesh)
-			{
-				m_chunkQueue.insert(std::make_pair(x + i, z + j));
-			}
-			else
-			{
-				// Render dirty chunks also - it's better to show a slightly out-of-date
-				// image rather than a giant hole in the world.
-				meshes.push_back(mesh);
-			}
+			// Render dirty chunks also - it's better to show a slightly out-of-date
+			// image rather than a giant hole in the world.
+			meshes.push_back(mesh);
 		}
 	}
 
@@ -298,68 +224,4 @@ bool ChunkManager::isSolid(const Coordinate& location) const
 
 	// TODO: Support non-solid blocks other than air
 	return (block != nullptr);
-}
-
-unsigned int ChunkManager::getLiveFaces(const Coordinate& r) const
-{
-	// TODO: Precompute a lot of this
-	unsigned int mask = 0;
-	if (isTransparent(r.addX(1))) mask |= PLUS_X;
-	if (isTransparent(r.addX(-1))) mask |= MINUS_X;
-	if (isTransparent(r.addY(1))) mask |= PLUS_Y;
-	if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
-	if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
-	if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
-
-	return mask;
-}
-
-void ChunkManager::rebuildMesh(const Chunk* chunk)
-{
-	Mesh* mesh = getMesh(chunk);
-	assert(mesh != nullptr);
-
-	mesh->vertices.clear();
-
-	unsigned int masks[6] =
-	{
-		PLUS_X, MINUS_X,
-		PLUS_Y, MINUS_Y,
-		PLUS_Z, MINUS_Z
-	};
-
-	// Create the vertex data
-	for (auto& itr : chunk->blocks())
-	{
-		const std::unique_ptr<Block>& block = itr.second;
-
-		// Translate the cube mesh to the appropriate place in world coordinates
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
-
-		unsigned int liveFaces = getLiveFaces(block->location);
-		if (liveFaces == 0) continue;
-		for (size_t face = 0; face < 6; ++face)
-		{
-			if (liveFaces & masks[face])
-			{
-				for (size_t i = 0; i < 6; ++i)
-				{
-					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
-
-					Vertex vertex;
-					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
-					copyVector(vertex.texCoord, cubeVertex.position);
-					vertex.texCoord[3] = block->blockType;
-					copyVector(vertex.normal, cubeVertex.normal);
-
-					mesh->vertices.push_back(vertex);
-				}
-			}
-		}
-	}
-
-	// std::cout << "Vertex count: " << mesh->vertices.size() << std::endl;
-	// std::cout << "VBO size: " << (sizeof(Vertex) * mesh->vertices.size() / (1 << 20)) << "MB" << std::endl;
-
-	mesh->needsUploaded = true;
 }

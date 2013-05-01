@@ -57,20 +57,7 @@ Renderer::~Renderer()
 	glDeleteProgram(m_programId);
 }
 
-void Renderer::uploadMesh(Mesh* mesh)
-{
-	assert(mesh->needsUploaded);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * mesh->vertices.size(), &mesh->vertices[0], GL_STATIC_DRAW);
-
-	// We no longer need to store the mesh vertex data in main memory
-	mesh->vertexCount = mesh->vertices.size();
-	mesh->vertices.clear();
-	mesh->vertices.shrink_to_fit();
-	mesh->needsUploaded = false;
-}
-
-void Renderer::renderMeshes(const Camera& camera, const std::vector<Mesh*>& meshes)
+void Renderer::renderMeshes(const Camera& camera, const std::vector<const Mesh*>& meshes)
 {
 	static glm::vec3 sun(-4.0, 2.0, 1.0);
 	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -105,15 +92,8 @@ void Renderer::renderMeshes(const Camera& camera, const std::vector<Mesh*>& mesh
 	glEnableVertexAttribArray(m_texCoord);
 	glEnableVertexAttribArray(m_normal);
 
-	size_t uploaded = 0;
-	for (Mesh* mesh : meshes)
+	for (const Mesh* mesh : meshes)
 	{
-		if (mesh->needsUploaded)
-		{
-			uploadMesh(mesh);
-			++uploaded;
-		}
-
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 		glVertexAttribPointer(m_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 		glVertexAttribPointer(m_texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));

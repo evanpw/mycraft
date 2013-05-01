@@ -214,7 +214,7 @@ int main()
 			glfwSetMousePos(renderer->width() / 2, renderer->height() / 2);
 		}
 
-		std::vector<Mesh*> visibleMeshes = chunkManager->getVisibleMeshes(player->camera());
+		std::vector<const Mesh*> visibleMeshes = chunkManager->getVisibleMeshes(player->camera());
 		renderer->renderMeshes(player->camera(), visibleMeshes);
 		glfwSwapBuffers();
 

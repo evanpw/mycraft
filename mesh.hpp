@@ -2,6 +2,7 @@
 #define MESH_HPP
 
 #include <gl/glew.h>
+#include <glm/glm.hpp>
 #include <vector>
 
 struct Vertex
@@ -13,18 +14,10 @@ struct Vertex
 
 struct Mesh
 {
-	// The vertex data is required to be stored in this vector only until it has
-	// been uploaded to the GPU
-	std::vector<Vertex> vertices;
-
 	GLuint vertexBuffer;
-
-	// This is only guaranteed to have the correct value only when the mesh has been
-	// uploaded to a VBO
 	size_t vertexCount;
-
-	// This mesh has been built, but needs to be uploaded to the VBO
-	bool needsUploaded;
 };
+
+void copyVector(GLfloat* dest, const glm::vec3& source);
 
 #endif

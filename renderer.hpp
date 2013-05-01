@@ -18,8 +18,7 @@ public:
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;
 
-	void uploadMesh(Mesh* mesh);
-	void renderMeshes(const Camera& camera, const std::vector<Mesh*>& meshes);
+	void renderMeshes(const Camera& camera, const std::vector<const Mesh*>& meshes);
 
 	void setSize(int width, int height);
 	int width() const { return m_width; }
