@@ -13,7 +13,7 @@
 class Chunk
 {
 public:
-	static const int SIZE = 1 << 5;		// Range of x and z dimensions
+	static const int SIZE = 1 << 4;		// Range of x and z dimensions
 	static const int DEPTH = 1 << 7;	// Range of y dimension
 
 	// Both x and z are in units of chunks

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <boost/timer/timer.hpp>
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -95,7 +96,6 @@ void ChunkManager::createMesh(const Chunk* chunk)
 	Mesh* mesh = new Mesh;
 	mesh->vertexBuffer = m_vboPool.back();
 	m_vboPool.pop_back();
-	mesh->needsRebuilt = true;
 
 	m_meshes[chunk] = std::unique_ptr<Mesh>(mesh);
 }
@@ -122,6 +122,13 @@ const Chunk* ChunkManager::getChunk(int x, int z) const
 	{
 		return i->second.get();
 	}
+}
+
+Chunk* ChunkManager::getChunk(int x, int z)
+{
+	// This is ugly but Scott Meyers says it's okay. It's also better than
+	// copy-pasting code.
+	return const_cast<Chunk*>(static_cast<const ChunkManager&>(*this).getChunk(x, z));
 }
 
 Mesh* ChunkManager::getMesh(const Chunk* chunk) const
@@ -166,33 +173,27 @@ private:
 	glm::vec2 m_camera;
 };
 
-const size_t MAX_PER_FRAME = 1;
 std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 {
-	size_t processed = 0;
-	while (!m_chunkQueue.empty() && processed < MAX_PER_FRAME)
+	if (!m_chunkQueue.empty())
 	{
 		auto i = std::min_element(m_chunkQueue.begin(), m_chunkQueue.end(), DistanceToCamera(camera));
 		std::pair<int, int> chunkCoord = *i;
-		m_chunkQueue.erase(i);
 
 		if (!getChunk(chunkCoord.first, chunkCoord.second))
 		{
 			loadOrCreateChunk(chunkCoord.first, chunkCoord.second);
-			++processed;
-			if (processed >= MAX_PER_FRAME) break;
 		}
-
-		const Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
-		if (!getMesh(chunk))
+		else
 		{
-			createMesh(chunk);
-		}
+			const Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
+			if (!getMesh(chunk))
+			{
+				createMesh(chunk);
+			}
 
-		if (getMesh(chunk)->needsRebuilt)
-		{
 			rebuildMesh(chunk);
-			++processed;
+			m_chunkQueue.erase(i);
 		}
 	}
 
@@ -218,11 +219,6 @@ std::vector<Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 			}
 			else
 			{
-				if (mesh->needsRebuilt)
-				{
-					m_chunkQueue.insert(std::make_pair(x + i, z + j));
-				}
-
 				// Render dirty chunks also - it's better to show a slightly out-of-date
 				// image rather than a giant hole in the world.
 				meshes.push_back(mesh);
@@ -272,6 +268,19 @@ const Block* ChunkManager::getBlock(const Coordinate& location) const
 	else
 	{
 		return nullptr;
+	}
+}
+
+void ChunkManager::removeBlock(const Coordinate& location)
+{
+	int x = floor(location.x / float(Chunk::SIZE));
+	int z = floor(location.z / float(Chunk::SIZE));
+
+	Chunk* chunk = getChunk(x, z);
+	if (chunk)
+	{
+		chunk->removeBlock(location);
+		m_chunkQueue.insert(std::make_pair(x, z));
 	}
 }
 
@@ -352,6 +361,5 @@ void ChunkManager::rebuildMesh(const Chunk* chunk)
 	// std::cout << "Vertex count: " << mesh->vertices.size() << std::endl;
 	// std::cout << "VBO size: " << (sizeof(Vertex) * mesh->vertices.size() / (1 << 20)) << "MB" << std::endl;
 
-	mesh->needsRebuilt = false;
 	mesh->needsUploaded = true;
 }

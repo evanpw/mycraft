@@ -23,9 +23,6 @@ struct Mesh
 	// uploaded to a VBO
 	size_t vertexCount;
 
-	// This mesh needs to be rebuilt
-	bool needsRebuilt;
-
 	// This mesh has been built, but needs to be uploaded to the VBO
 	bool needsUploaded;
 };

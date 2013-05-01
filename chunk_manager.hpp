@@ -15,7 +15,7 @@
 class ChunkManager
 {
 public:
-	static const int RENDER_RADIUS = 4;
+	static const int RENDER_RADIUS = 8;
 
 	ChunkManager(int seed);
 
@@ -26,18 +26,21 @@ public:
 	bool isTransparent(const Coordinate& location) const;
 	bool isSolid(const Coordinate& location) const;
 
+	// Modify the world
+	void removeBlock(const Coordinate& location);
+
 private:
 	// The seed for the PRNG used by the terrain generator
 	int m_seed;
 
 	// Return null if the chunk is not resident or has not been generated
 	const Chunk* getChunk(int x, int z) const;
+	Chunk* getChunk(int x, int z);
 
 	// Returns null if the mesh has not yet been generated.
 	Mesh* getMesh(const Chunk* chunk) const;
 
-	// Should be at least twice the number of chunks in the render radius
-	static const size_t MAX_OBJECTS = 200;
+	static const size_t MAX_OBJECTS = 20 * RENDER_RADIUS * RENDER_RADIUS;
 	std::vector<GLuint> m_vboPool;
 	void createMesh(const Chunk* chunk);
 	void freeMesh(const Chunk* chunk);

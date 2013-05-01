@@ -3,6 +3,7 @@
 #include "chunk_manager.hpp"
 #include "coordinate.hpp"
 #include "player.hpp"
+#include "ray_caster.hpp"
 #include "renderer.hpp"
 #include "shaders.hpp"
 
@@ -30,43 +31,47 @@ class FpsCounter
 {
 public:
 	FpsCounter()
-	: m_startTime(glfwGetTime()), m_frames(0)
+	: m_startTime(-1)
 	{}
 
 	void frame()
 	{
-		++m_frames;
-	}
-
-	float elapsedTime()
-	{
-		return glfwGetTime() - m_startTime;
-	}
-
-	float reset()
-	{
 		float now = glfwGetTime();
-		float fps = m_frames / (now - m_startTime);
-
+		if (m_startTime > 0)
+		{
+			m_frameTimes.push_back(now - m_startTime);
+		}
 		m_startTime = now;
-		m_frames = 0;
 
-		return fps;
+		if (m_frameTimes.size() == 100)
+		{
+			std::sort(m_frameTimes.begin(), m_frameTimes.end());
+
+			float average = std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0f) / 100;
+			float median = m_frameTimes[50];
+			float worst = m_frameTimes[99];
+
+			std::cout << "FPS: " << 1 / average << " (average), "
+					  << 1 / median << " (median), "
+					  << 1 / worst << " (worst)" << std::endl;
+
+			m_frameTimes.clear();
+		}
+
 	}
 
 private:
+	std::vector<float> m_frameTimes;
 	float m_startTime;
-	unsigned int m_frames;
 };
 
 ChunkManager* chunkManager;
 Renderer* renderer;
-Camera camera;
 Player* player;
 
 // A movement of 1 pixel corresponds to a rotation of how many degrees?
 float rotationSpeed = 160.0 / INITIAL_WIDTH;
-void GLFWCALL windowResized(int width, int height)
+void GLFWCALL windowResizedCallback(int width, int height)
 {
 	rotationSpeed = 160.0 / width;
 	if (renderer)
@@ -78,6 +83,7 @@ void GLFWCALL keyCallback(int key, int action)
 	// Show some debug info
 	if (key == 'I' && action == GLFW_PRESS)
 	{
+		const Camera& camera = player->camera();
         std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
 
         glm::vec3 gaze = camera.gaze();
@@ -94,7 +100,16 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		if (!mouseCaptured)
+		if (mouseCaptured)
+		{
+			Coordinate targeted;
+			bool hit = castRay(player->camera(), *chunkManager, targeted);
+			if (hit)
+			{
+				chunkManager->removeBlock(targeted);
+			}
+		}
+		else
 		{
 			mouseCaptured = true;
 			glfwDisable(GLFW_MOUSE_CURSOR);
@@ -135,7 +150,7 @@ int main()
 	}
 
 	glfwSetWindowTitle("MyCraft");
-	glfwSetWindowSizeCallback(windowResized);
+	glfwSetWindowSizeCallback(windowResizedCallback);
 	glfwSetKeyCallback(keyCallback);
 	glfwSetMouseButtonCallback(mouseButtonCallback);
 
@@ -151,10 +166,7 @@ int main()
 	player = new Player(*chunkManager, glm::vec3(0.0, 32.0, 0.0));
 
 	float lastUpdate = glfwGetTime();
-
 	FpsCounter fpsCounter;
-	fpsCounter.reset();
-
 	while (glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Determine the time since the last update so we can determine how far
@@ -207,10 +219,6 @@ int main()
 		glfwSwapBuffers();
 
 		fpsCounter.frame();
-		if (fpsCounter.elapsedTime() > 1.0f)
-		{
-			std::cout << "FPS: " << fpsCounter.reset() << std::endl;
-		}
 	}
 
 	// Close OpenGL window and terminate glfw
