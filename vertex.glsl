@@ -18,10 +18,10 @@ void main()
 
 	vec3 n = normalize(normal);
 	vec3 l = normalize(sunPosition);
-	float diffuse = clamp(dot(n, l), 0.0, 1.0);
+	float diffuse = clamp(0.7 * dot(n, l), 0.0, 1.0);
 	diffuse *= brightness;
 
-	float ambient = 0.2;
+	float ambient = 0.3;
 	shading = clamp(diffuse + ambient, 0.0, 1.0);
 
 	gl_Position = vpMatrix * vec4(position, 1.0);
