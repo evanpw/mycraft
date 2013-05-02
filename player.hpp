@@ -33,8 +33,15 @@ public:
 
 	const Camera& camera() const { return m_camera; }
 
+	// Calls the private potentialIntersections with the current position
+	std::vector<Coordinate> potentialIntersections() const;
+
 private:
 	bool inAir() const;
+
+	// Get all block coordinates which a player's bounding box with eye at the given
+	// location would intersect, regardless of whether they contain a block.
+	std::vector<Coordinate> potentialIntersections(const glm::vec3& eye) const;
 
 	// This will search for all intersections with a solid block, and adjust delta
 	// so that the intersection no longer occurs. It will also zero out the

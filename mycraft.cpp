@@ -112,8 +112,10 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 				}
 				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
 				{
-					// TODO: Check that the player is not intersecting the new block
-					chunkManager->createBlock(lastOpen, BlockLibrary::DIRT);
+					// Check that the player will not intersect the new block
+					std::vector<Coordinate> locations = player->potentialIntersections();
+					if (std::find(locations.begin(), locations.end(), lastOpen) == locations.end())
+						chunkManager->createBlock(lastOpen, BlockLibrary::DIRT);
 				}
 			}
 		}

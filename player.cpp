@@ -99,11 +99,29 @@ bool Player::inAir() const
 	return true;
 }
 
-// Shamelessly stolen from http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
-template <typename T>
-int sgn(T val)
+std::vector<Coordinate> Player::potentialIntersections() const
 {
-    return (T(0) < val) - (val < T(0));
+	return potentialIntersections(m_camera.eye);
+}
+
+std::vector<Coordinate> Player::potentialIntersections(const glm::vec3& eye) const
+{
+	glm::vec3 playerMin = eye - glm::vec3(0.3f, EYE_HEIGHT, 0.3f);
+	glm::vec3 playerMax = eye + glm::vec3(0.3f, PLAYER_HEIGHT - EYE_HEIGHT, 0.3f);
+
+	std::vector<Coordinate> result;
+	for (int x = floor(playerMin.x); x <= floor(playerMax.x); ++x)
+	{
+		for (int y = floor(playerMin.y); y <= floor(playerMax.y); ++y)
+		{
+			for (int z = floor(playerMin.z); z <= floor(playerMax.z); ++z)
+			{
+				result.emplace_back(x, y, z);
+			}
+		}
+	}
+
+	return result;
 }
 
 void Player::resolveCollisions(glm::vec3& delta)
@@ -117,65 +135,59 @@ void Player::resolveCollisions(glm::vec3& delta)
 	// For each axis, how long can we move in the direction of delta without hitting
 	// any block
 	glm::vec3 bestT(1.0f);
-	for (int x = floor(playerMin.x); x <= floor(playerMax.x); ++x)
+	for (const Coordinate& location : potentialIntersections(m_camera.eye + delta))
 	{
-		for (int y = floor(playerMin.y); y <= floor(playerMax.y); ++y)
+		if (!m_chunkManager.isSolid(location))
+			continue;
+
+		glm::vec3 blockMin = location.vec3();
+		glm::vec3 blockMax = location.vec3() + glm::vec3(1.0f);
+
+		// Intersections of less than a milliblock are just rounding errors. (This prevents an
+		// infinite loop).
+		glm::vec3 penetration = glm::min(playerMax, blockMax) - glm::max(playerMin, blockMin);
+		if (penetration.x < 1e-3 || penetration.y < 1e-3 || penetration.z < 1e-3)
+			continue;
+
+		// For each axis, find the maximum t such that moving by t * delta does not intersect the
+		// block.
+		glm::vec3 t1 = (blockMax - oldPlayerMin) / delta;
+		glm::vec3 t2 = (blockMin - oldPlayerMax) / delta;
+		glm::vec3 t = glm::min(t1, t2);
+
+		// TODO: Check for either the block or the player containing the other
+
+		// This would mean that the block and the new player bounding box do not intersect, so we shouldn't
+		// haven't gotten this far.
+		assert(t.x <= 1.0f && t.y <= 1.0f && t.z <= 1.0f);
+
+		// This would mean that the player was _currently_ intersecting the block, and we can't resolve that
+		//assert(t.x >= 0.0f && t.y >= 0.0f && t.z >= 0.0f);
+
+		int minAxis;
+		float* tArray = glm::value_ptr(t);
+		if (t.x < 0.0f && t.y < 0.0f && t.z < 0.0f)
 		{
-			for (int z = floor(playerMin.z); z <= floor(playerMax.z); ++z)
-			{
-				if (m_chunkManager.isSolid(Coordinate(x, y, z)))
-				{
-					glm::vec3 blockMin(x, y, z);
-					glm::vec3 blockMax(x + 1, y + 1, z + 1);
+			// This means that the player is _currently_ intersecting the block, and is heading further in. In
+			// this case, we head backwards. This should only happen because of rounding error, and the overlap
+			// should be small.
+			minAxis = std::max_element(tArray, tArray + 3) - tArray;
 
-					// Intersections of less than a milliblock are just rounding errors. (This prevents an
-					// infinite loop).
-					glm::vec3 penetration = glm::min(playerMax, blockMax) - glm::max(playerMin, blockMin);
-					if (penetration.x < 1e-3 || penetration.y < 1e-3 || penetration.z < 1e-3)
-						continue;
-
-					// For each axis, find the maximum t such that moving by t * delta does not intersect the
-					// block.
-					glm::vec3 t1 = (blockMax - oldPlayerMin) / delta;
-					glm::vec3 t2 = (blockMin - oldPlayerMax) / delta;
-					glm::vec3 t = glm::min(t1, t2);
-
-					// TODO: Check for either the block or the player containing the other
-
-					// This would mean that the block and the new player bounding box do not intersect, so we shouldn't
-					// haven't gotten this far.
-					assert(t.x <= 1.0f && t.y <= 1.0f && t.z <= 1.0f);
-
-					// This would mean that the player was _currently_ intersecting the block, and we can't resolve that
-					//assert(t.x >= 0.0f && t.y >= 0.0f && t.z >= 0.0f);
-
-					int minAxis;
-					float* tArray = glm::value_ptr(t);
-					if (t.x < 0.0f && t.y < 0.0f && t.z < 0.0f)
-					{
-						// This means that the player is _currently_ intersecting the block, and is heading further in. In
-						// this case, we head backwards. This should only happen because of rounding error, and the overlap
-						// should be small.
-						minAxis = std::max_element(tArray, tArray + 3) - tArray;
-
-						// If the intersection is more than a milliblock, then it is a bug.
-						glm::vec3 currentPenetration = glm::min(oldPlayerMax, blockMax) - glm::max(oldPlayerMin, blockMin);
-						assert(currentPenetration.x < 1e-3 || currentPenetration.y < 1e-3 || currentPenetration.z < 1e-3);
-					}
-					else
-					{
-						// The component of t with the smallest nonnegative value will be the first to intersect. The player will
-						// then slide along in the other directions, so this is the only component for which this block restricts motion.
-						for (size_t i = 0; i <= 2; ++i)
-							if (t[i] < 0.0f) t[i] = 1.0f;
-
-						minAxis = std::min_element(tArray, tArray + 3) - tArray;
-					}
-
-					bestT[minAxis] = std::min(bestT[minAxis], t[minAxis]);
-				}
-			}
+			// If the intersection is more than a milliblock, then it is a bug.
+			glm::vec3 currentPenetration = glm::min(oldPlayerMax, blockMax) - glm::max(oldPlayerMin, blockMin);
+			assert(currentPenetration.x < 1e-3 || currentPenetration.y < 1e-3 || currentPenetration.z < 1e-3);
 		}
+		else
+		{
+			// The component of t with the smallest nonnegative value will be the first to intersect. The player will
+			// then slide along in the other directions, so this is the only component for which this block restricts motion.
+			for (size_t i = 0; i <= 2; ++i)
+				if (t[i] < 0.0f) t[i] = 1.0f;
+
+			minAxis = std::min_element(tArray, tArray + 3) - tArray;
+		}
+
+		bestT[minAxis] = std::min(bestT[minAxis], t[minAxis]);
 	}
 
 	// For each direction with a collision, halt at the intersection,

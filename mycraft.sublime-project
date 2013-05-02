@@ -2,7 +2,19 @@
 	"folders":
 	[
 		{
-			"path": "/C/Users/Evan/Workspace/mycraft"
+			"path": "/C/Users/Evan/Workspace/mycraft",
+			"file_exclude_patterns":
+			[
+				".gitignore",
+				"*.out",
+				"*.stackdump",
+				"*.bak"
+			],
+			"folder_exclude_patterns":
+			[
+				"boost_1_53_0",
+				"tbb41_20130314oss"
+			]
 		}
 	]
 }
