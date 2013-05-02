@@ -210,6 +210,19 @@ void ChunkManager::removeBlock(const Coordinate& location)
 	}
 }
 
+void ChunkManager::createBlock(const Coordinate& location, BlockLibrary::Tag tag)
+{
+	int x = floor(location.x / float(Chunk::SIZE));
+	int z = floor(location.z / float(Chunk::SIZE));
+
+	Chunk* chunk = getChunk(x, z);
+	if (chunk)
+	{
+		chunk->newBlock(location.x, location.y, location.z, tag);
+		m_chunkQueue.insert(std::make_pair(x, z));
+	}
+}
+
 bool ChunkManager::isTransparent(const Coordinate& location) const
 {
 	const Block* block = getBlock(location);

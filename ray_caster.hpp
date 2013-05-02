@@ -6,6 +6,6 @@ class ChunkManager;
 class Coordinate;
 
 // Determine the block that the camera is looking directly at
-bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate& result);
+bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate& result, Coordinate& lastOpen);
 
 #endif

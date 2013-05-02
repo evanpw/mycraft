@@ -6,12 +6,12 @@
 const float MAX_TARGET_DISTANCE = 10.0f;
 
 // TODO: Should this go in chunkManager?
-bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate& result)
+bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate& currentBlock, Coordinate& lastBlock)
 {
 	glm::vec3 current = camera.eye;
 	glm::vec3 gaze = camera.gaze();
 
-	Coordinate currentBlock(current);
+	currentBlock = current;
 	glm::vec3 fractional = glm::fract(current);
 
 	// The direction of travel, in block coordinates
@@ -34,6 +34,7 @@ bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate&
 		// Intersects x-wall first
 		if (distance.x <= distance.y && distance.x <= distance.z)
 		{
+			lastBlock = currentBlock;
 			current += distance.x * gaze;
 			currentBlock.x += step.x;
 			distance -= glm::vec3(distance.x);
@@ -41,6 +42,7 @@ bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate&
 		}
 		else if (distance.y <= distance.x && distance.y <= distance.z)
 		{
+			lastBlock = currentBlock;
 			current += distance.y * gaze;
 			currentBlock.y += step.y;
 			distance -= glm::vec3(distance.y);
@@ -48,6 +50,7 @@ bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate&
 		}
 		else if (distance.z <= distance.x && distance.z <= distance.y)
 		{
+			lastBlock = currentBlock;
 			current += distance.z * gaze;
 			currentBlock.z += step.z;
 			distance -= glm::vec3(distance.z);
@@ -65,6 +68,5 @@ bool castRay(const Camera& camera, const ChunkManager& chunkManager, Coordinate&
 
 	} while (chunkManager.isTransparent(currentBlock));
 
-	result = currentBlock;
 	return true;
 }

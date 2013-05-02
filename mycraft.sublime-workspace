@@ -7,103 +7,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
-			"settings":
-			{
-				"buffer_size": 1129,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/Thesis Todo",
-			"settings":
-			{
-				"buffer_size": 1734,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"contents": "* Do another pass to look at mathematical content and correctness\n\nEverything\n----------\n* Check all links/in-paper references\n* Try to avoid \"as follows.\" (prefer \"as follows:\")\n* \"Now,\" is too informal\n* Put a small space \\, before every d\\mu\n* Look over the typesetting of all equations\n* Change -\\Id to \\text{-}\\Id\n* Change things like $\\phi: \\SU(2) \\to \\SO(3)$ to $\\phi\\colon \\SU(2) \\to \\SO(3)$\n* Look over the symbols I've used an try to avoid duplication\n* Look for instances of \\text that should be math operators or \\mathrm\n\nFront Matter\n------------\n* Check the format with the graduate school guidelines and past theses\n* Use full name, or abbreviate middle initial?\n* Try to get contents on one page?\n* Write some acknowledgements\n\nChapter 2 - Introduction\n------------------------\n",
-			"settings":
-			{
-				"buffer_size": 794,
-				"line_ending": "Windows",
-				"name": "* Do another pass to look at mathematical content"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/overview.tex",
-			"settings":
-			{
-				"buffer_size": 4406,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/cyclic.tex",
-			"settings":
-			{
-				"buffer_size": 14206,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/diffs.tex",
-			"settings":
-			{
-				"buffer_size": 100662,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/dihedral.tex",
-			"settings":
-			{
-				"buffer_size": 27736,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/icosa-octahedral.tex",
-			"settings":
-			{
-				"buffer_size": 3715,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/introduction.tex",
-			"settings":
-			{
-				"buffer_size": 22891,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/strategy.tex",
-			"settings":
-			{
-				"buffer_size": 10616,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/tetrahedral.tex",
-			"settings":
-			{
-				"buffer_size": 10773,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Y/workspace/thesis/thesis.tex",
-			"settings":
-			{
-				"buffer_size": 3345,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "Packages/Makefile/Make.sublime-build",
 	"command_palette":
@@ -149,34 +52,65 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Evan/Workspace/mycraft/mycraft.cpp",
+		"/C/Users/Evan/Workspace/mycraft/block.hpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk.hpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk_manager.cpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk_manager.hpp",
+		"/C/Users/Evan/Workspace/mycraft/cube.hpp",
+		"/C/Users/Evan/Workspace/mycraft/cube.cpp",
+		"/C/Users/Evan/Workspace/mycraft/coordinate.hpp",
+		"/C/Users/Evan/Workspace/mycraft/ray_caster.hpp",
+		"/C/Users/Evan/Workspace/mycraft/ray_caster.cpp",
+		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
+		"/C/Users/Evan/Workspace/mycraft/mesh.cpp",
+		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
+		"/C/Users/Evan/Workspace/mycraft/renderer.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Wines",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Weight Lifting.text",
+		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/libs/geometry/example/c02_custom_box_example.cpp",
+		"/Y/workspace/thesis/Thesis Todo",
+		"/Y/workspace/thesis/overview.tex",
+		"/Y/workspace/thesis/introduction.tex",
+		"/Y/workspace/thesis/strategy.tex",
+		"/Y/workspace/thesis/icosa-octahedral.tex",
+		"/Y/workspace/thesis/tetrahedral.tex",
+		"/Y/workspace/thesis/dihedral.tex",
+		"/Y/workspace/thesis/thesis.bib",
+		"/Y/workspace/thesis/consequences.tex",
+		"/Y/workspace/thesis/cyclic.tex",
+		"/Y/workspace/thesis/thesis.tex",
+		"/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
+		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/libs/type_traits/doc/has_left_shift_assign.qbk",
+		"/Y/workspace/thesis/diffs.aux",
+		"/Y/workspace/thesis/diffs.toc",
+		"/Y/workspace/thesis/dihedral.aux",
+		"/Y/workspace/thesis/thesis.toc",
+		"/C/Users/Evan/Downloads/classical.tex",
+		"/Y/workspace/thesis/tetrahedral.aux",
+		"/C/Users/Evan/Downloads/Midterm.tex",
+		"/Y/workspace/thesis/diffs.tex",
+		"/C/Users/Evan/Downloads/template.pdf_tex",
+		"/C/Users/Evan/Downloads/new_dis.tex",
+		"/C/Users/Evan/Downloads/slnz.tex",
 		"/C/Users/Evan/Downloads/0912.2697v2",
 		"/C/Users/Evan/Downloads/1203.6389v1",
 		"/C/Users/Evan/Downloads/0911.0306v1",
 		"/C/Users/Evan/Downloads/suvaina.tex",
 		"/C/Users/Evan/Workspace/mycraft/ISSUES",
 		"/C/Users/Evan/Workspace/mycraft/Makefile",
-		"/C/Users/Evan/Workspace/mycraft/mycraft.cpp",
-		"/C/Users/Evan/Workspace/mycraft/chunk_manager.cpp",
-		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
-		"/Y/workspace/thesis/strategy.tex",
-		"/Y/workspace/thesis/introduction.tex",
-		"/Y/workspace/thesis/cyclic.tex",
-		"/Y/workspace/thesis/overview.tex",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
 		"/C/Users/Evan/Workspace/mycraft/player.cpp",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.hpp",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.cpp",
 		"/C/Users/Evan/Workspace/mycraft/player.hpp",
 		"/C/Users/Evan/Workspace/mycraft/worker.cpp",
 		"/c/mingw/lib/gcc/mingw32/4.7.2/include/c++/ext/new_allocator.h",
-		"/C/Users/Evan/Workspace/mycraft/chunk_manager.hpp",
-		"/C/Users/Evan/Workspace/mycraft/renderer.hpp",
-		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
-		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
 		"/C/Users/Evan/Workspace/mycraft/gprof.out",
 		"/C/Users/Evan/AppData/Local/Temp/mycraft.DMP",
 		"/C/Users/Evan/AppData/Local/Temp/crashback_1/info.txt",
-		"/C/Users/Evan/Workspace/mycraft/chunk.hpp",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/To Buy.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
 		"/C/Users/Evan/Documents/Dropbox/Today.text",
@@ -189,12 +123,8 @@
 		"/C/Users/Evan/Documents/Dropbox/Progress/Daily.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/System.text",
 		"/C/Users/Evan/Documents/Dropbox/Unsorted/Problems.text",
-		"/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
-		"/C/Users/Evan/Workspace/mycraft/ray_caster.hpp",
-		"/C/Users/Evan/Workspace/mycraft/ray_caster.cpp",
 		"/C/Users/Evan/Workspace/mycraft/camera.hpp",
 		"/C/Users/Evan/Workspace/mycraft/camera.cpp",
-		"/C/Users/Evan/Workspace/mycraft/coordinate.hpp",
 		"/C/Users/Evan/Downloads/ftgl-2.1.3~rc5/src/Makefile",
 		"/C/Users/Evan/Downloads/ftgl-2.1.3~rc5/config.log",
 		"/C/Users/Evan/Downloads/ftgl-2.1.3~rc5/config.h.in",
@@ -204,8 +134,6 @@
 		"/C/Users/Evan/Downloads/ftgl-2.1.3~rc5/configure",
 		"/C/Users/Evan/Downloads/ftgl-2.1.3~rc5/conftest.c",
 		"/Y/workspace/thesis_test/thesis.tex",
-		"/Y/workspace/thesis/diffs.tex",
-		"/Y/workspace/thesis/thesis.tex",
 		"/Y/workspace/thesis_test/introduction.tex",
 		"/Y/workspace/thesis_test/diffs.tex",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Kayla's Loan.csv",
@@ -230,13 +158,11 @@
 		"/Y/workspace/thesis/usbthesis-original.cls",
 		"/Y/workspace/thesis/usbthesis.cls.old",
 		"/C/Users/Evan/Workspace/mycraft/shaders.cpp",
-		"/C/Users/Evan/Workspace/mycraft/block.hpp",
 		"/C/Users/Evan/Workspace/mycraft/world.hpp",
 		"/C/Users/Evan/Workspace/mycraft/world.cpp",
 		"/C/Users/Evan/Downloads/usbthesis.cls",
 		"/C/Users/Evan/Workspace/mycraft/world.cpp.bak",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Exercise.csv",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Weight Lifting.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Waist.csv",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Exercise Regimen.text",
 		"/C/Users/Evan/Workspace/mycraft/Introduction.text",
@@ -251,32 +177,9 @@
 		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/project-config.jam",
 		"/C/Users/Evan/Workspace/mycraft/coordinate.cpp",
 		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
-		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
 		"/C/Users/Evan/Workspace/mycraft/textures.hpp",
 		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
-		"/C/Users/Evan/Workspace/opencl/Makefile",
-		"/C/Users/Evan/Workspace/opencl/square.cl",
-		"/C/Users/Evan/Workspace/opencl/serial.cpp",
-		"/C/Users/Evan/Workspace/opencl/main.cpp",
-		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/C.sublime-settings",
-		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/Lisp.sublime-settings",
-		"/C/Users/Evan/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
-		"/C/Users/Evan/Workspace/mycraft/mycraft.sublime-project",
-		"/c/mingw/lib/gcc/mingw32/4.7.2/include/c++/bits/char_traits.h",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Abby-Weight.csv",
-		"/C/Users/Evan/Workspace/mycraft/shaders.hpp",
-		"/C/Users/Evan/Workspace/mycraft/exceptions.hpp",
-		"/C/Users/Evan/Workspace/mycraft/noise.hpp",
-		"/C/Users/Evan/Documents/Dropbox/Settings/Sublime Text 2/Packages/User/Default (Windows).sublime-mousemap",
-		"/C/Users/Evan/Documents/Dropbox/Settings/Sublime Text 2/Packages/Default/Default (Windows).sublime-mousemap",
-		"/c/mingw/lib/gcc/mingw32/4.6.2/include/c++/ext/new_allocator.h",
-		"/C/Users/Evan/Workspace/mycraft/block_type.hpp",
-		"/C/Users/Evan/Workspace/raytracer/Makefile",
-		"/C/Users/Evan/Workspace/raytracer/raytracer.cpp",
-		"/C/MinGW/msys/1.0/home/Evan/test.cpp",
-		"/C/Users/Evan/Workspace/raytracer/raytracer.sublime-workspace",
-		"/C/Users/Evan/Workspace/raytracer/settings.ini",
-		"/C/Users/Evan/Workspace/raytracer/sphere.hpp"
+		"/C/Users/Evan/Workspace/opencl/Makefile"
 	],
 	"find":
 	{
@@ -287,6 +190,7 @@
 		"height": 98.0,
 		"where_history":
 		[
+			"",
 			"Y:\\workspace\\thesis",
 			"<open folders>,C:\\Users\\Evan\\Workspace\\mycraft",
 			"<open folders>",
@@ -299,6 +203,60 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"getMesh",
+			"Mesh*",
+			"m_chunkQueue",
+			"needsRebuilt",
+			"createMesh",
+			"needsRebuilt",
+			"newBlock",
+			"camera",
+			"Coordinate",
+			"timer",
+			"TODO",
+			"Donnelly",
+			"I.4",
+			"Atiyah",
+			"Patodi",
+			"TODO",
+			"Hirzebruch",
+			"TODO",
+			"Rohklin",
+			"Id",
+			"d\\mu",
+			"\\text{Iso}",
+			"D(",
+			"\\exp",
+			"exp ",
+			"exp",
+			"SO",
+			"f(M, g)",
+			"\\HH",
+			"Riemmanian",
+			"\\HH^2",
+			"\\HH(",
+			"\\mathrm{S^3}",
+			"\\mathrm{S^2}",
+			"\\mathrm{S^1}",
+			"\\mathrm{S}_4",
+			"\\mathrm{S_4}",
+			"\\mathrm{I^*}",
+			"\\mathrm{O^*}",
+			"\\mathrm{T^*}",
+			"D^*",
+			"D_",
+			"H^2",
+			"S^3",
+			"S^2",
+			"S^1",
+			"T^*",
+			"I^*",
+			"O^*",
+			"dihedral",
+			"\\to",
+			":",
+			"\\text{Ker}",
+			"SO",
 			"\\text{End}",
 			"\\text{Hol}",
 			"\\text{Span}",
@@ -372,61 +330,7 @@
 			"ps@prelim",
 			"cout",
 			"meshVertex",
-			"Queue",
-			"queue",
-			"radius",
-			"VBO",
-			"m_meshQueue",
-			"m_loadChunkQueue",
-			"new",
-			"createMesh",
-			"new",
-			"queue",
-			"mutex",
-			"getChunk",
-			"m_chunks",
-			"loadOrCreateChunk",
-			"rebuildMesh",
-			"m_meshes",
-			"m_chunks",
-			"m_renderer",
-			"engine",
-			"Engine",
-			"m_renderer",
-			"createMesh",
-			"RENDER_RADIUS",
-			"gravity",
-			"cubeMesh",
-			"VertexData",
-			"  ",
-			"m_allBlocks",
-			".get",
-			"->get",
-			"lastFrame",
-			"std::cout",
-			"mutex",
-			"m_chunkData",
-			"m_chunks",
-			"processChunk",
-			"chunks",
-			"nbFrames",
-			"liveBlocks",
-			"brighness",
-			"raw_vec3",
-			"GL_TEXTURE_CUBE_MAP",
-			"m_blockLibrary",
-			"0f",
-			"cout",
-			"endl",
-			"cerr",
-			"global",
-			"  ",
-			"windowWidth",
-			"liveBlocks",
-			"chunk->",
-			"removeBlock",
-			"Chunk* chunk",
-			"chunk"
+			"Queue"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -434,6 +338,24 @@
 		"regex": false,
 		"replace_history":
 		[
+			"H",
+			"Riemannian",
+			"H^2",
+			"H(",
+			"S^3",
+			"S^2",
+			"S^1",
+			"S_4",
+			"I^*",
+			"O^*",
+			"T^*",
+			"\\mathrm{S^3}",
+			"\\mathrm{S^2}",
+			"\\mathrm{S^1}",
+			"\\mathrm{T^*}",
+			"\\mathrm{I^*}",
+			"\\mathrm{O^*}",
+			"\\Ker",
 			"\\End",
 			"\\Hol",
 			"\\Span",
@@ -472,1817 +394,8 @@
 	"groups":
 	[
 		{
-			"selected": 2,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
-					"settings":
-					{
-						"buffer_size": 1129,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								83,
-								83
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/Y/workspace/thesis/Thesis Todo",
-					"settings":
-					{
-						"buffer_size": 1734,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1014,
-								1014
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"settings":
-					{
-						"buffer_size": 794,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								265,
-								265
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"auto_name": "* Do another pass to look at mathematical content",
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"syntax": "Packages/Text/Plain text.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "/Y/workspace/thesis/overview.tex",
-					"settings":
-					{
-						"buffer_size": 4406,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2813,
-								2813
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 729.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "/Y/workspace/thesis/cyclic.tex",
-					"settings":
-					{
-						"buffer_size": 14206,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "/Y/workspace/thesis/diffs.tex",
-					"settings":
-					{
-						"buffer_size": 100662,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "/Y/workspace/thesis/dihedral.tex",
-					"settings":
-					{
-						"buffer_size": 27736,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "/Y/workspace/thesis/icosa-octahedral.tex",
-					"settings":
-					{
-						"buffer_size": 3715,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "/Y/workspace/thesis/introduction.tex",
-					"settings":
-					{
-						"buffer_size": 22891,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								20998,
-								20998
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 2579.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "/Y/workspace/thesis/strategy.tex",
-					"settings":
-					{
-						"buffer_size": 10616,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4615,
-								4615
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 943.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "/Y/workspace/thesis/tetrahedral.tex",
-					"settings":
-					{
-						"buffer_size": 10773,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "/Y/workspace/thesis/thesis.tex",
-					"settings":
-					{
-						"buffer_size": 3345,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1120,
-								1120
-							]
-						],
-						"settings":
-						{
-							"BracketHighlighterBusy": false,
-							"annotations":
-							[
-								"TODO",
-								"README",
-								"FIXME"
-							],
-							"bh_regions":
-							[
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close"
-							],
-							"csslint_options":
-							{
-								"adjoining-classes": "warning",
-								"box-model": true,
-								"box-sizing": "warning",
-								"compatible-vendor-prefixes": "warning",
-								"display-property-grouping": true,
-								"duplicate-background-images": "warning",
-								"duplicate-properties": true,
-								"empty-rules": true,
-								"errors": true,
-								"fallback-colors": "warning",
-								"floats": "warning",
-								"font-faces": "warning",
-								"font-sizes": "warning",
-								"gradients": "warning",
-								"ids": "warning",
-								"import": "warning",
-								"important": "warning",
-								"known-properties": true,
-								"outline-none": "warning",
-								"overqualified-elements": "warning",
-								"qualified-headings": "warning",
-								"regex-selectors": "warning",
-								"rules-count": "warning",
-								"shorthand": "warning",
-								"star-property-hack": "warning",
-								"text-indent": "warning",
-								"underscore-property-hack": "warning",
-								"unique-headings": "warning",
-								"universal-selector": "warning",
-								"vendor-prefix": true,
-								"zero-units": "warning"
-							},
-							"gjslint_ignore":
-							[
-								110
-							],
-							"gjslint_options":
-							[
-							],
-							"javascript_linter": "jshint",
-							"jshint_options":
-							{
-								"browser": true,
-								"evil": true,
-								"regexdash": true,
-								"sub": true,
-								"trailing": true,
-								"wsh": true
-							},
-							"pep8": true,
-							"pep8_ignore":
-							[
-								"E501"
-							],
-							"perl_linter": "perlcritic",
-							"pyflakes_ignore":
-							[
-							],
-							"pyflakes_ignore_import_*": true,
-							"sublimelinter": true,
-							"sublimelinter_delay": 2,
-							"sublimelinter_disable":
-							[
-							],
-							"sublimelinter_executable_map":
-							{
-							},
-							"sublimelinter_fill_outlines": false,
-							"sublimelinter_gutter_marks": false,
-							"sublimelinter_mark_style": "outline",
-							"sublimelinter_notes": false,
-							"sublimelinter_objj_check_ascii": false,
-							"sublimelinter_popup_errors_on_save": false,
-							"sublimelinter_syntax_map":
-							{
-								"C++": "c",
-								"Python Django": "python",
-								"Ruby on Rails": "ruby"
-							},
-							"sublimelinter_wrap_find": true,
-							"syntax": "Packages/LaTeX/LaTeX.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 516.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -2336,6 +449,30 @@
 		"selected_items":
 		[
 			[
+				"block_",
+				"block_library.hpp"
+			],
+			[
+				"renderer.cpp",
+				"renderer.cpp"
+			],
+			[
+				"renderer.hpp",
+				"renderer.hpp"
+			],
+			[
+				"cube.hpp",
+				"cube.hpp"
+			],
+			[
+				"cube.cpp",
+				"boost_1_53_0/libs/geometry/example/c02_custom_box_example.cpp"
+			],
+			[
+				"mesh.hpp",
+				"mesh.hpp"
+			],
+			[
 				"makefile",
 				"Makefile"
 			],
@@ -2346,14 +483,6 @@
 			[
 				"chunk.hpp",
 				"chunk.hpp"
-			],
-			[
-				"mesh.hpp",
-				"mesh.hpp"
-			],
-			[
-				"renderer.hpp",
-				"renderer.hpp"
 			],
 			[
 				"chunk_mana",
@@ -2404,10 +533,6 @@
 				"fragment.glsl"
 			],
 			[
-				"renderer.cpp",
-				"renderer.cpp"
-			],
-			[
 				"mycr",
 				"mycraft.cpp"
 			],
@@ -2422,10 +547,6 @@
 			[
 				"renderer",
 				"renderer.cpp"
-			],
-			[
-				"block_",
-				"block_library.cpp"
 			],
 			[
 				"textures.hpp",
@@ -2501,7 +622,7 @@
 	"show_minimap": false,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
+	"side_bar_visible": true,
 	"side_bar_width": 232.0,
 	"status_bar_visible": true
 }

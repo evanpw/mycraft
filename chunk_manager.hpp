@@ -28,6 +28,7 @@ public:
 
 	// Modify the world
 	void removeBlock(const Coordinate& location);
+	void createBlock(const Coordinate& location, BlockLibrary::Tag tag);
 
 private:
 	// The seed for the PRNG used by the terrain generator

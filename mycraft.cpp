@@ -98,15 +98,23 @@ void GLFWCALL keyCallback(int key, int action)
 bool mouseCaptured = false;
 void GLFWCALL mouseButtonCallback(int button, int action)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	if (action == GLFW_PRESS)
 	{
 		if (mouseCaptured)
 		{
-			Coordinate targeted;
-			bool hit = castRay(player->camera(), *chunkManager, targeted);
+			Coordinate targeted, lastOpen;
+			bool hit = castRay(player->camera(), *chunkManager, targeted, lastOpen);
 			if (hit)
 			{
-				chunkManager->removeBlock(targeted);
+				if (button == GLFW_MOUSE_BUTTON_LEFT)
+				{
+					chunkManager->removeBlock(targeted);
+				}
+				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+				{
+					// TODO: Check that the player is not intersecting the new block
+					chunkManager->createBlock(lastOpen, BlockLibrary::DIRT);
+				}
 			}
 		}
 		else
