@@ -27,6 +27,7 @@ public:
 	// Access the world
 	bool isTransparent(const Coordinate& location) const;
 	bool isSolid(const Coordinate& location) const;
+	bool isEmpty(const Coordinate& location) const;
 	bool openToSky(const Coordinate& location) const;
 
 	// This pointer will be invalidated if the block is removed

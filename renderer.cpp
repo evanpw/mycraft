@@ -25,8 +25,8 @@ Renderer::Renderer(int width, int height)
 	glDepthFunc(GL_LESS);
 
 	// For transparent blocks
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Create a vertex array object
 	glGenVertexArrays(1, &m_vertexArray);

@@ -46,6 +46,19 @@ Chunk* ChunkManager::getChunk(int x, int z)
 	return const_cast<Chunk*>(static_cast<const ChunkManager&>(*this).getChunk(x, z));
 }
 
+const Chunk* ChunkManager::getChunk(const Coordinate& location) const
+{
+	int x = floor(location.x / float(Chunk::SIZE));
+	int z = floor(location.z / float(Chunk::SIZE));
+
+	return getChunk(x, z);
+}
+
+Chunk* ChunkManager::getChunk(const Coordinate& location)
+{
+	return const_cast<Chunk*>(static_cast<const ChunkManager&>(*this).getChunk(location));
+}
+
 Mesh* ChunkManager::getMesh(const Chunk* chunk) const
 {
 	auto i = m_meshes.find(chunk);
@@ -183,10 +196,7 @@ std::vector<const Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 
 const Block* ChunkManager::getBlock(const Coordinate& location) const
 {
-	int x = floor(location.x / float(Chunk::SIZE));
-	int z = floor(location.z / float(Chunk::SIZE));
-
-	const Chunk* chunk = getChunk(x, z);
+	const Chunk* chunk = getChunk(location);
 	if (chunk)
 	{
 		return chunk->get(location);
@@ -199,42 +209,32 @@ const Block* ChunkManager::getBlock(const Coordinate& location) const
 
 void ChunkManager::removeBlock(const Coordinate& location)
 {
-	int x = floor(location.x / float(Chunk::SIZE));
-	int z = floor(location.z / float(Chunk::SIZE));
-
-	Chunk* chunk = getChunk(x, z);
+	Chunk* chunk = getChunk(location);
 	if (chunk)
 	{
 		chunk->removeBlock(location);
-		m_chunkQueue.insert(std::make_pair(x, z));
+		m_chunkQueue.insert(std::make_pair(chunk->x(), chunk->z()));
 	}
 }
 
 void ChunkManager::createBlock(const Coordinate& location, BlockLibrary::Tag tag)
 {
-	int x = floor(location.x / float(Chunk::SIZE));
-	int z = floor(location.z / float(Chunk::SIZE));
-
-	Chunk* chunk = getChunk(x, z);
+	Chunk* chunk = getChunk(location);
 	if (chunk)
 	{
 		chunk->newBlock(location.x, location.y, location.z, tag);
-		m_chunkQueue.insert(std::make_pair(x, z));
+		m_chunkQueue.insert(std::make_pair(chunk->x(), chunk->z()));
 	}
 }
 
 bool ChunkManager::isTransparent(const Coordinate& location) const
 {
-	const Block* block = getBlock(location);
-
-	// TODO: Support transparent blocks other than air
-	return (block == nullptr);
+	const Chunk* chunk = getChunk(location);
+	return (!chunk || chunk->isTransparent(location));
 }
 
 bool ChunkManager::isSolid(const Coordinate& location) const
 {
-	const Block* block = getBlock(location);
-
-	// TODO: Support non-solid blocks other than air
-	return (block != nullptr);
+	const Chunk* chunk = getChunk(location);
+	return (chunk && chunk->isSolid(location));
 }

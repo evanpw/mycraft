@@ -37,6 +37,8 @@ private:
 	// Return null if the chunk is not resident or has not been generated
 	const Chunk* getChunk(int x, int z) const;
 	Chunk* getChunk(int x, int z);
+	const Chunk* getChunk(const Coordinate& location) const;
+	Chunk* getChunk(const Coordinate& location);
 
 	// The first of these will return nullptr if the mesh has not been
 	// generated yet.

@@ -63,12 +63,7 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 			{
 				Coordinate location(x * SIZE + i, k, z * SIZE + j);
 
-				if (isTransparent(location))
-				{
-					if (k < 0.45 * DEPTH)
-						newBlock(location.x, location.y, location.z, BlockLibrary::WATER);
-				}
-				else
+				if (!isEmpty(location))
 				{
 					auto& block = m_blocks[location];
 					if (block->blockType == BlockLibrary::DIRT)
@@ -77,19 +72,17 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 					// We only work on the top-most block in a column.
 					break;
 				}
+				else if (k < 0.45 * DEPTH)
+				{
+					while (isEmpty(location))
+					{
+						newBlock(location.x, location.y, location.z, BlockLibrary::WATER);
+						--location.y;
+					}
+
+					break;
+				}
 			}
-		}
-	}
-
-	// Convert top-level dirt to grass
-	for (auto& i : m_blocks)
-	{
-		const Coordinate& location = i.first;
-		auto& block = i.second;
-
-		if (block->blockType == BlockLibrary::DIRT && openToSky(location))
-		{
-			block->blockType = BlockLibrary::GRASS;
 		}
 	}
 }
@@ -121,17 +114,19 @@ void Chunk::removeBlock(const Coordinate& location)
 bool Chunk::isTransparent(const Coordinate& location) const
 {
 	const Block* block = get(location);
-
-	// TODO: Support transparent blocks other than air
-	return (block == nullptr);
+	return (block == nullptr || block->blockType == BlockLibrary::WATER);
 }
 
 bool Chunk::isSolid(const Coordinate& location) const
 {
 	const Block* block = get(location);
+	return (block && block->blockType != BlockLibrary::WATER);
+}
 
-	// TODO: Support non-solid blocks other than air
-	return (block != nullptr);
+bool Chunk::isEmpty(const Coordinate& location) const
+{
+	const Block* block = get(location);
+	return (block == nullptr);
 }
 
 bool Chunk::openToSky(const Coordinate& location) const
@@ -152,12 +147,24 @@ unsigned int Chunk::getLiveFaces(const Coordinate& r) const
 {
 	// TODO: Precompute a lot of this
 	unsigned int mask = 0;
-	if (isTransparent(r.addX(1))) mask |= PLUS_X;
-	if (isTransparent(r.addX(-1))) mask |= MINUS_X;
-	if (isTransparent(r.addY(1))) mask |= PLUS_Y;
-	if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
-	if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
-	if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
+	if (isTransparent(r) && !isEmpty(r))
+	{
+		if (isEmpty(r.addX(1))) mask |= PLUS_X;
+		if (isEmpty(r.addX(-1))) mask |= MINUS_X;
+		if (isEmpty(r.addY(1))) mask |= PLUS_Y;
+		if (isEmpty(r.addY(-1))) mask |= MINUS_Y;
+		if (isEmpty(r.addZ(1))) mask |= PLUS_Z;
+		if (isEmpty(r.addZ(-1))) mask |= MINUS_Z;
+	}
+	else
+	{
+		if (isTransparent(r.addX(1))) mask |= PLUS_X;
+		if (isTransparent(r.addX(-1))) mask |= MINUS_X;
+		if (isTransparent(r.addY(1))) mask |= PLUS_Y;
+		if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
+		if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
+		if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
+	}
 
 	return mask;
 }
@@ -173,10 +180,43 @@ std::vector<Vertex> Chunk::rebuildMesh()
 		PLUS_Z, MINUS_Z
 	};
 
-	// Create the vertex data
+	// First pass is for opaque blocks
 	for (auto& itr : m_blocks)
 	{
 		const std::unique_ptr<Block>& block = itr.second;
+		if (block->blockType == BlockLibrary::WATER)
+			continue;
+
+		// Translate the cube mesh to the appropriate place in world coordinates
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
+
+		unsigned int liveFaces = getLiveFaces(block->location);
+		for (size_t face = 0; face < 6; ++face)
+		{
+			if (liveFaces & masks[face])
+			{
+				for (size_t i = 0; i < 6; ++i)
+				{
+					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
+
+					Vertex vertex;
+					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
+					copyVector(vertex.texCoord, cubeVertex.position);
+					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.normal, cubeVertex.normal);
+
+					vertices.push_back(vertex);
+				}
+			}
+		}
+	}
+
+	// Second pass is for transparent blocks
+	for (auto& itr : m_blocks)
+	{
+		const std::unique_ptr<Block>& block = itr.second;
+		if (block->blockType != BlockLibrary::WATER)
+			continue;
 
 		// Translate the cube mesh to the appropriate place in world coordinates
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
