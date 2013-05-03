@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include "block_library.hpp"
 #include <algorithm>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -219,4 +220,12 @@ void Player::update(float elapsed)
 
 	m_camera.eye += delta;
 	m_step = glm::vec3(0.0f);
+}
+
+bool Player::isUnderwater() const
+{
+	Coordinate currentBlock = m_camera.eye;
+	const Block* block = m_chunkManager.getBlock(currentBlock);
+
+	return (block && block->blockType == BlockLibrary::WATER);
 }

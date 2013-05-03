@@ -36,6 +36,9 @@ public:
 	// Calls the private potentialIntersections with the current position
 	std::vector<Coordinate> potentialIntersections() const;
 
+	// Determines whether the player's eye is currently in a water block
+	bool isUnderwater() const;
+
 private:
 	bool inAir() const;
 

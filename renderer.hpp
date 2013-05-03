@@ -19,6 +19,7 @@ public:
 	Renderer& operator=(const Renderer& other) = delete;
 
 	void renderMeshes(const Camera& camera, const std::vector<const Mesh*>& meshes);
+	void tintScreen(const glm::vec3& color);
 
 	void setSize(int width, int height);
 	int width() const { return m_width; }
@@ -32,13 +33,35 @@ private:
 	std::unique_ptr<BlockLibrary> m_blockLibrary;
 
 	GLuint m_vertexArray;
-	GLuint m_programId;
 
-	// Shader input variables
-	GLint m_position, m_texCoord, m_normal;
+	// Shader for rendering chunks of terrain
+	struct
+	{
+		GLuint programId;
 
-	// Shader uniform variables
-	GLint m_modelMatrix, m_vpMatrix, m_highlight, m_textureSampler, m_resolution, m_sunPosition, m_brightness;
+		// Shader input variables
+		GLint position, texCoord, normal;
+
+		// Shader uniform variables
+		GLint modelMatrix, vpMatrix, highlight, textureSampler;
+		GLint resolution, sunPosition, brightness;
+	} m_chunkShader;
+
+	// Shader program for tinting the screen (for example,
+	// when underwater).
+	struct
+	{
+		GLuint programId;
+
+		// Input variables
+		GLint position;
+
+		// Uniform variables
+		GLint color;
+
+		// Stores the vertices of a quad which covers the entire screen.
+		GLuint vbo;
+	} m_tintShader;
 };
 
 #endif
