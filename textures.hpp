@@ -19,6 +19,8 @@ public:
 
 	void tint(const glm::vec3& color);
 
+	void cropHeight(size_t height) { m_height = height; }
+
 	// Place another texture on the top of this one, with
 	// correct alpha blending
 	void overlayWith(const PngFile& other);

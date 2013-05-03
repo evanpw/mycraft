@@ -21,8 +21,9 @@ public:
 	// Certain block types need to be referenced by name in the code. For example,
 	// in terrain generation
 	static const Tag GRASS = 0;
-	static const Tag DIRT = 1;
-	static const Tag STONE = 2;
+	static const Tag WATER  = 1;
+	static const Tag DIRT = 2;
+	static const Tag STONE = 3;
 
 	BlockLibrary();
 
@@ -36,6 +37,7 @@ public:
 
 private:
 	void buildGrassTextures(const std::string& directory, uint32_t* result);
+	void buildWaterTextures(const std::string& directory, uint32_t* result);
 
 	GLuint m_textureArray;
 	std::vector<std::unique_ptr<BlockType>> m_blockTypes;

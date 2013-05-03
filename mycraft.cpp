@@ -173,7 +173,7 @@ int main()
 	renderer = new Renderer(INITIAL_WIDTH, INITIAL_HEIGHT);
 
 	// Start up in the air
-	player = new Player(*chunkManager, glm::vec3(0.0, 32.0, 0.0));
+	player = new Player(*chunkManager, glm::vec3(0.0, 150.0, 0.0));
 
 	float lastUpdate = glfwGetTime();
 	FpsCounter fpsCounter;

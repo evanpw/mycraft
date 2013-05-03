@@ -5,3 +5,8 @@ Known Bugs and Issues
 * Need to implement frustum culling of chunks
 * Use a fixed-size array for chunks rather than a map
 * It's possible to fall through the world if the current chunk is not loaded quickly enough
+* The mesh building code should take into account the whole world. Then we would have to rebuild
+  all adjacent meshes when deleting a block.
+* Go back to an ordinary texture array, not a cube map array. This will make it easier to do
+  things like joining adjacent faces, and animating textures. It should also save memory on
+  repeated textures.

@@ -29,7 +29,7 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 		for (int j = 0; j < SIZE; ++j)
 		{
 			float heightSample = heightMap.sample(SMOOTHNESS * (x * SIZE + i), 0.0, SMOOTHNESS * (z * SIZE + j));
-			float height = SCALE * (0.5 + 0.25 * heightSample);
+			float height = (DEPTH / 2) + SCALE * heightSample; //(0.5 + 0.25 * heightSample);
 
 			for (int k = 0; k < DEPTH; ++k)
 			{
@@ -38,9 +38,10 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 				sample += (height - k) / (SCALE / 4.0);
 
 				float caveSample = caves.sample(DETAIL * (x * SIZE + i), CAVES * DETAIL * k, DETAIL * (z * SIZE + j));
+				caveSample = pow(caveSample, 3.0);
 
 				// Ground threshold
-				if (sample > 0.0f && caveSample > -0.5)
+				if (sample > 0.0f && caveSample > -0.1)
 				{
 					// Stone threshold
 					if (sample > 0.5f)
@@ -52,14 +53,44 @@ Chunk::Chunk(int x, int z, unsigned int seed)
 		}
 	}
 
-	// Dirt with air above it becomes grass
+	// Insert water at the water level, and convert top-level dirt to
+	// grass
+	for (int i = 0; i < SIZE; ++i)
+	{
+		for (int j = 0; j < SIZE; ++j)
+		{
+			for (int k = DEPTH - 1; k >= 0; --k)
+			{
+				Coordinate location(x * SIZE + i, k, z * SIZE + j);
+
+				if (isTransparent(location))
+				{
+					if (k < 0.45 * DEPTH)
+						newBlock(location.x, location.y, location.z, BlockLibrary::WATER);
+				}
+				else
+				{
+					auto& block = m_blocks[location];
+					if (block->blockType == BlockLibrary::DIRT)
+						block->blockType = BlockLibrary::GRASS;
+
+					// We only work on the top-most block in a column.
+					break;
+				}
+			}
+		}
+	}
+
+	// Convert top-level dirt to grass
 	for (auto& i : m_blocks)
 	{
 		const Coordinate& location = i.first;
 		auto& block = i.second;
 
-		if (block->blockType == BlockLibrary::DIRT && !get(location.addY(1)))
+		if (block->blockType == BlockLibrary::DIRT && openToSky(location))
+		{
 			block->blockType = BlockLibrary::GRASS;
+		}
 	}
 }
 
@@ -101,6 +132,20 @@ bool Chunk::isSolid(const Coordinate& location) const
 
 	// TODO: Support non-solid blocks other than air
 	return (block != nullptr);
+}
+
+bool Chunk::openToSky(const Coordinate& location) const
+{
+	Coordinate current = location.addY(1);
+	while (current.y < DEPTH)
+	{
+		if (!isTransparent(current))
+			return false;
+
+		++current.y;
+	}
+
+	return true;
 }
 
 unsigned int Chunk::getLiveFaces(const Coordinate& r) const

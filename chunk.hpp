@@ -15,7 +15,7 @@ class Chunk
 {
 public:
 	static const int SIZE = 1 << 4;		// Range of x and z dimensions
-	static const int DEPTH = 1 << 7;	// Range of y dimension
+	static const int DEPTH = 1 << 6;	// Range of y dimension
 
 	// Both x and z are in units of chunks
 	Chunk(int x = 0, int z = 0, unsigned int seed = 0);
@@ -27,6 +27,7 @@ public:
 	// Access the world
 	bool isTransparent(const Coordinate& location) const;
 	bool isSolid(const Coordinate& location) const;
+	bool openToSky(const Coordinate& location) const;
 
 	// This pointer will be invalidated if the block is removed
 	const Block* get(const Coordinate& location) const;
