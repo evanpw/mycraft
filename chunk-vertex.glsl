@@ -18,7 +18,7 @@ void main()
 
 	vec3 n = normalize(normal);
 	vec3 l = normalize(sunPosition);
-	float diffuse = clamp(0.7 * dot(n, l), 0.0, 1.0);
+	float diffuse = clamp(abs(0.7 * dot(n, l)), 0.0, 1.0);
 	diffuse *= brightness;
 
 	float ambient = 0.3;

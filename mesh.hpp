@@ -15,7 +15,7 @@ struct Vertex
 struct Mesh
 {
 	GLuint vertexBuffer;
-	size_t vertexCount;
+	size_t opaqueVertices, transparentVertices;
 };
 
 void copyVector(GLfloat* dest, const glm::vec3& source);

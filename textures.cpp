@@ -1,3 +1,6 @@
+#define GLM_SWIZZLE
+#include <glm/glm.hpp>
+
 #include "exceptions.hpp"
 #include "textures.hpp"
 #include <array>
@@ -107,6 +110,18 @@ uint32_t unsplit(const glm::vec4& color)
     return (scaled.a << 24) + (scaled.b << 16) + (scaled.g << 8) + scaled.r;
 }
 
+glm::vec4 blend(glm::vec4 source, glm::vec4 dest)
+{
+    glm::vec4 result;
+
+    result.a = source.a + dest.a * (1 - source.a);
+    if (result.a == 0.0f)
+        return glm::vec4(0.0f);
+
+    result.rgb = (source.a * source.rgb + dest.a * dest.rgb * (1 - source.a)) / result.a;
+    return result;
+}
+
 void PngFile::tint(const glm::vec3& color)
 {
     // Colorize the top texture
@@ -128,7 +143,7 @@ void PngFile::overlayWith(const PngFile& other)
     {
         glm::vec4 myColor = split(m_data[i]);
         glm::vec4 otherColor = split(otherBuffer[i]);
-        m_data[i] = unsplit(otherColor.a * otherColor + (1 - otherColor.a) * myColor);
+        m_data[i] = unsplit(blend(myColor, otherColor));
     }
 
 }

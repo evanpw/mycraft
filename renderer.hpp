@@ -18,8 +18,7 @@ public:
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;
 
-	void renderMeshes(const Camera& camera, const std::vector<const Mesh*>& meshes);
-	void tintScreen(const glm::vec3& color);
+	void render(const Camera& camera, const std::vector<const Mesh*>& meshes, bool underwater);
 
 	void setSize(int width, int height);
 	int width() const { return m_width; }
@@ -49,6 +48,7 @@ private:
 
 	// Shader program for tinting the screen (for example,
 	// when underwater).
+	void tintScreen(const glm::vec3& color);
 	struct
 	{
 		GLuint programId;

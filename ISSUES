@@ -5,12 +5,9 @@ Known Bugs and Issues
 * Need to implement frustum culling of chunks
 * Use a fixed-size array for chunks rather than a map
 * It's possible to fall through the world if the current chunk is not loaded quickly enough
-* The mesh building code should take into account the whole world. Then we would have to rebuild
-  all adjacent meshes when deleting a block.
-* Chunk boundaries can be seen through water. (The previous correction will fix this too).
 * Go back to an ordinary texture array, not a cube map array. This will make it easier to do
   things like joining adjacent faces, and animating textures. It should also save memory on
   repeated textures.
-* When underwater, we can't see the inner boundary of water
-* When water reaches an overhang, there is a sharp boundary
-* The grass side overlay looks a bit wrong on the brightest side of the cube.
+* When you destroy a block at the bottom of a lake, the water doesn't fall down
+* Flicker when destroying a block on a chunk boundary - need to rebuild the mesh from the
+  other chunks before the one containing the deleted block

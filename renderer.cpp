@@ -20,6 +20,7 @@ Renderer::Renderer(int width, int height)
 
 	// We don't sort blocks ourselves, so we need depth testing
 	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
 
 	// For transparent blocks
 	glEnable(GL_BLEND);
@@ -77,9 +78,11 @@ Renderer::~Renderer()
 	glDeleteBuffers(1, &m_tintShader.vbo);
 }
 
-void Renderer::renderMeshes(const Camera& camera, const std::vector<const Mesh*>& meshes)
+void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& meshes, bool underwater)
 {
 	glUseProgram(m_chunkShader.programId);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	static glm::vec3 sun(-4.0, 2.0, 1.0);
 	//glm::mat4 rotation = glm::rotate(glm::mat4(1.0), 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -106,15 +109,14 @@ void Renderer::renderMeshes(const Camera& camera, const std::vector<const Mesh*>
 	glUniform1i(m_chunkShader.textureSampler, 0);
 	glUniform2f(m_chunkShader.resolution, m_width, m_height);
 
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-
 	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
 
 	glEnableVertexAttribArray(m_chunkShader.position);
 	glEnableVertexAttribArray(m_chunkShader.texCoord);
 	glEnableVertexAttribArray(m_chunkShader.normal);
 
+	// Pass 1 - opaque blocks, front to back
+	glCullFace(GL_BACK);
 	for (const Mesh* mesh : meshes)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
@@ -122,19 +124,38 @@ void Renderer::renderMeshes(const Camera& camera, const std::vector<const Mesh*>
 		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 		glVertexAttribPointer(m_chunkShader.normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
-		glDrawArrays(GL_TRIANGLES, 0, mesh->vertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, mesh->opaqueVertices);
+	}
+
+	// Pass 2 - transparent blocks, back to front
+	if (underwater)
+		glCullFace(GL_FRONT);
+	for (auto i = meshes.rbegin(); i != meshes.rend(); ++i)
+	{
+		const Mesh* mesh = *i;
+
+		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+		glVertexAttribPointer(m_chunkShader.position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(m_chunkShader.normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+		glDrawArrays(GL_TRIANGLES, mesh->opaqueVertices, mesh->transparentVertices);
 	}
 
 	// Good OpenGL hygiene
 	glDisableVertexAttribArray(m_chunkShader.position);
 	glDisableVertexAttribArray(m_chunkShader.texCoord);
 	glDisableVertexAttribArray(m_chunkShader.normal);
+
+	if (underwater)
+		tintScreen(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
 void Renderer::tintScreen(const glm::vec3& color)
 {
 	glUseProgram(m_tintShader.programId);
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
 	glUniform3fv(m_tintShader.color, 1, glm::value_ptr(color));
 

@@ -27,7 +27,6 @@ public:
 	// Access the world
 	bool isTransparent(const Coordinate& location) const;
 	bool isSolid(const Coordinate& location) const;
-	bool isEmpty(const Coordinate& location) const;
 	bool openToSky(const Coordinate& location) const;
 
 	// This pointer will be invalidated if the block is removed
@@ -35,19 +34,6 @@ public:
 
 	void newBlock(int x, int y, int z, BlockLibrary::Tag tag);
 	void removeBlock(const Coordinate& location);
-
-	// Determine which of the faces (if any) of a given block are not adjacent
-	// to an opaque block
-	static const unsigned int PLUS_X = 1 << 0;
-	static const unsigned int MINUS_X = 1 << 1;
-	static const unsigned int PLUS_Y = 1 << 2;
-	static const unsigned int MINUS_Y = 1 << 3;
-	static const unsigned int PLUS_Z = 1 << 4;
-	static const unsigned int MINUS_Z = 1 << 5;
-	unsigned int getLiveFaces(const Coordinate& r) const;
-
-	// Determine all triangles which could possibly be visible
-	std::vector<Vertex> rebuildMesh();
 
 private:
 	static const int SCALE = 1 << 5;	// Scale of top-level terrain features

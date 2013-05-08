@@ -115,7 +115,7 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 					// Check that the player will not intersect the new block
 					std::vector<Coordinate> locations = player->potentialIntersections();
 					if (std::find(locations.begin(), locations.end(), lastOpen) == locations.end())
-						chunkManager->createBlock(lastOpen, BlockLibrary::DIRT);
+						chunkManager->createBlock(lastOpen, BlockLibrary::WATER);
 				}
 			}
 		}
@@ -225,9 +225,7 @@ int main()
 		}
 
 		std::vector<const Mesh*> visibleMeshes = chunkManager->getVisibleMeshes(player->camera());
-		renderer->renderMeshes(player->camera(), visibleMeshes);
-		if (player->isUnderwater())
-			renderer->tintScreen(glm::vec3(0.0f, 0.0f, 1.0f));
+		renderer->render(player->camera(), visibleMeshes, player->isUnderwater());
 
 		glfwSwapBuffers();
 

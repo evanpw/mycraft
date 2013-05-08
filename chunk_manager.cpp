@@ -3,7 +3,9 @@
 #include <boost/timer/timer.hpp>
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "chunk_manager.hpp"
+#include "cube.hpp"
 #include "renderer.hpp"
 
 ChunkManager::ChunkManager(int seed)
@@ -123,27 +125,42 @@ std::vector<const Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 	if (!m_chunkQueue.empty())
 	{
 		auto i = std::min_element(m_chunkQueue.begin(), m_chunkQueue.end(), DistanceToCamera(camera));
-		std::pair<int, int> chunkCoord = *i;
 
-		Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
-		if (!chunk)
+		// This chunk and all of its neighbors need to be loaded in order to determine
+		// the live faces and create the mesh
+		int x = i->first, z = i->second;
+		std::array<std::pair<int, int>, 5> chunkCoords =
+		{{
+			{x, z},
+			{x + 1, z},
+			{x - 1, z},
+			{x, z + 1},
+			{x, z - 1}
+		}};
+
+		bool loadedChunk = false;
+		for (std::pair<int, int>& chunkCoord : chunkCoords)
 		{
-			loadOrCreateChunk(chunkCoord.first, chunkCoord.second);
+			Chunk* chunk = getChunk(chunkCoord.first, chunkCoord.second);
+			if (!chunk)
+			{
+				loadOrCreateChunk(chunkCoord.first, chunkCoord.second);
+				loadedChunk = true;
+				break;
+			}
 		}
-		else
+
+		if (!loadedChunk)
 		{
+			Chunk* chunk = getChunk(x, z);
 			Mesh* mesh = getOrCreateMesh(chunk);
 
-			std::vector<Vertex> vertices = chunk->rebuildMesh();
-			glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-			mesh->vertexCount = vertices.size();
-
+			rebuildMesh(chunk, mesh);
 			m_chunkQueue.erase(i);
 		}
 	}
 
-	std::vector<const Mesh*> meshes;
+	std::vector<std::pair<int, int>> visibleChunks;
 
 	int x = floor(camera.eye.x / (float)Chunk::SIZE);
 	int z = floor(camera.eye.z / (float)Chunk::SIZE);
@@ -159,10 +176,20 @@ std::vector<const Mesh*> ChunkManager::getVisibleMeshes(const Camera& camera)
 				continue;
 			}
 
-			// Render dirty chunks also - it's better to show a slightly out-of-date
-			// image rather than a giant hole in the world.
-			meshes.push_back(mesh);
+			visibleChunks.push_back(std::make_pair(x + i, z + j));
 		}
+	}
+
+	// Sort the visible chunks from front to back, to avoid overdrawing and make
+	// transparency work correctly
+	sort(visibleChunks.begin(), visibleChunks.end(), DistanceToCamera(camera));
+
+	std::vector<const Mesh*> meshes;
+	for (std::pair<int, int>& chunkCoord : visibleChunks)
+	{
+		const Mesh* mesh = getMesh(getChunk(chunkCoord.first, chunkCoord.second));
+
+		meshes.push_back(mesh);
 	}
 
 	//std::cout << "Loaded chunks: " << m_chunks.size() << ", loaded meshes = " << m_meshes.size() << std::endl;
@@ -215,6 +242,21 @@ void ChunkManager::removeBlock(const Coordinate& location)
 		chunk->removeBlock(location);
 		m_chunkQueue.insert(std::make_pair(chunk->x(), chunk->z()));
 	}
+
+	// If we remove a block adjacent to another chunk, its mesh also needs
+	// to be built again
+	std::array<Coordinate, 4> neighbors =
+	{{
+		location.addX(1), location.addX(-1),
+		location.addZ(1), location.addZ(-1)
+	}};
+
+	for (Coordinate& neighbor : neighbors)
+	{
+		Chunk* otherChunk = getChunk(neighbor);
+		if (otherChunk && otherChunk != chunk)
+			m_chunkQueue.insert(std::make_pair(otherChunk->x(), otherChunk->z()));
+	}
 }
 
 void ChunkManager::createBlock(const Coordinate& location, BlockLibrary::Tag tag)
@@ -237,4 +279,120 @@ bool ChunkManager::isSolid(const Coordinate& location) const
 {
 	const Chunk* chunk = getChunk(location);
 	return (chunk && chunk->isSolid(location));
+}
+
+bool ChunkManager::isEmpty(const Coordinate& location) const
+{
+	const Block* block = getBlock(location);
+	return (block == nullptr);
+}
+
+unsigned int ChunkManager::getLiveFaces(const Coordinate& r) const
+{
+	// TODO: Precompute a lot of this
+	unsigned int mask = 0;
+	if (isTransparent(r) && !isEmpty(r))
+	{
+		if (isEmpty(r.addX(1))) mask |= PLUS_X;
+		if (isEmpty(r.addX(-1))) mask |= MINUS_X;
+		if (isEmpty(r.addY(1))) mask |= PLUS_Y;
+		if (isEmpty(r.addY(-1))) mask |= MINUS_Y;
+		if (isEmpty(r.addZ(1))) mask |= PLUS_Z;
+		if (isEmpty(r.addZ(-1))) mask |= MINUS_Z;
+	}
+	else
+	{
+		if (isTransparent(r.addX(1))) mask |= PLUS_X;
+		if (isTransparent(r.addX(-1))) mask |= MINUS_X;
+		if (isTransparent(r.addY(1))) mask |= PLUS_Y;
+		if (isTransparent(r.addY(-1))) mask |= MINUS_Y;
+		if (isTransparent(r.addZ(1))) mask |= PLUS_Z;
+		if (isTransparent(r.addZ(-1))) mask |= MINUS_Z;
+	}
+
+	return mask;
+}
+
+void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
+{
+	std::vector<Vertex> vertices;
+
+	unsigned int masks[6] =
+	{
+		PLUS_X, MINUS_X,
+		PLUS_Y, MINUS_Y,
+		PLUS_Z, MINUS_Z
+	};
+
+	// First pass is for opaque blocks
+	mesh->opaqueVertices = 0;
+	for (auto& itr : chunk->blocks())
+	{
+		const std::unique_ptr<Block>& block = itr.second;
+		if (block->blockType == BlockLibrary::WATER)
+			continue;
+
+		// Translate the cube mesh to the appropriate place in world coordinates
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
+
+		unsigned int liveFaces = getLiveFaces(block->location);
+		for (size_t face = 0; face < 6; ++face)
+		{
+			if (liveFaces & masks[face])
+			{
+				for (size_t i = 0; i < 6; ++i)
+				{
+					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
+
+					Vertex vertex;
+					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
+					copyVector(vertex.texCoord, cubeVertex.position);
+					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.normal, cubeVertex.normal);
+
+					vertices.push_back(vertex);
+					++mesh->opaqueVertices;
+				}
+			}
+		}
+	}
+
+	// Second pass is for transparent blocks
+	mesh->transparentVertices = 0;
+	for (auto& itr : chunk->blocks())
+	{
+		const std::unique_ptr<Block>& block = itr.second;
+		if (block->blockType != BlockLibrary::WATER)
+			continue;
+
+		// Translate the cube mesh to the appropriate place in world coordinates
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), block->location.vec3());
+
+		unsigned int liveFaces = getLiveFaces(block->location);
+		for (size_t face = 0; face < 6; ++face)
+		{
+			if (liveFaces & masks[face])
+			{
+				for (size_t i = 0; i < 6; ++i)
+				{
+					CubeVertex cubeVertex = cubeMesh[face * 6 + i];
+
+					Vertex vertex;
+					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
+					copyVector(vertex.texCoord, cubeVertex.position);
+					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.normal, cubeVertex.normal);
+
+					vertices.push_back(vertex);
+					++mesh->transparentVertices;
+				}
+			}
+		}
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+
+	//std::cout << "Vertex count: " << vertices.size() << std::endl;
+	//std::cout << "VBO size: " << (sizeof(Vertex) * vertices.size() / (1 << 20)) << "MB" << std::endl;
 }

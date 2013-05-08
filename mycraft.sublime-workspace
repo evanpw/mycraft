@@ -11,7 +11,7 @@
 	"build_system": "Packages/Makefile/Make.sublime-build",
 	"command_palette":
 	{
-		"height": 375.0,
+		"height": 110.0,
 		"selected_items":
 		[
 			[
@@ -52,25 +52,44 @@
 	},
 	"file_history":
 	[
+		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
+		"/C/Users/Evan/Workspace/mycraft/renderer.hpp",
+		"/C/Users/Evan/Workspace/mycraft/tint-vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/tint-fragment.glsl",
+		"/C/Users/Evan/Workspace/mycraft/chunk-fragment.glsl",
 		"/C/Users/Evan/Workspace/mycraft/mycraft.cpp",
-		"/C/Users/Evan/Workspace/mycraft/block.hpp",
-		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
+		"/C/Users/Evan/Workspace/mycraft/player.hpp",
+		"/C/Users/Evan/Workspace/mycraft/player.cpp",
+		"/C/Users/Evan/Workspace/mycraft/ISSUES",
 		"/C/Users/Evan/Workspace/mycraft/chunk.hpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
 		"/C/Users/Evan/Workspace/mycraft/chunk_manager.cpp",
 		"/C/Users/Evan/Workspace/mycraft/chunk_manager.hpp",
+		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Todo.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Waist.csv",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Weight Lifting.text",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
+		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
+		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
+		"/C/Users/Evan/Workspace/mycraft/vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/textures.hpp",
+		"/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
+		"/C/Users/Evan/Workspace/mycraft/Sphax PureBDcraft 256x MC15/color.properties",
+		"/C/Users/Evan/Workspace/mycraft/Sphax PureBDcraft 256x MC15/pack.txt",
+		"/C/Users/Evan/Workspace/mycraft/Sphax PureBDcraft 256x MC15/renderpass.properties",
+		"/C/Users/Evan/Workspace/mycraft/mycraft.sublime-project",
+		"/C/Users/Evan/Workspace/mycraft/IDEAS",
+		"/C/Users/Evan/Workspace/mycraft/block.hpp",
 		"/C/Users/Evan/Workspace/mycraft/cube.hpp",
 		"/C/Users/Evan/Workspace/mycraft/cube.cpp",
 		"/C/Users/Evan/Workspace/mycraft/coordinate.hpp",
 		"/C/Users/Evan/Workspace/mycraft/ray_caster.hpp",
 		"/C/Users/Evan/Workspace/mycraft/ray_caster.cpp",
-		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
 		"/C/Users/Evan/Workspace/mycraft/mesh.cpp",
-		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
-		"/C/Users/Evan/Workspace/mycraft/renderer.hpp",
-		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Wines",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Weight Lifting.text",
 		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/libs/geometry/example/c02_custom_box_example.cpp",
 		"/Y/workspace/thesis/Thesis Todo",
 		"/Y/workspace/thesis/overview.tex",
@@ -83,7 +102,6 @@
 		"/Y/workspace/thesis/consequences.tex",
 		"/Y/workspace/thesis/cyclic.tex",
 		"/Y/workspace/thesis/thesis.tex",
-		"/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
 		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/libs/type_traits/doc/has_left_shift_assign.qbk",
 		"/Y/workspace/thesis/diffs.aux",
 		"/Y/workspace/thesis/diffs.toc",
@@ -100,26 +118,20 @@
 		"/C/Users/Evan/Downloads/1203.6389v1",
 		"/C/Users/Evan/Downloads/0911.0306v1",
 		"/C/Users/Evan/Downloads/suvaina.tex",
-		"/C/Users/Evan/Workspace/mycraft/ISSUES",
 		"/C/Users/Evan/Workspace/mycraft/Makefile",
-		"/C/Users/Evan/Workspace/mycraft/player.cpp",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.hpp",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.cpp",
-		"/C/Users/Evan/Workspace/mycraft/player.hpp",
 		"/C/Users/Evan/Workspace/mycraft/worker.cpp",
 		"/c/mingw/lib/gcc/mingw32/4.7.2/include/c++/ext/new_allocator.h",
 		"/C/Users/Evan/Workspace/mycraft/gprof.out",
 		"/C/Users/Evan/AppData/Local/Temp/mycraft.DMP",
 		"/C/Users/Evan/AppData/Local/Temp/crashback_1/info.txt",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/To Buy.text",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
 		"/C/Users/Evan/Documents/Dropbox/Today.text",
-		"/C/Users/Evan/Workspace/mycraft/IDEAS",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Programming Todo.tex",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Life System/Introduction.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Life System/Projects.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Notions.tex",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Todo.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Daily.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/System.text",
 		"/C/Users/Evan/Documents/Dropbox/Unsorted/Problems.text",
@@ -163,23 +175,11 @@
 		"/C/Users/Evan/Downloads/usbthesis.cls",
 		"/C/Users/Evan/Workspace/mycraft/world.cpp.bak",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Exercise.csv",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Waist.csv",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Exercise Regimen.text",
 		"/C/Users/Evan/Workspace/mycraft/Introduction.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Hugo Winners.tex",
 		"/C/Users/Evan/Workspace/mycraft/test.cpp",
-		"/C/Users/Evan/Workspace/mycraft/fragment.glsl",
-		"/C/Users/Evan/Workspace/mycraft/vertex.glsl",
-		"/c/mingw/include/glm/core/type_half.inl",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Library Books.text",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/To Read.tex",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Walking.csv",
-		"/C/Users/Evan/Workspace/mycraft/boost_1_53_0/project-config.jam",
-		"/C/Users/Evan/Workspace/mycraft/coordinate.cpp",
-		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
-		"/C/Users/Evan/Workspace/mycraft/textures.hpp",
-		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
-		"/C/Users/Evan/Workspace/opencl/Makefile"
+		"/C/Users/Evan/Workspace/mycraft/fragment.glsl"
 	],
 	"find":
 	{
@@ -187,7 +187,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 98.0,
+		"height": 0.0,
 		"where_history":
 		[
 			"",
@@ -203,6 +203,18 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"rebuildMesh",
+			"3",
+			"m_",
+			"isTransparent",
+			"player",
+			"TEXTURE_SIZE",
+			"info_ptr",
+			"png_ptr",
+			"fp",
+			"data",
+			"playerMin",
+			"oldPlayerMin",
 			"getMesh",
 			"Mesh*",
 			"m_chunkQueue",
@@ -318,19 +330,7 @@
 			"GL library",
 			"GL libraries",
 			"GL liraries",
-			"library",
-			"gaze",
-			"cout",
-			"velocity",
-			"cubes",
-			"setSize",
-			"\\setcounter",
-			"prelim",
-			"ps@thesis",
-			"ps@prelim",
-			"cout",
-			"meshVertex",
-			"Queue"
+			"library"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -449,6 +449,34 @@
 		"selected_items":
 		[
 			[
+				"my",
+				"mycraft.cpp"
+			],
+			[
+				"mesh.hpp",
+				"mesh.hpp"
+			],
+			[
+				"render",
+				"renderer.cpp"
+			],
+			[
+				"texture.hpp",
+				"textures.hpp"
+			],
+			[
+				"player.cpp",
+				"player.cpp"
+			],
+			[
+				"player.hpp",
+				"player.hpp"
+			],
+			[
+				"mycr",
+				"mycraft.cpp"
+			],
+			[
 				"block_",
 				"block_library.hpp"
 			],
@@ -469,10 +497,6 @@
 				"boost_1_53_0/libs/geometry/example/c02_custom_box_example.cpp"
 			],
 			[
-				"mesh.hpp",
-				"mesh.hpp"
-			],
-			[
 				"makefile",
 				"Makefile"
 			],
@@ -491,10 +515,6 @@
 			[
 				"chunk_man",
 				"chunk_manager.cpp"
-			],
-			[
-				"render",
-				"renderer.hpp"
 			],
 			[
 				"coordinate.hpp",
@@ -531,10 +551,6 @@
 			[
 				"framg",
 				"fragment.glsl"
-			],
-			[
-				"mycr",
-				"mycraft.cpp"
 			],
 			[
 				"chunk.cpp",
