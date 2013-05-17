@@ -1,2 +1,7 @@
 *.exe
 *.o
+*.dll
+Misa500/
+Sphax PureBDcraft 256x MC15/
+boost_1_53_0/
+tbb41_20130314oss/
