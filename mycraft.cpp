@@ -68,6 +68,7 @@ private:
 ChunkManager* chunkManager;
 Renderer* renderer;
 Player* player;
+BlockLibrary::Tag selectedBlock = 0;
 
 // A movement of 1 pixel corresponds to a rotation of how many degrees?
 float rotationSpeed = 160.0 / INITIAL_WIDTH;
@@ -88,6 +89,10 @@ void GLFWCALL keyCallback(int key, int action)
 
         glm::vec3 gaze = camera.gaze();
         std::cout << "Camera gaze = " << gaze.x << ", " << gaze.y << ", " << gaze.z << std::endl;
+	}
+	else if (key == 'B' && action == GLFW_PRESS)
+	{
+		selectedBlock = (selectedBlock + 1) % renderer->blockLibrary().size();
 	}
 	else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 	{
@@ -115,7 +120,7 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 					// Check that the player will not intersect the new block
 					std::vector<Coordinate> locations = player->potentialIntersections();
 					if (std::find(locations.begin(), locations.end(), lastOpen) == locations.end())
-						chunkManager->createBlock(lastOpen, BlockLibrary::WATER);
+						chunkManager->createBlock(lastOpen, selectedBlock);
 				}
 			}
 		}
@@ -225,7 +230,7 @@ int main()
 		}
 
 		std::vector<const Mesh*> visibleMeshes = chunkManager->getVisibleMeshes(player->camera());
-		renderer->render(player->camera(), visibleMeshes, player->isUnderwater());
+		renderer->render(player->camera(), visibleMeshes, player->isUnderwater(), selectedBlock);
 
 		glfwSwapBuffers();
 

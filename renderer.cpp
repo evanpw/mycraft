@@ -1,7 +1,9 @@
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
+#include "cube.hpp"
 #include "renderer.hpp"
 #include "shaders.hpp"
 #include <array>
@@ -38,7 +40,7 @@ Renderer::Renderer(int width, int height)
 	// Input variables
 	m_chunkShader.position = glGetAttribLocation(m_chunkShader.programId, "position");
 	m_chunkShader.texCoord = glGetAttribLocation(m_chunkShader.programId, "texCoord");
-	m_chunkShader.normal = glGetAttribLocation(m_chunkShader.programId, "normal");
+	m_chunkShader.lighting = glGetAttribLocation(m_chunkShader.programId, "lighting");
 
 	// Uniform variables
 	m_chunkShader.vpMatrix = glGetUniformLocation(m_chunkShader.programId, "vpMatrix");
@@ -66,6 +68,47 @@ Renderer::Renderer(int width, int height)
 	glGenBuffers(1, &m_tintShader.vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, m_tintShader.vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 12, &tintVertices[0], GL_STATIC_DRAW);
+
+
+
+	/// Setup the block selection shader program
+	vertexShader = loadShader("floating-vertex.glsl", GL_VERTEX_SHADER);
+	fragmentShader = loadShader("floating-fragment.glsl", GL_FRAGMENT_SHADER);
+	m_blockShader.programId = linkShaders(vertexShader, fragmentShader);
+
+	std::vector<GLfloat> blockVertices;
+	for (CubeVertex vertex : cubeMesh)
+	{
+		glm::vec3 position = vertex.position;
+
+		// Center at the origin
+		position -= glm::vec3(0.5f);
+
+		glm::vec3 texCoords = position;
+
+		// Rotate into a pleasing orientation
+		position = glm::rotateY(position, 45.0f);
+		position = glm::rotateX(position, 15.0f);
+
+		// Don't take up the entire screen
+		position.z -= 10.0f;
+
+		for (size_t i = 0; i < 3; ++i)
+			blockVertices.push_back(position[i]);
+
+		for (size_t i = 0; i < 3; ++i)
+			blockVertices.push_back(texCoords[i]);
+	}
+
+	m_blockShader.position = glGetAttribLocation(m_blockShader.programId, "position");
+	m_blockShader.texCoord = glGetAttribLocation(m_blockShader.programId, "texCoord");
+	m_blockShader.textureSampler = glGetUniformLocation(m_blockShader.programId, "textureSampler");
+	m_blockShader.projection = glGetUniformLocation(m_blockShader.programId, "projection");
+	m_blockShader.blockType = glGetUniformLocation(m_blockShader.programId, "blockType");
+
+	glGenBuffers(1, &m_blockShader.vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_blockShader.vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 36, &blockVertices[0], GL_STATIC_DRAW);
 }
 
 Renderer::~Renderer()
@@ -78,7 +121,11 @@ Renderer::~Renderer()
 	glDeleteBuffers(1, &m_tintShader.vbo);
 }
 
-void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& meshes, bool underwater)
+void Renderer::render(
+		const Camera& camera,
+		const std::vector<const Mesh*>& meshes,
+		bool underwater,
+		BlockLibrary::Tag selected)
 {
 	glUseProgram(m_chunkShader.programId);
 	glEnable(GL_DEPTH_TEST);
@@ -113,7 +160,7 @@ void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& mesh
 
 	glEnableVertexAttribArray(m_chunkShader.position);
 	glEnableVertexAttribArray(m_chunkShader.texCoord);
-	glEnableVertexAttribArray(m_chunkShader.normal);
+	glEnableVertexAttribArray(m_chunkShader.lighting);
 
 	// Pass 1 - opaque blocks, front to back
 	glCullFace(GL_BACK);
@@ -122,7 +169,7 @@ void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& mesh
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 		glVertexAttribPointer(m_chunkShader.position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-		glVertexAttribPointer(m_chunkShader.normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+		glVertexAttribPointer(m_chunkShader.lighting, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, lighting));
 
 		glDrawArrays(GL_TRIANGLES, 0, mesh->opaqueVertices);
 	}
@@ -137,7 +184,7 @@ void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& mesh
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 		glVertexAttribPointer(m_chunkShader.position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-		glVertexAttribPointer(m_chunkShader.normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+		glVertexAttribPointer(m_chunkShader.lighting, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, lighting));
 
 		glDrawArrays(GL_TRIANGLES, mesh->opaqueVertices, mesh->transparentVertices);
 	}
@@ -145,10 +192,12 @@ void Renderer::render(const Camera& camera, const std::vector<const Mesh*>& mesh
 	// Good OpenGL hygiene
 	glDisableVertexAttribArray(m_chunkShader.position);
 	glDisableVertexAttribArray(m_chunkShader.texCoord);
-	glDisableVertexAttribArray(m_chunkShader.normal);
+	glDisableVertexAttribArray(m_chunkShader.lighting);
 
 	if (underwater)
 		tintScreen(glm::vec3(0.0f, 0.0f, 1.0f));
+
+	drawBlock(selected);
 }
 
 void Renderer::tintScreen(const glm::vec3& color)
@@ -168,24 +217,48 @@ void Renderer::tintScreen(const glm::vec3& color)
 	glDisableVertexAttribArray(m_tintShader.position);
 }
 
+void Renderer::drawBlock(BlockLibrary::Tag blockType)
+{
+	glUseProgram(m_blockShader.programId);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(m_blockShader.textureSampler, 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
+
+	glUniform1i(m_blockShader.blockType, blockType);
+	glUniformMatrix4fv(m_blockShader.projection, 1, GL_FALSE, &m_projection[0][0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_blockShader.vbo);
+	glEnableVertexAttribArray(m_blockShader.position);
+	glEnableVertexAttribArray(m_blockShader.texCoord);
+	glVertexAttribPointer(m_blockShader.position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(m_blockShader.texCoord, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+
+	glDisableVertexAttribArray(m_blockShader.position);
+	glDisableVertexAttribArray(m_blockShader.texCoord);
+}
+
 void Renderer::setSize(int width, int height)
 {
 	m_width = width;
 	m_height = height;
 	glViewport(0, 0, m_width, m_height);
-}
 
-void Renderer::buildViewProjectionMatrix(const Camera& camera) const
-{
-	float aspectRatio = float(m_width) / m_height;
-
-	glm::mat4 projection = glm::perspective(
+	float aspectRatio = float(width) / height;
+	m_projection = glm::perspective(
 		45.0f,			// Field of view
 		aspectRatio,
 		0.1f,			// Near clipping plane
 		256.0f			// Far clipping plane
 	);
+}
 
+void Renderer::buildViewProjectionMatrix(const Camera& camera) const
+{
 	glm::mat4 rotation = glm::rotate(glm::mat4(1.0), camera.horizontalAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 	rotation = glm::rotate(rotation, camera.verticalAngle, glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::vec3 gaze = glm::mat3(rotation) * glm::vec3(0.0f, 0.0f, -1.0f);
@@ -193,6 +266,6 @@ void Renderer::buildViewProjectionMatrix(const Camera& camera) const
 
 	glm::mat4 view = glm::lookAt(camera.eye, camera.eye + gaze, up);
 
-	glm::mat4 mvp = projection * view;
+	glm::mat4 mvp = m_projection * view;
 	glUniformMatrix4fv(m_chunkShader.vpMatrix, 1, GL_FALSE, &mvp[0][0]);
 }

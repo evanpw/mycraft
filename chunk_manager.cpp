@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <array>
-#include <boost/timer/timer.hpp>
 #define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -324,6 +323,18 @@ void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
 		PLUS_Z, MINUS_Z
 	};
 
+	// Determine lighting for each face
+	float lighting[6];
+	for (size_t face = 0; face < 6; ++face)
+	{
+		glm::vec3 normal = glm::normalize(cubeMesh[face * 6].normal);
+		glm::vec3 sun = glm::normalize(glm::vec3(-4.0, 2.0, 1.0));
+
+		float diffuse = glm::clamp(std::abs(0.7 * glm::dot(normal, sun)), 0.0, 1.0);
+		float ambient = 0.3;
+		lighting[face] = glm::clamp(diffuse + ambient, 0.0f, 1.0f);
+	}
+
 	// First pass is for opaque blocks
 	mesh->opaqueVertices = 0;
 	for (auto& itr : chunk->blocks())
@@ -348,7 +359,7 @@ void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
 					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
 					copyVector(vertex.texCoord, cubeVertex.position);
 					vertex.texCoord[3] = block->blockType;
-					copyVector(vertex.normal, cubeVertex.normal);
+					vertex.lighting = lighting[face];
 
 					vertices.push_back(vertex);
 					++mesh->opaqueVertices;
@@ -381,7 +392,7 @@ void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
 					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
 					copyVector(vertex.texCoord, cubeVertex.position);
 					vertex.texCoord[3] = block->blockType;
-					copyVector(vertex.normal, cubeVertex.normal);
+					vertex.lighting = lighting[face];
 
 					vertices.push_back(vertex);
 					++mesh->transparentVertices;

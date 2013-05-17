@@ -18,16 +18,22 @@ public:
 	Renderer(const Renderer& other) = delete;
 	Renderer& operator=(const Renderer& other) = delete;
 
-	void render(const Camera& camera, const std::vector<const Mesh*>& meshes, bool underwater);
+	void render(const Camera& camera,
+				const std::vector<const Mesh*>& meshes,
+				bool underwater,
+				BlockLibrary::Tag selected);
 
 	void setSize(int width, int height);
 	int width() const { return m_width; }
 	int height() const { return m_height; }
 
+	const BlockLibrary& blockLibrary() const { return *m_blockLibrary; }
+
 private:
 	void buildViewProjectionMatrix(const Camera& camera) const;
 
 	int m_width, m_height;
+	glm::mat4 m_projection;
 
 	std::unique_ptr<BlockLibrary> m_blockLibrary;
 
@@ -39,7 +45,7 @@ private:
 		GLuint programId;
 
 		// Shader input variables
-		GLint position, texCoord, normal;
+		GLint position, texCoord, lighting;
 
 		// Shader uniform variables
 		GLint modelMatrix, vpMatrix, highlight, textureSampler;
@@ -62,6 +68,22 @@ private:
 		// Stores the vertices of a quad which covers the entire screen.
 		GLuint vbo;
 	} m_tintShader;
+
+	// Shader program for displaying the current selected block
+	void drawBlock(BlockLibrary::Tag blockType);
+	struct
+	{
+		GLuint programId;
+
+		// Input variables
+		GLint position, texCoord;
+
+		// Uniform variables
+		GLint textureSampler, projection, blockType;
+
+		// Stores the block vertices
+		GLuint vbo;
+	} m_blockShader;
 };
 
 #endif

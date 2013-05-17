@@ -9,7 +9,7 @@ struct Vertex
 {
 	GLfloat position[3];
 	GLfloat texCoord[4];
-	GLfloat normal[3];
+	GLfloat lighting;
 };
 
 struct Mesh

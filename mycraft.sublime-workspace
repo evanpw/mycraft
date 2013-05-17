@@ -11,9 +11,13 @@
 	"build_system": "Packages/Makefile/Make.sublime-build",
 	"command_palette":
 	{
-		"height": 110.0,
+		"height": 160.0,
 		"selected_items":
 		[
+			[
+				"bookmark",
+				"Bookmarks: Toggle"
+			],
 			[
 				"lint",
 				"SublimeLinter: Show Error List"
@@ -52,28 +56,38 @@
 	},
 	"file_history":
 	[
-		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
+		"/C/Users/Evan/Workspace/mycraft/chunk_manager.cpp",
+		"/C/Users/Evan/Workspace/mycraft/floating-vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/floating-fragment.glsl",
 		"/C/Users/Evan/Workspace/mycraft/renderer.hpp",
-		"/C/Users/Evan/Workspace/mycraft/tint-vertex.glsl",
-		"/C/Users/Evan/Workspace/mycraft/tint-fragment.glsl",
-		"/C/Users/Evan/Workspace/mycraft/chunk-fragment.glsl",
+		"/C/Users/Evan/Workspace/mycraft/renderer.cpp",
+		"/C/Users/Evan/Workspace/mycraft/cube.hpp",
 		"/C/Users/Evan/Workspace/mycraft/mycraft.cpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
+		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
+		"/C/Users/Evan/Workspace/mycraft/Makefile",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Meal Log.md",
+		"/C/Program Files (x86)/GOG.com/StarTopia/CardID.tom",
+		"/C/Program Files (x86)/GOG.com/StarTopia/StarTopia Patch 1_1 Readme.txt",
+		"/C/Program Files (x86)/GOG.com/StarTopia/your soundcard.txt",
+		"/C/Program Files (x86)/GOG.com/StarTopia/your gfxcard.txt",
+		"/C/Users/Evan/Workspace/mycraft/tint-vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
+		"/C/Users/Evan/Workspace/mycraft/ISSUES",
+		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
+		"/C/Users/Evan/Workspace/mycraft/chunk-vertex.glsl",
+		"/C/Users/Evan/Workspace/mycraft/chunk-fragment.glsl",
+		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Periodicity.text",
+		"/C/Users/Evan/Workspace/mycraft/tint-fragment.glsl",
 		"/C/Users/Evan/Workspace/mycraft/player.hpp",
 		"/C/Users/Evan/Workspace/mycraft/player.cpp",
-		"/C/Users/Evan/Workspace/mycraft/ISSUES",
 		"/C/Users/Evan/Workspace/mycraft/chunk.hpp",
-		"/C/Users/Evan/Workspace/mycraft/chunk.cpp",
-		"/C/Users/Evan/Workspace/mycraft/chunk_manager.cpp",
 		"/C/Users/Evan/Workspace/mycraft/chunk_manager.hpp",
-		"/C/Users/Evan/Workspace/mycraft/mesh.hpp",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Todo.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Waist.csv",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Weight Lifting.text",
 		"/C/Users/Evan/Documents/Dropbox/Progress/Weight.csv",
-		"/C/Users/Evan/Workspace/mycraft/block_library.hpp",
-		"/C/Users/Evan/Workspace/mycraft/block_library.cpp",
-		"/C/Users/Evan/Workspace/mycraft/textures.cpp",
 		"/C/Users/Evan/Workspace/mycraft/vertex.glsl",
 		"/C/Users/Evan/Workspace/mycraft/textures.hpp",
 		"/C/Users/Evan/Documents/Dropbox/Things I Need To Do.text",
@@ -83,7 +97,6 @@
 		"/C/Users/Evan/Workspace/mycraft/mycraft.sublime-project",
 		"/C/Users/Evan/Workspace/mycraft/IDEAS",
 		"/C/Users/Evan/Workspace/mycraft/block.hpp",
-		"/C/Users/Evan/Workspace/mycraft/cube.hpp",
 		"/C/Users/Evan/Workspace/mycraft/cube.cpp",
 		"/C/Users/Evan/Workspace/mycraft/coordinate.hpp",
 		"/C/Users/Evan/Workspace/mycraft/ray_caster.hpp",
@@ -118,7 +131,6 @@
 		"/C/Users/Evan/Downloads/1203.6389v1",
 		"/C/Users/Evan/Downloads/0911.0306v1",
 		"/C/Users/Evan/Downloads/suvaina.tex",
-		"/C/Users/Evan/Workspace/mycraft/Makefile",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.hpp",
 		"/C/Users/Evan/Workspace/mycraft/perlin_noise.cpp",
 		"/C/Users/Evan/Workspace/mycraft/worker.cpp",
@@ -171,15 +183,7 @@
 		"/Y/workspace/thesis/usbthesis.cls.old",
 		"/C/Users/Evan/Workspace/mycraft/shaders.cpp",
 		"/C/Users/Evan/Workspace/mycraft/world.hpp",
-		"/C/Users/Evan/Workspace/mycraft/world.cpp",
-		"/C/Users/Evan/Downloads/usbthesis.cls",
-		"/C/Users/Evan/Workspace/mycraft/world.cpp.bak",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Exercise.csv",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Exercise Regimen.text",
-		"/C/Users/Evan/Workspace/mycraft/Introduction.text",
-		"/C/Users/Evan/Documents/Dropbox/Progress/Reference/Hugo Winners.tex",
-		"/C/Users/Evan/Workspace/mycraft/test.cpp",
-		"/C/Users/Evan/Workspace/mycraft/fragment.glsl"
+		"/C/Users/Evan/Workspace/mycraft/world.cpp"
 	],
 	"find":
 	{
@@ -203,6 +207,8 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"boost",
+			"selectedBlock",
 			"rebuildMesh",
 			"3",
 			"m_",
@@ -328,9 +334,7 @@
 			"-lGL",
 			"-l",
 			"GL library",
-			"GL libraries",
-			"GL liraries",
-			"library"
+			"GL libraries"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -448,6 +452,10 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"block",
+				"block_library.cpp"
+			],
 			[
 				"my",
 				"mycraft.cpp"

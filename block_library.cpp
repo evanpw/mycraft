@@ -92,8 +92,3 @@ void BlockLibrary::buildWaterTextures(const std::string& directory, uint32_t* re
 	for (size_t i = 0; i < 6; ++i)
 		texture.copyTo(&result[i * texturePixels()]);
 }
-
-const BlockType& BlockLibrary::get(Tag tag) const
-{
-	return *m_blockTypes[tag];
-}

@@ -7,11 +7,6 @@
 
 enum Face {SIDE = 0, TOP = 1, BOTTOM = 2};
 
-struct BlockType
-{
-	GLuint texture;
-};
-
 // Keeps track of the properties and textures for the various block types
 class BlockLibrary
 {
@@ -27,9 +22,8 @@ public:
 
 	BlockLibrary();
 
-	const BlockType& get(Tag tag) const;
 	GLuint getTextureArray() const { return m_textureArray; }
-	size_t size() const { return m_blockTypes.size(); }
+	size_t size() const { return 4; }
 
 	size_t textureResolution() const { return m_resolution; }
 	size_t texturePixels() const { return m_resolution * m_resolution; }
@@ -40,7 +34,6 @@ private:
 	void buildWaterTextures(const std::string& directory, uint32_t* result);
 
 	GLuint m_textureArray;
-	std::vector<std::unique_ptr<BlockType>> m_blockTypes;
 	size_t m_resolution;
 };
 
