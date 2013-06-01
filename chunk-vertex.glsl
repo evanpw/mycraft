@@ -1,4 +1,4 @@
-#version 400 core
+#version 150
 
 uniform mat4 vpMatrix;
 uniform vec3 sunPosition;

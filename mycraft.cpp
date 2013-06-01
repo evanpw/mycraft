@@ -85,10 +85,10 @@ void GLFWCALL keyCallback(int key, int action)
 	if (key == 'I' && action == GLFW_PRESS)
 	{
 		const Camera& camera = player->camera();
-        std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
+		std::cout << "Camera location: " << camera.eye.x << ", " << camera.eye.y << ", " << camera.eye.z << std::endl;
 
-        glm::vec3 gaze = camera.gaze();
-        std::cout << "Camera gaze = " << gaze.x << ", " << gaze.y << ", " << gaze.z << std::endl;
+		glm::vec3 gaze = camera.gaze();
+		std::cout << "Camera gaze = " << gaze.x << ", " << gaze.y << ", " << gaze.z << std::endl;
 	}
 	else if (key == 'B' && action == GLFW_PRESS)
 	{
@@ -145,7 +145,8 @@ int main()
 	// Use glfw to open a window
 	glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4); // 4 samples per pixel
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 3);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context

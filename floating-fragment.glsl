@@ -1,4 +1,5 @@
-#version 400
+#version 150
+#extension GL_ARB_texture_cube_map_array : enable
 
 uniform samplerCubeArray textureSampler;
 uniform int blockType;
