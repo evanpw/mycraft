@@ -5,7 +5,8 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-        # TODO
+    	CC=g++    
+    	LDFLAGS+= -lglfw -lGL -lGLEW
     endif
     ifeq ($(UNAME_S),Darwin)
     	CC=g++-4.8
