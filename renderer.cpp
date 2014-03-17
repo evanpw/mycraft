@@ -9,7 +9,7 @@
 #include <array>
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
-#include <gl/glfw.h>
+#include <GL/glfw.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -77,27 +77,32 @@ Renderer::Renderer(int width, int height)
 	m_blockShader.programId = linkShaders(vertexShader, fragmentShader);
 
 	std::vector<GLfloat> blockVertices;
-	for (CubeVertex vertex : cubeMesh)
+	for (size_t face = 0; face < 6; ++face)
 	{
-		glm::vec3 position = vertex.position;
+		for (size_t j = 0; j < 6; ++j)
+		{
+			CubeVertex vertex = cubeMesh[face * 6 + j];		
+	
+			glm::vec3 position = vertex.position;
 
-		// Center at the origin
-		position -= glm::vec3(0.5f);
+			// Center at the origin
+			position -= glm::vec3(0.5f);
 
-		glm::vec3 texCoords = position;
+			// Rotate into a pleasing orientation
+			position = glm::rotateY(position, 45.0f);
+			position = glm::rotateX(position, 15.0f);
 
-		// Rotate into a pleasing orientation
-		position = glm::rotateY(position, 45.0f);
-		position = glm::rotateX(position, 15.0f);
+			// Don't take up the entire screen
+			position.z -= 10.0f;
 
-		// Don't take up the entire screen
-		position.z -= 10.0f;
+			for (size_t i = 0; i < 3; ++i)
+				blockVertices.push_back(position[i]);
 
-		for (size_t i = 0; i < 3; ++i)
-			blockVertices.push_back(position[i]);
+			for (size_t i = 0; i < 2; ++i)
+				blockVertices.push_back(vertex.texCoord[i]);
 
-		for (size_t i = 0; i < 3; ++i)
-			blockVertices.push_back(texCoords[i]);
+			blockVertices.push_back(face);
+		}
 	}
 
 	m_blockShader.position = glGetAttribLocation(m_blockShader.programId, "position");
@@ -156,7 +161,7 @@ void Renderer::render(
 	glUniform1i(m_chunkShader.textureSampler, 0);
 	glUniform2f(m_chunkShader.resolution, m_width, m_height);
 
-	glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, m_blockLibrary->getTextureArray());
+	glBindTexture(GL_TEXTURE_2D_ARRAY, m_blockLibrary->getTextureArray());
 
 	glEnableVertexAttribArray(m_chunkShader.position);
 	glEnableVertexAttribArray(m_chunkShader.texCoord);
@@ -168,7 +173,7 @@ void Renderer::render(
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 		glVertexAttribPointer(m_chunkShader.position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(m_chunkShader.texCoord, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 		glVertexAttribPointer(m_chunkShader.lighting, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, lighting));
 
 		glDrawArrays(GL_TRIANGLES, 0, mesh->opaqueVertices);
@@ -183,7 +188,7 @@ void Renderer::render(
 
 		glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBuffer);
 		glVertexAttribPointer(m_chunkShader.position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-		glVertexAttribPointer(m_chunkShader.texCoord, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+		glVertexAttribPointer(m_chunkShader.texCoord, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 		glVertexAttribPointer(m_chunkShader.lighting, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, lighting));
 
 		glDrawArrays(GL_TRIANGLES, mesh->opaqueVertices, mesh->transparentVertices);

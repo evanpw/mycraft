@@ -5,12 +5,12 @@ uniform vec3 sunPosition;
 uniform float brightness;
 
 in vec3 position;
-in vec4 texCoord;
+in vec3 texCoord;
 in float lighting;
 
 out float fragLighting;
 out float fogFactor;
-out vec4 fragTexCoord;
+out vec3 fragTexCoord;
 
 void main()
 {

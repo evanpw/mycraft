@@ -1,14 +1,14 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
 
 struct Vertex
 {
 	GLfloat position[3];
-	GLfloat texCoord[4];
+	GLfloat texCoord[3];
 	GLfloat lighting;
 };
 

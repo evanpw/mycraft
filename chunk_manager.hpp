@@ -10,12 +10,12 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 class ChunkManager
 {
 public:
-	static const int RENDER_RADIUS = 8;
+	static const int RENDER_RADIUS = 4;
 
 	ChunkManager(int seed);
 

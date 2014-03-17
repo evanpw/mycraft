@@ -1,22 +1,20 @@
 #version 150
-#extension GL_ARB_texture_cube_map_array : enable
 
-uniform samplerCubeArray textureSampler;
+uniform sampler2DArray textureSampler;
 //uniform bool highlight;
 uniform vec2 resolution;
 uniform float brightness;
 
 in float fogFactor;
 in float fragLighting;
-in vec4 fragTexCoord;
+in vec3 fragTexCoord;
 in vec4 gl_FragCoord;
 
 out vec4 fragColor;
 
 void main()
 {
-	vec4 stpq = fragTexCoord - vec4(0.5, 0.5, 0.5, 0);
-	fragColor = vec4(vec3(brightness * fragLighting), 1.0) * texture(textureSampler, stpq);
+	fragColor = vec4(vec3(brightness * fragLighting), 1.0) * texture(textureSampler, fragTexCoord);
 
 	vec3 skyColor = brightness * vec3(0.6f, 0.6f, 1.0f);
 	fragColor = mix(fragColor, vec4(skyColor, 1.0), fogFactor);

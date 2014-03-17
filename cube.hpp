@@ -7,6 +7,7 @@
 struct CubeVertex
 {
 	glm::vec3 position, normal;
+    glm::vec2 texCoord;
 };
 
 extern const std::array<CubeVertex, 36> cubeMesh;

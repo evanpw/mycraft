@@ -5,7 +5,7 @@
 #include "camera.hpp"
 #include "chunk.hpp"
 #include "mesh.hpp"
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <map>
 #include <memory>
 

@@ -357,8 +357,7 @@ void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
 
 					Vertex vertex;
 					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
-					copyVector(vertex.texCoord, cubeVertex.position);
-					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.texCoord, glm::vec3(cubeVertex.texCoord, block->blockType * 6 + face));
 					vertex.lighting = lighting[face];
 
 					vertices.push_back(vertex);
@@ -390,8 +389,7 @@ void ChunkManager::rebuildMesh(const Chunk* chunk, Mesh* mesh)
 
 					Vertex vertex;
 					copyVector(vertex.position, glm::vec3(model * glm::vec4(cubeVertex.position, 1.0)));
-					copyVector(vertex.texCoord, cubeVertex.position);
-					vertex.texCoord[3] = block->blockType;
+					copyVector(vertex.texCoord, glm::vec3(cubeVertex.texCoord, block->blockType * 6 + face));
 					vertex.lighting = lighting[face];
 
 					vertices.push_back(vertex);
