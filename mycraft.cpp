@@ -13,6 +13,7 @@
 #include <cstring>
 #include <ctime>
 #include <iostream>
+#include <numeric>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -90,7 +91,7 @@ void GLFWCALL keyCallback(int key, int action)
 		glm::vec3 gaze = camera.gaze();
 		std::cout << "Camera gaze = " << gaze.x << ", " << gaze.y << ", " << gaze.z << std::endl;
 	}
-	else if (key == 'B' && action == GLFW_PRESS)
+	else if ((key == 'B' || key == GLFW_KEY_TAB) && action == GLFW_PRESS)
 	{
 		selectedBlock = (selectedBlock + 1) % renderer->blockLibrary().size();
 	}
@@ -111,16 +112,17 @@ void GLFWCALL mouseButtonCallback(int button, int action)
 			bool hit = castRay(player->camera(), *chunkManager, targeted, lastOpen);
 			if (hit)
 			{
-				if (button == GLFW_MOUSE_BUTTON_LEFT)
-				{
-					chunkManager->removeBlock(targeted);
-				}
-				else if (button == GLFW_MOUSE_BUTTON_RIGHT)
+				if (button == GLFW_MOUSE_BUTTON_RIGHT ||
+					(button == GLFW_MOUSE_BUTTON_LEFT && glfwGetKey(GLFW_KEY_LSUPER) == GLFW_PRESS))
 				{
 					// Check that the player will not intersect the new block
 					std::vector<Coordinate> locations = player->potentialIntersections();
 					if (std::find(locations.begin(), locations.end(), lastOpen) == locations.end())
 						chunkManager->createBlock(lastOpen, selectedBlock);
+				}
+				else if (button == GLFW_MOUSE_BUTTON_LEFT)
+				{
+					chunkManager->removeBlock(targeted);
 				}
 			}
 		}
@@ -143,7 +145,7 @@ int main()
 	}
 
 	// Use glfw to open a window
-	glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4); // 4 samples per pixel
+	glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
 	glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

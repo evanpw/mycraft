@@ -1,3 +1,4 @@
+CC=g++
 CFLAGS=-g -Wall -Wextra -std=c++11 -isystem /usr/local/include -O2
 LDFLAGS=-lpng -lz
 ifeq ($(OS),Windows_NT)
@@ -5,11 +6,9 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-    	CC=g++    
     	LDFLAGS+= -lglfw -lGL -lGLEW
     endif
     ifeq ($(UNAME_S),Darwin)
-    	CC=g++-4.8
         LDFLAGS+=-lglfw -framework OpenGL -framework Cocoa -framework IOkit -lGLEW
     endif
 endif

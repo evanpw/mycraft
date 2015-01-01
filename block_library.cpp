@@ -7,10 +7,7 @@
 
 BlockLibrary::BlockLibrary()
 {
-	//std::string directory = "Misa500";
-	std::string directory = "Sphax PureBDcraft 256x MC15";
-
-	PngFile png(directory  + "/textures/blocks/" + std::string("dirt.png"));
+	PngFile png("png/textures/blocks/" + std::string("dirt.png"));
 	m_resolution = png.width();
 	assert(png.width() == png.height());
 
@@ -22,12 +19,12 @@ BlockLibrary::BlockLibrary()
 
 	uint32_t* data = new uint32_t[(textureFiles.size() + 6 * 2) * texturePixels()];
 
-	buildGrassTextures(directory, &data[0]);
-	buildWaterTextures(directory, &data[6 * texturePixels()]);
+	buildGrassTextures(&data[0]);
+	buildWaterTextures(&data[6 * texturePixels()]);
 	size_t offset = 6 * 2;
 	for (std::string& fileName : textureFiles)
 	{
-		std::string fullName = directory + "/textures/blocks/" + fileName;
+		std::string fullName = "png/textures/blocks/" + fileName;
 
 		PngFile texture(fullName);
 		assert(m_resolution == texture.width() && m_resolution == texture.height());
@@ -48,9 +45,9 @@ BlockLibrary::BlockLibrary()
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 }
 
-void BlockLibrary::buildGrassTextures(const std::string& directory, uint32_t* result)
+void BlockLibrary::buildGrassTextures(uint32_t* result)
 {
-	std::string prefix = directory + "/textures/blocks/";
+	std::string prefix = "png/textures/blocks/";
 
 	PngFile topTexture(prefix + "grass_top.png");
 	assert(topTexture.width() == m_resolution && topTexture.height() == m_resolution);
@@ -80,9 +77,9 @@ void BlockLibrary::buildGrassTextures(const std::string& directory, uint32_t* re
 	sideTexture.copyTo(&result[5 * texturePixels()]);
 }
 
-void BlockLibrary::buildWaterTextures(const std::string& directory, uint32_t* result)
+void BlockLibrary::buildWaterTextures(uint32_t* result)
 {
-	std::string prefix = directory + "/textures/blocks/";
+	std::string prefix = "png/textures/blocks/";
 
 	PngFile texture(prefix + "water.png");
 	assert(texture.width() == m_resolution && texture.height() >= m_resolution);

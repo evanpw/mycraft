@@ -4,6 +4,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+constexpr float Player::EYE_HEIGHT;
+constexpr float Player::PLAYER_HEIGHT;
+constexpr float Player::WALKING_SPEED;
+constexpr float Player::FLYING_SPEED;
+constexpr float Player::GRAVITY;
+constexpr float Player::AIR_RESISTANCE;
+constexpr float Player::JUMP_VELOCITY;
+
 Player::Player(const ChunkManager& chunkManager, const glm::vec3& initialPosition)
 : m_chunkManager(chunkManager)
 {

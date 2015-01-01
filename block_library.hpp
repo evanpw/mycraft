@@ -30,8 +30,8 @@ public:
 	size_t textureBytes() const { return 4 * texturePixels(); }
 
 private:
-	void buildGrassTextures(const std::string& directory, uint32_t* result);
-	void buildWaterTextures(const std::string& directory, uint32_t* result);
+	void buildGrassTextures(uint32_t* result);
+	void buildWaterTextures(uint32_t* result);
 
 	GLuint m_textureArray;
 	size_t m_resolution;
