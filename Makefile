@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -Wall -Wextra -std=c++11 -isystem /usr/local/include -O2
+CFLAGS=-g -Wall -Wextra -std=c++11 -isystem /usr/local/include -O2 -Ih
 LDFLAGS=-lpng -lz
 ifeq ($(OS),Windows_NT)
     LDFLAGS=-L/usr/local/lib -lglfw -lglu32 -lglew32 -lopengl32
@@ -12,14 +12,14 @@ else
         LDFLAGS+=-lglfw -framework OpenGL -framework Cocoa -framework IOkit -lGLEW
     endif
 endif
-SOURCES=$(wildcard *.cpp)
+SOURCES=$(wildcard src/*.cpp)
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=mycraft
 
 all: $(EXECUTABLE)
 
 clean:
-	rm -f *.o mycraft
+	rm -f src/*.o mycraft
 
 $(EXECUTABLE): $(OBJECTS)
 	echo $(LDFLAGS)

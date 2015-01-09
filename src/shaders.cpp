@@ -4,9 +4,9 @@
 #include <sstream>
 #include <string>
 
-static void readFile(const char* fileName, std::string& buffer)
+static void readFile(const std::string& fileName, std::string& buffer)
 {
-	std::ifstream f(fileName);
+	std::ifstream f("shaders/" + fileName);
 	std::stringstream ss;
 	ss << f.rdbuf();
 
