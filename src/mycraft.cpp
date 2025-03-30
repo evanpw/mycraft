@@ -138,7 +138,6 @@ int main() {
     glfwMakeContextCurrent(window);
 
     // Initialize the OpenGL Extension Wrangler Library
-    glewExperimental = true;  // Needed for OpenGL 3.3+
     if (GLenum result = glewInit(); result != GLEW_OK) {
         std::cerr << "Failed to initialize glew: " << glewGetErrorString(result) << std::endl;
         return 1;
