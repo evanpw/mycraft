@@ -4,9 +4,8 @@
 #include <array>
 #include <glm/glm.hpp>
 
-struct CubeVertex
-{
-	glm::vec3 position, normal;
+struct CubeVertex {
+    glm::vec3 position, normal;
     glm::vec2 texCoord;
 };
 

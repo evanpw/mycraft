@@ -4,14 +4,12 @@
 #include "block_library.hpp"
 #include "coordinate.hpp"
 
-struct Block
-{
-	Block(const Coordinate& location, BlockLibrary::Tag blockType)
-	: location(location), blockType(blockType)
-	{}
+struct Block {
+    Block(const Coordinate& location, BlockLibrary::Tag blockType)
+    : location(location), blockType(blockType) {}
 
-	Coordinate location;
-	BlockLibrary::Tag blockType;
+    Coordinate location;
+    BlockLibrary::Tag blockType;
 };
 
 #endif

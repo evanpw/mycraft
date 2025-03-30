@@ -3,20 +3,14 @@
 
 #include <string>
 
-class TextureException
-{
+class TextureException {
 public:
-	TextureException(const std::string& message)
-	: m_message(message)
-	{}
+    TextureException(const std::string& message) : m_message(message) {}
 
-	const std::string& message() const
-	{
-		return m_message;
-	}
+    const std::string& message() const { return m_message; }
 
 private:
-	std::string m_message;
+    std::string m_message;
 };
 
 #endif

@@ -1,35 +1,34 @@
-#define GLM_SWIZZLE
-#include <glm/glm.hpp>
-
-#include "exceptions.hpp"
+#define GLM_FORCE_SWIZZLE
 #include "textures.hpp"
+
+#include <png.h>
+
 #include <array>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
-#include <png.h>
 
-PngFile::PngFile(const std::string& fileName)
-{
+#include "exceptions.hpp"
+
+PngFile::PngFile(const std::string &fileName) {
     png_structp png_ptr;
     png_infop info_ptr;
     FILE *fp;
 
-    if ((fp = fopen(fileName.c_str(), "rb")) == nullptr)
-    {
+    if ((fp = fopen(fileName.c_str(), "rb")) == nullptr) {
         std::stringstream msg;
         msg << "readPng: Unable to open file: " << fileName << std::endl;
         throw std::runtime_error(msg.str());
     }
 
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-    if (!png_ptr)
-    {
+    if (!png_ptr) {
         std::stringstream msg;
         msg << "readPng: Unable to create read_struct" << std::endl;
         fclose(fp);
@@ -37,8 +36,7 @@ PngFile::PngFile(const std::string& fileName)
     }
 
     info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr)
-    {
+    if (!info_ptr) {
         std::stringstream msg;
         msg << "readPng: Unable to create info struct" << std::endl;
         fclose(fp);
@@ -46,8 +44,7 @@ PngFile::PngFile(const std::string& fileName)
         throw std::runtime_error(msg.str());
     }
 
-    if (setjmp(png_jmpbuf(png_ptr)))
-    {
+    if (setjmp(png_jmpbuf(png_ptr))) {
         std::stringstream msg;
         msg << "Error calling setjmp" << std::endl;
         fclose(fp);
@@ -67,20 +64,14 @@ PngFile::PngFile(const std::string& fileName)
     assert(bitDepth == 8 && (channels == 4 || channels == 3));
 
     png_bytepp row_pointers = png_get_rows(png_ptr, info_ptr);
-    if (channels == 4)
-    {
-        for (size_t i = 0; i < m_height; ++i)
-        {
+    if (channels == 4) {
+        for (size_t i = 0; i < m_height; ++i) {
             memcpy(&m_data[i * m_width], row_pointers[i], m_width * sizeof(uint32_t));
         }
-    }
-    else if (channels == 3)
-    {
-        for (size_t i = 0; i < m_height; ++i)
-        {
-            for (size_t j = 0; j < m_width; ++j)
-            {
-                uint32_t color = *reinterpret_cast<uint32_t*>(&row_pointers[i][3 * j]);
+    } else if (channels == 3) {
+        for (size_t i = 0; i < m_height; ++i) {
+            for (size_t j = 0; j < m_width; ++j) {
+                uint32_t color = *reinterpret_cast<uint32_t *>(&row_pointers[i][3 * j]);
 
                 // The upper byte actually comes from a different pixel. Just set the
                 // alpha to full
@@ -94,61 +85,52 @@ PngFile::PngFile(const std::string& fileName)
     fclose(fp);
 }
 
-glm::vec4 split(uint32_t color)
-{
+glm::vec4 split(uint32_t color) {
     uint8_t a = (color & 0xFF000000) >> 24;
     uint8_t b = (color & 0xFF0000) >> 16;
     uint8_t g = (color & 0xFF00) >> 8;
     uint8_t r = (color & 0xFF);
 
-    return glm::vec4(r, g, b, a) / 255.0;
+    return glm::vec4(r, g, b, a) / 255.0f;
 }
 
-uint32_t unsplit(const glm::vec4& color)
-{
-    glm::ivec4 scaled(255.0 * color);
+uint32_t unsplit(const glm::vec4 &color) {
+    glm::ivec4 scaled(255.0f * color);
     return (scaled.a << 24) + (scaled.b << 16) + (scaled.g << 8) + scaled.r;
 }
 
-glm::vec4 blend(glm::vec4 source, glm::vec4 dest)
-{
+glm::vec4 blend(glm::vec4 source, glm::vec4 dest) {
     glm::vec4 result;
 
     result.a = source.a + dest.a * (1 - source.a);
-    if (result.a == 0.0f)
-        return glm::vec4(0.0f);
+    if (result.a == 0.0f) return glm::vec4(0.0f);
 
-    result.rgb = (source.a * source.rgb + dest.a * dest.rgb * (1 - source.a)) / result.a;
+    result = glm::vec4((source.a * source.rgb() + dest.a * dest.rgb() * (1 - source.a)) / result.a,
+                       result.a);
     return result;
 }
 
-void PngFile::tint(const glm::vec3& color)
-{
+void PngFile::tint(const glm::vec3 &color) {
     // Colorize the top texture
-    for (size_t i = 0; i < m_width * m_height; ++i)
-    {
+    for (size_t i = 0; i < m_width * m_height; ++i) {
         glm::vec4 pixel = split(m_data[i]);
         pixel *= glm::vec4(color, 1.0);
         m_data[i] = unsplit(pixel);
     }
 }
 
-void PngFile::overlayWith(const PngFile& other)
-{
+void PngFile::overlayWith(const PngFile &other) {
     assert(width() == other.width() && height() == other.height());
 
-    uint32_t* otherBuffer = other.buffer();
+    uint32_t *otherBuffer = other.buffer();
 
-    for (size_t i = 0; i < m_width * m_height; ++i)
-    {
+    for (size_t i = 0; i < m_width * m_height; ++i) {
         glm::vec4 myColor = split(m_data[i]);
         glm::vec4 otherColor = split(otherBuffer[i]);
         m_data[i] = unsplit(blend(myColor, otherColor));
     }
-
 }
 
-void PngFile::copyTo(uint32_t* buffer)
-{
+void PngFile::copyTo(uint32_t *buffer) {
     memcpy(buffer, m_data.get(), sizeof(uint32_t) * m_width * m_height);
 }

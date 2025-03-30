@@ -3,20 +3,19 @@
 
 #include <glm/glm.hpp>
 
-struct Camera
-{
-	Camera() : horizontalAngle(0), verticalAngle(0) {}
+struct Camera {
+    Camera() : horizontalAngle(0), verticalAngle(0) {}
 
-	glm::vec3 gaze() const;
+    glm::vec3 gaze() const;
 
-	// Camera location in world coordinates
-	glm::vec3 eye;
+    // Camera location in world coordinates
+    glm::vec3 eye;
 
-	// Camera rotation about the y-axis
-	float horizontalAngle;
+    // Camera rotation about the y-axis
+    float horizontalAngle;
 
-	// Camera rotation about the x-axis
-	float verticalAngle;
+    // Camera rotation about the x-axis
+    float verticalAngle;
 };
 
 #endif

@@ -1,42 +1,42 @@
 #include "block_library.hpp"
-#include "textures.hpp"
+
 #include <array>
 #include <cstring>
-#include <iostream>
 #include <glm/glm.hpp>
+#include <iostream>
 
-BlockLibrary::BlockLibrary()
-{
-	PngFile png("png/textures/blocks/" + std::string("dirt.png"));
-	m_resolution = png.width();
-	assert(png.width() == png.height());
+#include "textures.hpp"
 
-	std::vector<std::string> textureFiles =
-	{
-		"dirt.png", "dirt.png", "dirt.png", "dirt.png", "dirt.png", "dirt.png",
-		"stone.png", "stone.png", "stone.png", "stone.png", "stone.png", "stone.png",
-	};
+BlockLibrary::BlockLibrary() {
+    PngFile png("png/textures/blocks/" + std::string("dirt.png"));
+    m_resolution = png.width();
+    assert(png.width() == png.height());
 
-	uint32_t* data = new uint32_t[(textureFiles.size() + 6 * 2) * texturePixels()];
+    std::vector<std::string> textureFiles = {
+        "dirt.png",  "dirt.png",  "dirt.png",  "dirt.png",  "dirt.png",  "dirt.png",
+        "stone.png", "stone.png", "stone.png", "stone.png", "stone.png", "stone.png",
+    };
 
-	buildGrassTextures(&data[0]);
-	buildWaterTextures(&data[6 * texturePixels()]);
-	size_t offset = 6 * 2;
-	for (std::string& fileName : textureFiles)
-	{
-		std::string fullName = "png/textures/blocks/" + fileName;
+    uint32_t* data = new uint32_t[(textureFiles.size() + 6 * 2) * texturePixels()];
 
-		PngFile texture(fullName);
-		assert(m_resolution == texture.width() && m_resolution == texture.height());
-		texture.copyTo(&data[offset * texturePixels()]);
+    buildGrassTextures(&data[0]);
+    buildWaterTextures(&data[6 * texturePixels()]);
+    size_t offset = 6 * 2;
+    for (std::string& fileName : textureFiles) {
+        std::string fullName = "png/textures/blocks/" + fileName;
 
-		++offset;
-	}
+        PngFile texture(fullName);
+        assert(m_resolution == texture.width() && m_resolution == texture.height());
+        texture.copyTo(&data[offset * texturePixels()]);
 
-	// Upload the texture data en masse
+        ++offset;
+    }
+
+    // Upload the texture data en masse
     glGenTextures(1, &m_textureArray);
     glBindTexture(GL_TEXTURE_2D_ARRAY, m_textureArray);
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, m_resolution, m_resolution, textureFiles.size() + 6 * 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, m_resolution, m_resolution,
+                 textureFiles.size() + 6 * 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -45,47 +45,44 @@ BlockLibrary::BlockLibrary()
     glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
 }
 
-void BlockLibrary::buildGrassTextures(uint32_t* result)
-{
-	std::string prefix = "png/textures/blocks/";
+void BlockLibrary::buildGrassTextures(uint32_t* result) {
+    std::string prefix = "png/textures/blocks/";
 
-	PngFile topTexture(prefix + "grass_top.png");
-	assert(topTexture.width() == m_resolution && topTexture.height() == m_resolution);
+    PngFile topTexture(prefix + "grass_top.png");
+    assert(topTexture.width() == m_resolution && topTexture.height() == m_resolution);
 
-	PngFile bottomTexture(prefix + "dirt.png");
-	assert(bottomTexture.width() == m_resolution && bottomTexture.height() == m_resolution);
+    PngFile bottomTexture(prefix + "dirt.png");
+    assert(bottomTexture.width() == m_resolution && bottomTexture.height() == m_resolution);
 
-	PngFile sideTexture(prefix + "grass_side.png");
-	assert(sideTexture.width() == m_resolution && sideTexture.height() == m_resolution);
+    PngFile sideTexture(prefix + "grass_side.png");
+    assert(sideTexture.width() == m_resolution && sideTexture.height() == m_resolution);
 
-	PngFile overlayTexture(prefix + "grass_side_overlay.png");
-	assert(overlayTexture.width() == m_resolution && overlayTexture.height() == m_resolution);
+    PngFile overlayTexture(prefix + "grass_side_overlay.png");
+    assert(overlayTexture.width() == m_resolution && overlayTexture.height() == m_resolution);
 
-	// All of the grass will be tinted with this color
-	glm::vec3 grassGreen(0.57, 0.9, 0.30);
+    // All of the grass will be tinted with this color
+    glm::vec3 grassGreen(0.57, 0.9, 0.30);
 
-	topTexture.tint(grassGreen);
-	overlayTexture.tint(grassGreen);
-	sideTexture.overlayWith(overlayTexture);
+    topTexture.tint(grassGreen);
+    overlayTexture.tint(grassGreen);
+    sideTexture.overlayWith(overlayTexture);
 
-	// Copy into the final locations
-	sideTexture.copyTo(&result[0 * texturePixels()]);
-	sideTexture.copyTo(&result[1 * texturePixels()]);
-	topTexture.copyTo(&result[2 * texturePixels()]);
-	bottomTexture.copyTo(&result[3 * texturePixels()]);
-	sideTexture.copyTo(&result[4 * texturePixels()]);
-	sideTexture.copyTo(&result[5 * texturePixels()]);
+    // Copy into the final locations
+    sideTexture.copyTo(&result[0 * texturePixels()]);
+    sideTexture.copyTo(&result[1 * texturePixels()]);
+    topTexture.copyTo(&result[2 * texturePixels()]);
+    bottomTexture.copyTo(&result[3 * texturePixels()]);
+    sideTexture.copyTo(&result[4 * texturePixels()]);
+    sideTexture.copyTo(&result[5 * texturePixels()]);
 }
 
-void BlockLibrary::buildWaterTextures(uint32_t* result)
-{
-	std::string prefix = "png/textures/blocks/";
+void BlockLibrary::buildWaterTextures(uint32_t* result) {
+    std::string prefix = "png/textures/blocks/";
 
-	PngFile texture(prefix + "water.png");
-	assert(texture.width() == m_resolution && texture.height() >= m_resolution);
+    PngFile texture(prefix + "water.png");
+    assert(texture.width() == m_resolution && texture.height() >= m_resolution);
 
-	texture.cropHeight(m_resolution);
+    texture.cropHeight(m_resolution);
 
-	for (size_t i = 0; i < 6; ++i)
-		texture.copyTo(&result[i * texturePixels()]);
+    for (size_t i = 0; i < 6; ++i) texture.copyTo(&result[i * texturePixels()]);
 }
