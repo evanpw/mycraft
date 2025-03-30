@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-g -Wall -Wextra -std=c++11 -isystem /usr/local/include -O2 -Ih
+CFLAGS=-g -Wall -Wextra -std=c++17 -isystem /usr/local/include -O2 -Ih
 LDFLAGS=-lpng -lz
 ifeq ($(OS),Windows_NT)
     LDFLAGS=-L/usr/local/lib -lglfw -lglu32 -lglew32 -lopengl32

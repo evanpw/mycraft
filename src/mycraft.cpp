@@ -25,8 +25,8 @@
 #include "renderer.hpp"
 #include "shaders.hpp"
 
-const int INITIAL_WIDTH = 640;
-const int INITIAL_HEIGHT = 480;
+const int INITIAL_WIDTH = 1920;
+const int INITIAL_HEIGHT = 1080;
 
 class FpsCounter {
 public:
@@ -106,7 +106,6 @@ void mouseButtonCallback(GLFWwindow *window, int button, int action, int /*mods*
                 }
             }
         } else {
-            std::cout << "capturing mouse" << std::endl;
             mouseCaptured = true;
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             glfwGetCursorPos(window, &lastMouse.x, &lastMouse.y);
@@ -199,11 +198,8 @@ int main() {
             glfwGetCursorPos(window, &currentMouse.x, &currentMouse.y);
 
             if (currentMouse != lastMouse) {
-                std::cout << "mouse.x: " << lastMouse.x << " -> " << currentMouse.x << ", "
-                          << "mouse.y: " << lastMouse.y << " -> " << currentMouse.y << std::endl;
-
                 player->turnRight(rotationSpeed * (currentMouse.x - lastMouse.x));
-                // player->tiltUp(rotationSpeed * (currentMouse.y - lastMouse.y));
+                player->tiltUp(rotationSpeed * (currentMouse.y - lastMouse.y));
                 lastMouse = currentMouse;
             }
         }
